@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>开始对弈 - 围棋对练复盘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .setup-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .setup-card {
+      max-width: 500px;
+      width: 100%;
+    }
+    .setup-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .setup-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .setup-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .setup-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .setup-actions .btn {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="setup-page">
+    <div class="card setup-card">
+      <div class="setup-header">
+        <div class="logo-icon" style="margin: 0 auto 16px; width: 50px; height: 50px;"></div>
+        <h2 class="setup-title">开始对弈</h2>
+        <p class="setup-subtitle">选择棋盘大小和对手</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">选择棋盘大小</label>
+        <div class="board-size-options">
+          <button type="button" class="board-size-option" data-size="9">
+            <span class="size-number">9</span>
+            <span class="size-label">路棋盘</span>
+          </button>
+          <button type="button" class="board-size-option active" data-size="13">
+            <span class="size-number">13</span>
+            <span class="size-label">路棋盘</span>
+          </button>
+          <button type="button" class="board-size-option" data-size="19">
+            <span class="size-number">19</span>
+            <span class="size-label">路棋盘</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">黑方选手</label>
+        <div class="player-input-group">
+          <span class="player-indicator black"></span>
+          <input type="text" id="blackPlayer" placeholder="输入黑方名称" maxlength="10">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">白方选手</label>
+        <div class="player-input-group">
+          <span class="player-indicator white"></span>
+          <input type="text" id="whitePlayer" placeholder="输入白方名称" maxlength="10">
+        </div>
+      </div>
+
+      <div class="setup-actions">
+        <a href="home.html" class="btn btn-secondary">取消</a>
+        <button type="button" class="btn btn-primary" id="startGameBtn">开始游戏</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script>
+    // 棋盘大小选择
+    document.querySelectorAll('.board-size-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.board-size-option').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // 开始游戏
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+      const size = parseInt(document.querySelector('.board-size-option.active').dataset.size);
+      const blackPlayer = document.getElementById('blackPlayer').value.trim();
+      const whitePlayer = document.getElementById('whitePlayer').value.trim();
+
+      // 保存游戏设置到 sessionStorage
+      sessionStorage.setItem('go_game_settings', JSON.stringify({
+        size,
+        blackPlayer: blackPlayer || '黑方',
+        whitePlayer: whitePlayer || '白方'
+      }));
+
+      window.location.href = 'game.html';
+    });
+  </script>
+</body>
+</html>

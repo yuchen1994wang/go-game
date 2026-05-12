@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>复盘 - 围棋对练复盘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .review-page { display: flex; flex-direction: column; min-height: 100vh; }
+
+    header {
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; }
+
+    .game-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.9rem;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg-secondary);
+      border-radius: 16px;
+    }
+
+    .meta-label { color: var(--text-secondary); font-size: 0.8rem; }
+    .meta-value { font-weight: 500; }
+
+    main {
+      flex: 1;
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .board-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .board-wrapper {
+      position: relative;
+      background: linear-gradient(145deg, var(--board-wood-light) 0%, var(--board-wood) 50%, var(--board-dark) 100%);
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: var(--shadow-medium);
+    }
+
+    .goban {
+      position: relative;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+      border-radius: 4px;
+    }
+
+    .board-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .grid-line { stroke: var(--line-color); stroke-width: 1; opacity: 0.7; }
+    .star-point { fill: var(--line-color); }
+
+    .intersection {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .stone {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      position: absolute;
+      z-index: 20;
+    }
+
+    .stone.black {
+      background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%);
+      box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .stone.white {
+      background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%);
+      box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .stone.last-move::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+    }
+
+    .stone-number {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .stone-number.black-text { color: rgba(255,255,255,0.9); }
+    .stone-number.white-text { color: rgba(0,0,0,0.7); }
+
+    /* AI复盘面板 - 可折叠 */
+    .ai-review-panel {
+      width: 100%;
+      max-width: 600px;
+      background: var(--panel-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .ai-review-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #D4A017 100%);
+      color: white;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .ai-review-header:hover { opacity: 0.95; }
+
+    .ai-review-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ai-review-toggle {
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .ai-review-panel.collapsed .ai-review-toggle {
+      transform: rotate(-90deg);
+    }
+
+    .ai-review-body {
+      max-height: 400px;
+      overflow-y: auto;
+      transition: max-height 0.3s ease;
+    }
+
+    .ai-review-panel.collapsed .ai-review-body {
+      max-height: 0;
+    }
+
+    .ai-review-content {
+      padding: 16px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+    }
+
+    .ai-review-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px;
+      color: var(--text-secondary);
+    }
+
+    .control-panel {
+      width: 360px;
+      background: var(--panel-bg);
+      border-radius: 16px;
+      box-shadow: var(--shadow-medium);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-height: calc(100vh - 140px);
+    }
+
+    .panel-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-section:last-child { border-bottom: none; }
+
+    .panel-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .timeline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .timeline-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: var(--bg-secondary);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .timeline-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: var(--accent-gold);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .timeline-info {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-buttons .btn {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+    }
+
+    .move-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .move-item {
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .move-item:hover { background: var(--board-wood-light); }
+    .move-item.active { background: var(--accent-gold); color: white; }
+    .move-item.active .move-num { color: rgba(255,255,255,0.8); }
+
+    .move-num {
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+      min-width: 24px;
+    }
+
+    .move-stone {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .move-stone.black { background: var(--stone-black); }
+    .move-stone.white { background: var(--stone-white); border: 1px solid var(--stone-white-shadow); }
+
+    .move-rating {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .rating-excellent { background: #E8F5E9; color: #2E7D32; }
+    .rating-good { background: #E3F2FD; color: #1565C0; }
+    .rating-ok { background: #FFF3E0; color: #E65100; }
+    .rating-bad { background: #FFEBEE; color: #C62828; }
+
+    .move-detail {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    .move-detail-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .move-detail-content {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+
+    .move-detail-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .score-positive { color: #2E7D32; }
+    .score-negative { color: #C62828; }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-group .btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--bg-secondary);
+      border-top-color: var(--accent-gold);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      main { flex-direction: column; }
+      .control-panel { width: 100%; max-height: none; }
+      .ai-review-panel { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="review-page">
+    <header>
+      <div class="header-left">
+        <a href="home.html" class="logo">
+          <div class="logo-icon"></div>
+          <h1>围棋对练</h1>
+        </a>
+        <div class="game-meta">
+          <div class="meta-item">
+            <span class="player-indicator black"></span>
+            <span class="meta-value" id="blackPlayerName">黑方</span>
+          </div>
+          <div class="meta-item">
+            <span class="player-indicator white"></span>
+            <span class="meta-value" id="whitePlayerName">白方</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">棋盘</span>
+            <span class="meta-value" id="boardSize">13路</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">手数</span>
+            <span class="meta-value" id="moveCount">0手</span>
+          </div>
+        </div>
+      </div>
+      <a href="home.html" class="btn btn-secondary">返回首页</a>
+    </header>
+
+    <main>
+      <section class="board-section">
+        <div class="board-wrapper">
+          <div class="goban" id="goban"></div>
+        </div>
+
+        <!-- AI复盘面板 - 可折叠 -->
+        <div class="ai-review-panel" id="aiReviewPanel">
+          <div class="ai-review-header" id="aiReviewHeader">
+            <div class="ai-review-title">
+              <span>🤖</span>
+              <span>AI复盘</span>
+            </div>
+            <span class="ai-review-toggle" id="aiReviewToggle">▼</span>
+          </div>
+          <div class="ai-review-body" id="aiReviewBody">
+            <div class="ai-review-content" id="aiReviewContent">
+              <div class="ai-review-loading">
+                <div class="spinner"></div>
+                <span>AI分析中...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="control-panel">
+        <div class="panel-section">
+          <h3 class="panel-title">回放控制</h3>
+          <div class="timeline">
+            <input type="range" class="timeline-slider" id="timelineSlider" min="0" max="0" value="0">
+            <span class="timeline-info" id="timelineInfo">0/0</span>
+          </div>
+          <div class="nav-buttons">
+            <button class="btn btn-secondary" id="firstBtn">⏮ 首手</button>
+            <button class="btn btn-secondary" id="prevBtn">◀ 上一手</button>
+            <button class="btn btn-secondary" id="nextBtn">下一手 ▶</button>
+            <button class="btn btn-secondary" id="lastBtn">末手 ⏭</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="panel-title">手数列表</h3>
+          <div class="move-list" id="moveList"></div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="panel-title">当前手评分</h3>
+          <div class="btn-group">
+            <button class="btn btn-secondary" id="rateMoveBtn">评价这手</button>
+          </div>
+        </div>
+
+        <div class="panel-section" id="moveDetailSection" style="display: none;">
+          <h3 class="panel-title">评分详情</h3>
+          <div class="move-detail">
+            <div class="move-detail-title">
+              <span id="detailMoveNum">第1手</span>
+              <span class="move-detail-score" id="detailScore"></span>
+            </div>
+            <div class="move-detail-content" id="detailContent"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script>
+    class ReviewApp {
+      constructor() {
+        this.game = null;
+        this.cellSize = 40;
+        this.boardPadding = 30;
+        this.currentStep = 0;
+        this.gameId = null;
+        this.moveRatings = {};
+        this.aiReviewResult = '';
+        this.init();
+      }
+
+      init() {
+        const params = new URLSearchParams(window.location.search);
+        this.gameId = parseInt(params.get('id'));
+
+        if (!this.gameId) {
+          showToast('未找到棋局信息', 'error');
+          setTimeout(() => window.location.href = 'home.html', 1500);
+          return;
+        }
+
+        const history = Storage.getHistory();
+        const gameData = history.find(g => g.id === this.gameId);
+
+        if (!gameData) {
+          showToast('棋局不存在', 'error');
+          setTimeout(() => window.location.href = 'home.html', 1500);
+          return;
+        }
+
+        this.game = new GoGame(gameData.size);
+        this.game.setPlayerNames(gameData.blackPlayer, gameData.whitePlayer);
+        this.game.blackTime = gameData.blackTime || 0;
+        this.game.whiteTime = gameData.whiteTime || 0;
+
+        for (const move of gameData.moveHistory) {
+          if (move.pass) {
+            this.game.pass();
+          } else {
+            this.game.play(move.x, move.y, move.comment || '');
+          }
+        }
+
+        this.game.isReviewMode = true;
+        this.game.isGameOver = true;
+
+        if (gameData.moveRatings) {
+          this.moveRatings = gameData.moveRatings;
+        }
+
+        if (gameData.aiReviewResult) {
+          this.aiReviewResult = gameData.aiReviewResult;
+        }
+
+        document.getElementById('blackPlayerName').textContent = this.game.blackPlayer;
+        document.getElementById('whitePlayerName').textContent = this.game.whitePlayer;
+        document.getElementById('boardSize').textContent = `${this.game.size}路`;
+        document.getElementById('moveCount').textContent = `${this.game.moveHistory.length}手`;
+
+        const slider = document.getElementById('timelineSlider');
+        slider.max = this.game.moveHistory.length;
+        slider.value = this.game.moveHistory.length;
+        this.currentStep = this.game.moveHistory.length;
+
+        this.renderBoard();
+        this.updateBoard();
+        this.updateMoveList();
+        this.updateTimelineInfo();
+        this.bindEvents();
+
+        // 如果有已保存的AI复盘结果，直接展示；否则自动触发
+        if (this.aiReviewResult) {
+          document.getElementById('aiReviewContent').innerHTML = this.aiReviewResult.replace(/\n/g, '<br>');
+        } else {
+          this.aiReview();
+        }
+      }
+
+      renderBoard() {
+        const goban = document.getElementById('goban');
+        const size = this.game.size;
+        const boardSize = this.cellSize * (size - 1) + this.boardPadding * 2;
+
+        goban.style.width = `${boardSize}px`;
+        goban.style.height = `${boardSize}px`;
+        goban.innerHTML = '';
+
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('class', 'board-grid');
+        svg.setAttribute('width', boardSize);
+        svg.setAttribute('height', boardSize);
+        svg.setAttribute('viewBox', `0 0 ${boardSize} ${boardSize}`);
+
+        for (let i = 0; i < size; i++) {
+          const pos = this.boardPadding + i * this.cellSize;
+
+          const hLine = document.createElementNS(svgNS, 'line');
+          hLine.setAttribute('class', 'grid-line');
+          hLine.setAttribute('x1', this.boardPadding);
+          hLine.setAttribute('y1', pos);
+          hLine.setAttribute('x2', boardSize - this.boardPadding);
+          hLine.setAttribute('y2', pos);
+          svg.appendChild(hLine);
+
+          const vLine = document.createElementNS(svgNS, 'line');
+          vLine.setAttribute('class', 'grid-line');
+          vLine.setAttribute('x1', pos);
+          vLine.setAttribute('y1', this.boardPadding);
+          vLine.setAttribute('x2', pos);
+          vLine.setAttribute('y2', boardSize - this.boardPadding);
+          svg.appendChild(vLine);
+        }
+
+        const starPoints = this.getStarPoints(size);
+        starPoints.forEach(([x, y]) => {
+          const circle = document.createElementNS(svgNS, 'circle');
+          circle.setAttribute('class', 'star-point');
+          circle.setAttribute('cx', this.boardPadding + x * this.cellSize);
+          circle.setAttribute('cy', this.boardPadding + y * this.cellSize);
+          circle.setAttribute('r', size === 9 ? 4 : 3);
+          svg.appendChild(circle);
+        });
+
+        goban.appendChild(svg);
+
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const intersection = document.createElement('div');
+            intersection.className = 'intersection';
+            intersection.dataset.x = x;
+            intersection.dataset.y = y;
+            intersection.style.left = `${this.boardPadding + x * this.cellSize}px`;
+            intersection.style.top = `${this.boardPadding + y * this.cellSize}px`;
+            goban.appendChild(intersection);
+          }
+        }
+      }
+
+      getStarPoints(size) {
+        const points = [];
+        if (size === 9) {
+          points.push([2, 2], [2, 6], [4, 4], [6, 2], [6, 6]);
+        } else if (size === 13) {
+          for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+              points.push([3 + i * 3, 3 + j * 3]);
+            }
+          }
+        } else {
+          for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+              points.push([3 + i * 6, 3 + j * 6]);
+            }
+          }
+        }
+        return points;
+      }
+
+      updateBoard() {
+        const intersections = document.querySelectorAll('.intersection');
+        intersections.forEach(int => {
+          int.querySelectorAll('.stone, .stone-number').forEach(s => s.remove());
+        });
+
+        const board = this.game.getBoardForReview(this.currentStep);
+
+        for (let y = 0; y < this.game.size; y++) {
+          for (let x = 0; x < this.game.size; x++) {
+            if (board[y][x] !== 0) {
+              const intersection = document.querySelector(`.intersection[data-x="${x}"][data-y="${y}"]`);
+              const stone = document.createElement('div');
+              stone.className = `stone ${board[y][x] === 1 ? 'black' : 'white'}`;
+
+              if (this.currentStep > 0) {
+                const lastMove = this.game.moveHistory[this.currentStep - 1];
+                if (lastMove && !lastMove.pass && lastMove.x === x && lastMove.y === y) {
+                  stone.classList.add('last-move');
+                }
+              }
+
+              intersection.appendChild(stone);
+            }
+          }
+        }
+      }
+
+      updateMoveList() {
+        const moveList = document.getElementById('moveList');
+        moveList.innerHTML = '';
+
+        this.game.moveHistory.forEach((move, index) => {
+          const item = document.createElement('div');
+          item.className = 'move-item';
+          if (index + 1 === this.currentStep) {
+            item.classList.add('active');
+          }
+
+          const num = document.createElement('span');
+          num.className = 'move-num';
+          num.textContent = index + 1;
+
+          const stone = document.createElement('span');
+          stone.className = `move-stone ${move.player === 1 ? 'black' : 'white'}`;
+
+          const coord = document.createElement('span');
+          coord.textContent = move.pass ? 'Pass' : `${String.fromCharCode(65 + move.x)}${this.game.size - move.y}`;
+
+          item.appendChild(num);
+          item.appendChild(stone);
+          item.appendChild(coord);
+
+          if (this.moveRatings[index]) {
+            const rating = document.createElement('span');
+            rating.className = 'move-rating';
+            const score = this.moveRatings[index].score;
+            rating.textContent = score > 0 ? `+${score}` : score;
+
+            if (score >= 50) rating.classList.add('rating-excellent');
+            else if (score >= 20) rating.classList.add('rating-good');
+            else if (score >= 0) rating.classList.add('rating-ok');
+            else rating.classList.add('rating-bad');
+
+            item.appendChild(rating);
+          }
+
+          item.addEventListener('click', () => {
+            this.currentStep = index + 1;
+            this.updateBoard();
+            this.updateMoveList();
+            this.updateTimelineInfo();
+            this.showMoveDetail(index);
+          });
+
+          moveList.appendChild(item);
+        });
+
+        const activeItem = moveList.querySelector('.move-item.active');
+        if (activeItem) {
+          activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+
+      updateTimelineInfo() {
+        document.getElementById('timelineInfo').textContent = `${this.currentStep}/${this.game.moveHistory.length}`;
+        document.getElementById('timelineSlider').value = this.currentStep;
+      }
+
+      showMoveDetail(moveIndex) {
+        const move = this.game.moveHistory[moveIndex];
+        if (!move || move.pass) {
+          document.getElementById('moveDetailSection').style.display = 'none';
+          return;
+        }
+
+        document.getElementById('moveDetailSection').style.display = 'block';
+        document.getElementById('detailMoveNum').textContent = `第${moveIndex + 1}手`;
+
+        const scoreEl = document.getElementById('detailScore');
+        const contentEl = document.getElementById('detailContent');
+
+        if (this.moveRatings[moveIndex]) {
+          const rating = this.moveRatings[moveIndex];
+          scoreEl.textContent = rating.score > 0 ? `+${rating.score}` : rating.score;
+          scoreEl.className = 'move-detail-score ' + (rating.score >= 0 ? 'score-positive' : 'score-negative');
+          contentEl.innerHTML = `<p>${rating.analysis}</p>`;
+          if (rating.suggestion) {
+            contentEl.innerHTML += `<p style="margin-top:8px;color:var(--accent-gold)">💡 建议：${rating.suggestion}</p>`;
+          }
+        } else {
+          scoreEl.textContent = '';
+          contentEl.innerHTML = '<p style="color:var(--text-secondary)">暂无评分，点击"评分当前手"按钮获取AI评价</p>';
+        }
+      }
+
+      bindEvents() {
+        document.getElementById('timelineSlider').addEventListener('input', (e) => {
+          this.currentStep = parseInt(e.target.value);
+          this.updateBoard();
+          this.updateMoveList();
+          this.updateTimelineInfo();
+        });
+
+        document.getElementById('firstBtn').addEventListener('click', () => {
+          this.currentStep = 0;
+          this.updateBoard();
+          this.updateMoveList();
+          this.updateTimelineInfo();
+          document.getElementById('moveDetailSection').style.display = 'none';
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+          if (this.currentStep > 0) {
+            this.currentStep--;
+            this.updateBoard();
+            this.updateMoveList();
+            this.updateTimelineInfo();
+            if (this.currentStep > 0) {
+              this.showMoveDetail(this.currentStep - 1);
+            } else {
+              document.getElementById('moveDetailSection').style.display = 'none';
+            }
+          }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+          if (this.currentStep < this.game.moveHistory.length) {
+            this.currentStep++;
+            this.updateBoard();
+            this.updateMoveList();
+            this.updateTimelineInfo();
+            this.showMoveDetail(this.currentStep - 1);
+          }
+        });
+
+        document.getElementById('lastBtn').addEventListener('click', () => {
+          this.currentStep = this.game.moveHistory.length;
+          this.updateBoard();
+          this.updateMoveList();
+          this.updateTimelineInfo();
+          if (this.currentStep > 0) {
+            this.showMoveDetail(this.currentStep - 1);
+          }
+        });
+
+        document.getElementById('rateMoveBtn').addEventListener('click', () => this.rateCurrentMove());
+
+        // AI复盘面板折叠/展开
+        document.getElementById('aiReviewHeader').addEventListener('click', () => {
+          const panel = document.getElementById('aiReviewPanel');
+          panel.classList.toggle('collapsed');
+          const toggle = document.getElementById('aiReviewToggle');
+          toggle.textContent = panel.classList.contains('collapsed') ? '▶' : '▼';
+        });
+      }
+
+      async aiReview() {
+        const content = document.getElementById('aiReviewContent');
+        content.innerHTML = '<div class="ai-review-loading"><div class="spinner"></div><span>AI分析中...</span></div>';
+
+        try {
+          const analysis = await AIAnalyzer.analyze(this.game);
+          this.aiReviewResult = analysis;
+          content.innerHTML = analysis.replace(/\n/g, '<br>');
+
+          // 保存AI复盘结果到历史记录
+          const history = Storage.getHistory();
+          const gameIndex = history.findIndex(g => g.id === this.gameId);
+          if (gameIndex >= 0) {
+            history[gameIndex].aiReviewResult = analysis;
+            Storage.saveHistory(history);
+          }
+        } catch (error) {
+          content.innerHTML = '<p style="color:var(--accent-red)">分析失败，请稍后重试</p>';
+        }
+      }
+
+      async rateCurrentMove() {
+        if (this.currentStep === 0) {
+          showToast('请先选择一手棋', 'warning');
+          return;
+        }
+
+        const moveIndex = this.currentStep - 1;
+        const move = this.game.moveHistory[moveIndex];
+
+        if (move.pass) {
+          showToast('Pass无法评分', 'warning');
+          return;
+        }
+
+        showToast('AI评分中...', 'info');
+
+        try {
+          const result = await AIAnalyzer.rateMove(this.game, moveIndex);
+          this.moveRatings[moveIndex] = result;
+
+          const history = Storage.getHistory();
+          const gameIndex = history.findIndex(g => g.id === this.gameId);
+          if (gameIndex >= 0) {
+            history[gameIndex].moveRatings = this.moveRatings;
+            Storage.saveHistory(history);
+          }
+
+          this.updateMoveList();
+          this.showMoveDetail(moveIndex);
+          showToast(`评分完成: ${result.score > 0 ? '+' : ''}${result.score}`, 'success');
+        } catch (error) {
+          showToast('评分失败', 'error');
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new ReviewApp();
+    });
+  </script>
+</body>
+</html>

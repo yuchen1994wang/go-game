@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>围棋对练复盘</title>
+  <script>
+    // 入口跳转：已登录去首页，未登录去授权页
+    const username = localStorage.getItem('go_username');
+    if (username) {
+      window.location.href = './pages/home.html';
+    } else {
+      window.location.href = './pages/auth.html';
+    }
+  </script>
+</head>
+<body>
+  <p>正在跳转...</p>
+</body>
+</html>

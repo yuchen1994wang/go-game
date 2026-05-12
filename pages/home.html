@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首页 - 围棋对练复盘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .home-page { display: flex; flex-direction: column; min-height: 100vh; }
+
+    header {
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--bg-secondary);
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-gold), #D4A017);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    main {
+      flex: 1;
+      padding: 32px 24px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .welcome-section {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .welcome-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .welcome-subtitle {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    .action-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .action-card {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid var(--border-color);
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .action-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-medium);
+      border-color: var(--accent-gold);
+    }
+
+    .action-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .action-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+
+    .action-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .history-section {
+      margin-top: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .section-count {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      padding: 4px 12px;
+      border-radius: 12px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-text {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .empty-hint {
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .history-item {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .history-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+      border-color: var(--accent-gold);
+    }
+
+    .history-board-preview {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(145deg, var(--board-wood-light) 0%, var(--board-wood) 50%, var(--board-dark) 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--line-color);
+    }
+
+    .history-info {
+      flex: 1;
+    }
+
+    .history-players {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .history-player {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .history-vs {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .history-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .history-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .history-actions .btn {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .delete-btn:hover {
+      background: #FFEBEE;
+      border-color: #EF9A9A;
+      color: #C62828;
+    }
+
+    .time-summary {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+    }
+
+    .time-item {
+      text-align: center;
+    }
+
+    .time-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .time-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .history-board-preview {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+      }
+
+      .history-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="home-page">
+    <header>
+      <div class="header-left">
+        <a href="home.html" class="logo">
+          <div class="logo-icon"></div>
+          <h1>围棋对练</h1>
+        </a>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="btn btn-secondary" id="settingsBtn" title="设置" style="padding: 8px 14px; font-size: 0.85rem;">⚙️ 设置</button>
+        <div class="user-info" id="userInfo">
+          <div class="user-avatar" id="userAvatar">用</div>
+          <span id="userName">用户</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="welcome-section">
+        <h2 class="welcome-title">欢迎来到围棋对练</h2>
+        <p class="welcome-subtitle">记录每一步成长，复盘每一次对弈</p>
+      </div>
+
+      <div class="action-cards">
+        <a href="setup.html" class="action-card">
+          <div class="action-icon">⚫</div>
+          <div class="action-title">开始对弈</div>
+          <div class="action-desc">开始新的围棋对局</div>
+        </a>
+        <a href="review.html" class="action-card" id="lastGameCard" style="display: none;">
+          <div class="action-icon">📖</div>
+          <div class="action-title">继续复盘</div>
+          <div class="action-desc">查看最近的对局</div>
+        </a>
+      </div>
+
+      <div class="history-section">
+        <div class="section-header">
+          <h3 class="section-title">历史对局</h3>
+          <span class="section-count" id="historyCount">0 局</span>
+        </div>
+
+        <div class="history-list" id="historyList">
+          <!-- 动态生成 -->
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">🎯</div>
+          <div class="empty-text">还没有对局记录</div>
+          <div class="empty-hint">点击上方"开始对弈"开始你的第一局</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div class="modal-overlay" id="settingsModal" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">设置</h3>
+        <button class="modal-close" id="closeSettings">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">OpenRouter API Key</label>
+          <input type="password" class="form-input" id="apiKeyInput" placeholder="输入你的 OpenRouter API Key">
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 6px;">用于AI复盘和评分功能。Key仅存储在本地浏览器中。</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelSettings">取消</button>
+        <button class="btn btn-primary" id="saveSettings">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script>
+    class HomeApp {
+      constructor() {
+        this.init();
+      }
+
+      init() {
+        this.loadUserInfo();
+        this.loadHistory();
+        this.initSettings();
+      }
+
+      initSettings() {
+        const modal = document.getElementById('settingsModal');
+        const btn = document.getElementById('settingsBtn');
+        const close = document.getElementById('closeSettings');
+        const cancel = document.getElementById('cancelSettings');
+        const save = document.getElementById('saveSettings');
+        const input = document.getElementById('apiKeyInput');
+
+        // 加载已保存的key
+        const savedKey = AIAnalyzer.getApiKey();
+        if (savedKey) {
+          input.value = savedKey;
+        }
+
+        btn.addEventListener('click', () => {
+          modal.style.display = 'flex';
+          input.value = AIAnalyzer.getApiKey();
+        });
+
+        const hideModal = () => modal.style.display = 'none';
+        close.addEventListener('click', hideModal);
+        cancel.addEventListener('click', hideModal);
+
+        save.addEventListener('click', () => {
+          const key = input.value.trim();
+          if (key) {
+            AIAnalyzer.setApiKey(key);
+            showToast('API Key 已保存', 'success');
+          } else {
+            AIAnalyzer.setApiKey('');
+            showToast('API Key 已清除', 'info');
+          }
+          hideModal();
+        });
+
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) hideModal();
+        });
+      }
+
+      loadUserInfo() {
+        const username = Storage.getUsername();
+        if (username) {
+          document.getElementById('userName').textContent = username;
+          document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+        } else {
+          // 未登录，跳转到授权页
+          window.location.href = 'auth.html';
+          return;
+        }
+      }
+
+      loadHistory() {
+        const history = Storage.getHistory();
+        const historyList = document.getElementById('historyList');
+        const emptyState = document.getElementById('emptyState');
+        const historyCount = document.getElementById('historyCount');
+        const lastGameCard = document.getElementById('lastGameCard');
+
+        historyCount.textContent = `${history.length} 局`;
+
+        if (history.length === 0) {
+          historyList.style.display = 'none';
+          emptyState.style.display = 'block';
+          lastGameCard.style.display = 'none';
+          return;
+        }
+
+        historyList.style.display = 'flex';
+        emptyState.style.display = 'none';
+
+        // 显示"继续复盘"卡片
+        if (history.length > 0) {
+          lastGameCard.style.display = 'block';
+          lastGameCard.href = `review.html?id=${history[0].id}`;
+        }
+
+        historyList.innerHTML = '';
+
+        history.forEach(game => {
+          const item = this.createHistoryItem(game);
+          historyList.appendChild(item);
+        });
+      }
+
+      createHistoryItem(game) {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+
+        // 棋盘预览
+        const preview = document.createElement('div');
+        preview.className = 'history-board-preview';
+        preview.textContent = `${game.size}×${game.size}`;
+
+        // 信息区
+        const info = document.createElement('div');
+        info.className = 'history-info';
+
+        const players = document.createElement('div');
+        players.className = 'history-players';
+        players.innerHTML = `
+          <div class="history-player">
+            <span class="player-indicator black"></span>
+            <span>${game.blackPlayer || '黑方'}</span>
+          </div>
+          <span class="history-vs">VS</span>
+          <div class="history-player">
+            <span class="player-indicator white"></span>
+            <span>${game.whitePlayer || '白方'}</span>
+          </div>
+        `;
+
+        const meta = document.createElement('div');
+        meta.className = 'history-meta';
+
+        const moveCount = game.moveHistory ? game.moveHistory.length : 0;
+        const date = new Date(game.savedAt);
+        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+        meta.innerHTML = `
+          <div class="history-meta-item">
+            <span>📅</span>
+            <span>${dateStr}</span>
+          </div>
+          <div class="history-meta-item">
+            <span>🎯</span>
+            <span>${moveCount}手</span>
+          </div>
+        `;
+
+        // 时间总结
+        if (game.blackTime || game.whiteTime) {
+          const timeSummary = document.createElement('div');
+          timeSummary.className = 'time-summary';
+          timeSummary.innerHTML = `
+            <div class="time-item">
+              <div class="time-label">黑方用时</div>
+              <div class="time-value">${this.formatTime(game.blackTime || 0)}</div>
+            </div>
+            <div class="time-item">
+              <div class="time-label">白方用时</div>
+              <div class="time-value">${this.formatTime(game.whiteTime || 0)}</div>
+            </div>
+          `;
+          meta.appendChild(timeSummary);
+        }
+
+        info.appendChild(players);
+        info.appendChild(meta);
+
+        // 操作按钮
+        const actions = document.createElement('div');
+        actions.className = 'history-actions';
+        actions.innerHTML = `
+          <a href="review.html?id=${game.id}" class="btn btn-primary">复盘</a>
+          <button class="delete-btn" data-id="${game.id}" title="删除">🗑</button>
+        `;
+
+        // 删除事件
+        actions.querySelector('.delete-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.deleteGame(game.id);
+        });
+
+        item.appendChild(preview);
+        item.appendChild(info);
+        item.appendChild(actions);
+
+        // 点击整个卡片也跳转
+        item.addEventListener('click', () => {
+          window.location.href = `review.html?id=${game.id}`;
+        });
+
+        return item;
+      }
+
+      formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+
+      deleteGame(id) {
+        if (confirm('确定要删除这局对局记录吗？')) {
+          Storage.deleteGame(id);
+          this.loadHistory();
+          showToast('对局已删除', 'success');
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new HomeApp();
+    });
+  </script>
+</body>
+</html>

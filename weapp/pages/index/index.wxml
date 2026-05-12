@@ -1,0 +1,54 @@
+<view class="container">
+  <view class="header">
+    <view class="logo">
+      <view class="logo-icon">
+        <view class="stone black"></view>
+        <view class="stone white"></view>
+      </view>
+      <text class="title">围棋对练复盘</text>
+    </view>
+  </view>
+
+  <view class="content">
+    <view class="welcome-card">
+      <text class="welcome-title">欢迎来到围棋对练</text>
+      <text class="welcome-desc">双人同屏对弈，实时点评，复盘分析</text>
+    </view>
+
+    <view class="game-modes">
+      <view class="mode-card" bindtap="startGame" data-size="9">
+        <text class="mode-name">9路小棋盘</text>
+        <text class="mode-desc">入门练习，快速对局</text>
+      </view>
+
+      <view class="mode-card" bindtap="startGame" data-size="13">
+        <text class="mode-name">13路标准盘</text>
+        <text class="mode-desc">适中难度，策略丰富</text>
+      </view>
+
+      <view class="mode-card" bindtap="startGame" data-size="19">
+        <text class="mode-name">19路大棋盘</text>
+        <text class="mode-desc">完整对局，专业挑战</text>
+      </view>
+    </view>
+
+    <view class="features">
+      <view class="feature-item">
+        <text class="feature-icon">🎯</text>
+        <text class="feature-text">围棋规则引擎</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">✍️</text>
+        <text class="feature-text">每步点评</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">🔄</text>
+        <text class="feature-text">复盘回放</text>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">📤</text>
+        <text class="feature-text">棋谱导出</text>
+      </view>
+    </view>
+  </view>
+</view>

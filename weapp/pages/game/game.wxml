@@ -1,0 +1,126 @@
+<view class="game-container">
+  <view class="game-header">
+    <view class="player-info">
+      <view class="player-input-wrapper">
+        <view class="player-indicator black"></view>
+        <input class="player-input" placeholder="黑方" value="{{blackPlayer}}" bindinput="onBlackNameInput" maxlength="10" />
+        <text class="player-timer {{currentPlayer === 1 && !game.isGameOver && !game.isReviewMode ? 'active' : ''}}">{{blackTimer}}</text>
+      </view>
+      <view class="player-input-wrapper">
+        <view class="player-indicator white"></view>
+        <input class="player-input" placeholder="白方" value="{{whitePlayer}}" bindinput="onWhiteNameInput" maxlength="10" />
+        <text class="player-timer {{currentPlayer === 2 && !game.isGameOver && !game.isReviewMode ? 'active' : ''}}">{{whiteTimer}}</text>
+      </view>
+    </view>
+    <view class="current-turn">
+      <view class="player-indicator {{currentPlayer === 1 ? 'black' : 'white'}}"></view>
+      <text class="turn-text">{{currentTurnText}}落子</text>
+    </view>
+    <view class="mode-switch">
+      <view class="mode-btn {{mode === 'play' ? 'active' : ''}}" bindtap="switchMode" data-mode="play">对弈</view>
+      <view class="mode-btn {{mode === 'review' ? 'active' : ''}}" bindtap="switchMode" data-mode="review">复盘</view>
+    </view>
+  </view>
+
+  <view class="board-section">
+    <view class="board-wrapper" style="width: {{boardSize}}px; height: {{boardSize}}px;">
+      <canvas canvas-id="goBoard" class="board-canvas" bindtap="onBoardTap" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd"></canvas>
+    </view>
+  </view>
+
+  <view class="control-panel">
+    <view class="panel-section">
+      <text class="panel-title">落子记录</text>
+      <scroll-view class="move-list" scroll-y>
+        <view wx:for="{{moveHistory}}" wx:key="index" 
+              class="move-item {{reviewStep === index + 1 ? 'active' : ''}}"
+              bindtap="onMoveItemTap" data-index="{{index}}">
+          <text class="move-num">{{index + 1}}</text>
+          <view class="move-stone {{item.player === 1 ? 'black' : 'white'}}"></view>
+          <text class="move-coord">{{item.pass ? 'Pass' : item.coord}}</text>
+          <text wx:if="{{item.comment}}" class="move-comment has-comment">{{item.comment}}</text>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="panel-section">
+      <text class="panel-title">操作</text>
+      <view class="btn-group">
+        <button class="btn btn-secondary" bindtap="onUndo">
+          <text>悔棋</text>
+        </button>
+        <button class="btn btn-secondary" bindtap="onNewGame">
+          <text>重开</text>
+        </button>
+        <button class="btn btn-primary" bindtap="onEndGame">
+          <text>结束游戏</text>
+        </button>
+      </view>
+      <button class="btn btn-pass" bindtap="onPass">
+        <text>停一手 (Pass)</text>
+      </button>
+    </view>
+
+    <view class="panel-section" wx:if="{{mode === 'review'}}">
+      <text class="panel-title">复盘控制</text>
+      <view class="time-summary">
+        <view class="time-item">
+          <view class="player-indicator black"></view>
+          <text class="time-label">黑方用时：</text>
+          <text class="time-value">{{blackTotalTime}}</text>
+        </view>
+        <view class="time-item">
+          <view class="player-indicator white"></view>
+          <text class="time-label">白方用时：</text>
+          <text class="time-value">{{whiteTotalTime}}</text>
+        </view>
+      </view>
+      <view class="review-info">
+        <text class="review-step">{{reviewStep}} / {{moveHistory.length}}</text>
+      </view>
+      <view class="review-nav">
+        <button class="btn btn-small" bindtap="onReviewFirst">|&lt;</button>
+        <button class="btn btn-small" bindtap="onReviewPrev">&lt;</button>
+        <button class="btn btn-small btn-primary" bindtap="onReviewNext">&gt;</button>
+        <button class="btn btn-small" bindtap="onReviewLast">&gt;|</button>
+      </view>
+      <view wx:if="{{currentReviewMove}}" class="current-move-detail">
+        <view class="move-stone {{currentReviewMove.player === 1 ? 'black' : 'white'}}"></view>
+        <text>{{currentReviewMove.playerName}} {{currentReviewMove.pass ? 'Pass' : currentReviewMove.coord}}</text>
+      </view>
+      <view wx:if="{{currentReviewMove && currentReviewMove.comment}}" class="comment-box">
+        <view class="comment-header">
+          <view class="mini-stone {{currentReviewMove.player === 1 ? 'black' : 'white'}}"></view>
+          <text>{{currentReviewMove.playerName}}</text>
+        </view>
+        <text class="comment-text">{{currentReviewMove.comment}}</text>
+      </view>
+    </view>
+
+    <view class="panel-section" wx:if="{{mode === 'play'}}">
+      <text class="panel-title">本步点评</text>
+      <view class="comment-input-wrapper">
+        <input class="comment-input" placeholder="输入本步棋评" value="{{currentComment}}" bindinput="onCommentInput" bindconfirm="onAddComment" maxlength="200" />
+        <button class="btn btn-small btn-primary" bindtap="onAddComment">发送</button>
+      </view>
+    </view>
+
+    <view class="panel-section">
+      <text class="panel-title">设置</text>
+      <view class="btn-group">
+        <button class="btn btn-secondary" bindtap="onExport">导出棋谱</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showExportModal}}" class="modal-overlay" bindtap="onCloseExport">
+    <view class="modal-content" catchtap="">
+      <text class="modal-title">棋谱导出 (SGF)</text>
+      <textarea class="export-area" value="{{exportSGF}}" disabled></textarea>
+      <button class="btn btn-primary" bindtap="onCopySGF">复制棋谱</button>
+      <button class="btn btn-secondary" bindtap="onCloseExport">关闭</button>
+    </view>
+  </view>
+
+  <view wx:if="{{toast}}" class="toast {{toast.type}}">{{toast.message}}</view>
+</view>

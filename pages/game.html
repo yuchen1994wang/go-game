@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>对弈 - 围棋对练复盘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .game-page { display: flex; flex-direction: column; min-height: 100vh; }
+    
+    header {
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    
+    .game-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+    }
+    
+    .player-names {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .player-name-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      font-size: 0.85rem;
+    }
+    
+    .player-timer {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      min-width: 45px;
+      text-align: right;
+    }
+    
+    .player-timer.active {
+      color: var(--accent-gold);
+      font-weight: bold;
+    }
+    
+    .current-player {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    
+    main {
+      flex: 1;
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .board-section {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .board-wrapper {
+      position: relative;
+      background: linear-gradient(145deg, var(--board-wood-light) 0%, var(--board-wood) 50%, var(--board-dark) 100%);
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: var(--shadow-medium);
+    }
+    
+    .goban {
+      position: relative;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+      border-radius: 4px;
+    }
+    
+    .board-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+    
+    .grid-line {
+      stroke: var(--line-color);
+      stroke-width: 1;
+      opacity: 0.7;
+    }
+    
+    .star-point {
+      fill: var(--line-color);
+    }
+    
+    .intersection {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    
+    .intersection:hover::before {
+      content: '';
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+    
+    .intersection.black-turn:hover::before {
+      background: radial-gradient(circle, rgba(26, 26, 26, 0.5) 0%, transparent 70%);
+    }
+    
+    .intersection.white-turn:hover::before {
+      background: radial-gradient(circle, rgba(245, 245, 245, 0.7) 0%, transparent 70%);
+    }
+    
+    .stone {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      position: absolute;
+      transform: scale(0);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 20;
+    }
+    
+    .stone.visible { transform: scale(1); }
+    
+    .stone.black {
+      background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%);
+      box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.4);
+    }
+    
+    .stone.white {
+      background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%);
+      box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .control-panel {
+      width: 320px;
+      background: var(--panel-bg);
+      border-radius: 16px;
+      box-shadow: var(--shadow-medium);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-height: calc(100vh - 140px);
+    }
+    
+    .panel-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .panel-section:last-child { border-bottom: none; }
+    
+    .panel-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-group .btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+    }
+    
+    .btn-icon {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .move-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .move-item {
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .move-num {
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+      min-width: 24px;
+    }
+    
+    .move-stone {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .move-stone.black { background: var(--stone-black); }
+    .move-stone.white { background: var(--stone-white); border: 1px solid var(--stone-white-shadow); }
+    
+    .sealed-overlay {
+      position: absolute;
+      inset: 0;
+      background: #1A1410;
+      border-radius: 8px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      color: var(--stone-white);
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .sealed-overlay.active { display: flex; }
+    
+    .sealed-icon { font-size: 4rem; margin-bottom: 16px; }
+    .sealed-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+    .sealed-text { color: rgba(255,255,255,0.7); margin-bottom: 24px; }
+    .sealed-btn { padding: 12px 32px; background: var(--accent-gold); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    
+    .game-over-banner {
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #D4A017 100%);
+      color: white;
+      padding: 12px 24px;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    
+    .game-over-banner.active { display: flex; }
+
+    /* 点评模态框 */
+    .comment-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+    .comment-modal.active { display: flex; }
+    .comment-modal-content {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 450px;
+      width: 90vw;
+      box-shadow: var(--shadow-medium);
+    }
+    .comment-modal-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .comment-modal-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      outline: none;
+      resize: none;
+      margin-bottom: 16px;
+    }
+    .comment-modal-input:focus { border-color: var(--accent-gold); }
+    .comment-modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .comment-modal-actions .btn { flex: 1; }
+
+    /* AI分析结果面板 */
+    .ai-result-panel {
+      margin-top: 12px;
+      padding: 16px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+      display: none;
+    }
+    .ai-result-panel.active { display: block; }
+    .ai-result-title {
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ai-result-content {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+    }
+    .ai-result-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      color: var(--text-secondary);
+    }
+    .ai-result-loading .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--bg-secondary);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 确认模态框 */
+    .confirm-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+    .confirm-modal.active { display: flex; }
+    .confirm-content {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 400px;
+      width: 90vw;
+      box-shadow: var(--shadow-medium);
+      text-align: center;
+    }
+    .confirm-icon { font-size: 3rem; margin-bottom: 16px; }
+    .confirm-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .confirm-message {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+    .confirm-actions .btn { min-width: 100px; }
+    .btn-danger { background: var(--accent-red); color: white; }
+    .btn-danger:hover { background: #a01830; transform: translateY(-1px); }
+
+    @media (max-width: 900px) {
+      main { flex-direction: column; }
+      .control-panel { width: 100%; max-height: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-page">
+    <div class="game-over-banner" id="gameOverBanner">
+      <span>🏁</span>
+      <span>对局结束</span>
+      <button onclick="this.parentElement.classList.remove('active')" style="background:none;border:none;color:white;cursor:pointer;margin-left:auto;">✕</button>
+    </div>
+    
+    <header>
+      <div class="header-left">
+        <div class="logo">
+          <div class="logo-icon"></div>
+          <h1>围棋对练</h1>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="game-info">
+          <div class="player-names">
+            <div class="player-name-display">
+              <span class="player-indicator black"></span>
+              <span id="blackPlayerName">黑方</span>
+              <span class="player-timer" id="blackTimer">00:00</span>
+            </div>
+            <div class="player-name-display">
+              <span class="player-indicator white"></span>
+              <span id="whitePlayerName">白方</span>
+              <span class="player-timer" id="whiteTimer">00:00</span>
+            </div>
+          </div>
+          <div class="current-player">
+            <span class="player-indicator" id="playerIndicator"></span>
+            <span id="currentPlayerText">黑方落子</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="board-section">
+        <div class="board-wrapper">
+          <div class="goban" id="goban"></div>
+          <div class="sealed-overlay" id="sealedOverlay">
+            <div class="sealed-icon">🔒</div>
+            <div class="sealed-title">棋局已封盘</div>
+            <div class="sealed-text">点击下方按钮解封继续对弈</div>
+            <button class="sealed-btn" id="unsealBtn">解封棋盘</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="control-panel">
+        <div class="panel-section">
+          <h3 class="panel-title">落子记录</h3>
+          <div class="move-list" id="moveList"></div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="panel-title">操作</h3>
+          <div class="btn-group">
+            <button class="btn btn-secondary" id="undoBtn">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h10a5 5 0 0 1 5 5v2M3 10l4-4M3 10l4 4"/></svg>
+              悔棋
+            </button>
+            <button class="btn btn-secondary" id="passBtn">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+              停一手
+            </button>
+            <button class="btn btn-secondary" id="commentBtn">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              点评
+            </button>
+          </div>
+          <div class="btn-group" style="margin-top: 8px;">
+            <button class="btn btn-secondary" id="sealBoardBtn">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              封盘
+            </button>
+            <button class="btn btn-secondary" id="endGameBtn">结束游戏</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="panel-title">更多</h3>
+          <div class="btn-group">
+            <button class="btn btn-secondary" id="aiAnalyzeBtn">AI分析</button>
+            <button class="btn btn-secondary" id="backHomeBtn">返回首页</button>
+          </div>
+          <div class="ai-result-panel" id="aiResultPanel">
+            <div class="ai-result-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              AI 分析结果
+            </div>
+            <div class="ai-result-content" id="aiResultContent"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- 点评模态框 -->
+  <div class="comment-modal" id="commentModal">
+    <div class="comment-modal-content">
+      <h3 class="comment-modal-title">💬 点评本手</h3>
+      <textarea class="comment-modal-input" id="commentModalInput" placeholder="输入您对这一步的评价..." rows="4"></textarea>
+      <div class="comment-modal-actions">
+        <button class="btn btn-secondary" id="commentModalCancel">取消</button>
+        <button class="btn btn-primary" id="commentModalOk">发送点评</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认模态框 -->
+  <div class="confirm-modal" id="confirmModal">
+    <div class="confirm-content">
+      <div class="confirm-icon" id="confirmIcon">⚠️</div>
+      <div class="confirm-title" id="confirmTitle">确认操作</div>
+      <div class="confirm-message" id="confirmMessage">确定要执行此操作吗？</div>
+      <div class="confirm-actions">
+        <button class="btn btn-secondary" id="confirmCancel">取消</button>
+        <button class="btn btn-danger" id="confirmOk">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script>
+    class GameApp {
+      constructor() {
+        this.game = null;
+        this.cellSize = 40;
+        this.boardPadding = 30;
+        this.timerInterval = null;
+        this.isBoardSealed = false;
+        this.confirmCallback = null;
+        this.init();
+      }
+
+      init() {
+        const settings = JSON.parse(sessionStorage.getItem('go_game_settings') || '{}');
+        if (!settings.size) {
+          window.location.href = 'setup.html';
+          return;
+        }
+
+        this.game = new GoGame(settings.size);
+        this.game.setPlayerNames(settings.blackPlayer, settings.whitePlayer);
+
+        document.getElementById('blackPlayerName').textContent = this.game.blackPlayer;
+        document.getElementById('whitePlayerName').textContent = this.game.whitePlayer;
+
+        this.renderBoard();
+        this.updateUI();
+        this.startTimer();
+        this.bindEvents();
+      }
+
+      renderBoard() {
+        const goban = document.getElementById('goban');
+        const size = this.game.size;
+        const boardSize = this.cellSize * (size - 1) + this.boardPadding * 2;
+
+        goban.style.width = `${boardSize}px`;
+        goban.style.height = `${boardSize}px`;
+        goban.innerHTML = '';
+
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('class', 'board-grid');
+        svg.setAttribute('width', boardSize);
+        svg.setAttribute('height', boardSize);
+        svg.setAttribute('viewBox', `0 0 ${boardSize} ${boardSize}`);
+
+        for (let i = 0; i < size; i++) {
+          const pos = this.boardPadding + i * this.cellSize;
+
+          const hLine = document.createElementNS(svgNS, 'line');
+          hLine.setAttribute('class', 'grid-line');
+          hLine.setAttribute('x1', this.boardPadding);
+          hLine.setAttribute('y1', pos);
+          hLine.setAttribute('x2', boardSize - this.boardPadding);
+          hLine.setAttribute('y2', pos);
+          svg.appendChild(hLine);
+
+          const vLine = document.createElementNS(svgNS, 'line');
+          vLine.setAttribute('class', 'grid-line');
+          vLine.setAttribute('x1', pos);
+          vLine.setAttribute('y1', this.boardPadding);
+          vLine.setAttribute('x2', pos);
+          vLine.setAttribute('y2', boardSize - this.boardPadding);
+          svg.appendChild(vLine);
+        }
+
+        const starPoints = this.getStarPoints(size);
+        starPoints.forEach(([x, y]) => {
+          const circle = document.createElementNS(svgNS, 'circle');
+          circle.setAttribute('class', 'star-point');
+          circle.setAttribute('cx', this.boardPadding + x * this.cellSize);
+          circle.setAttribute('cy', this.boardPadding + y * this.cellSize);
+          circle.setAttribute('r', size === 9 ? 4 : 3);
+          svg.appendChild(circle);
+        });
+
+        goban.appendChild(svg);
+
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const intersection = document.createElement('div');
+            intersection.className = 'intersection';
+            intersection.dataset.x = x;
+            intersection.dataset.y = y;
+            intersection.style.left = `${this.boardPadding + x * this.cellSize}px`;
+            intersection.style.top = `${this.boardPadding + y * this.cellSize}px`;
+            goban.appendChild(intersection);
+          }
+        }
+      }
+
+      getStarPoints(size) {
+        const points = [];
+        if (size === 9) {
+          points.push([2, 2], [2, 6], [4, 4], [6, 2], [6, 6]);
+        } else if (size === 13) {
+          for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+              points.push([3 + i * 3, 3 + j * 3]);
+            }
+          }
+        } else {
+          for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+              points.push([3 + i * 6, 3 + j * 6]);
+            }
+          }
+        }
+        return points;
+      }
+
+      updateStones() {
+        const intersections = document.querySelectorAll('.intersection');
+        intersections.forEach(int => {
+          int.querySelectorAll('.stone').forEach(s => s.remove());
+        });
+
+        for (let y = 0; y < this.game.size; y++) {
+          for (let x = 0; x < this.game.size; x++) {
+            if (this.game.board[y][x] !== 0) {
+              const intersection = document.querySelector(`.intersection[data-x="${x}"][data-y="${y}"]`);
+              const stone = document.createElement('div');
+              stone.className = `stone ${this.game.board[y][x] === 1 ? 'black' : 'white'}`;
+              intersection.appendChild(stone);
+              requestAnimationFrame(() => stone.classList.add('visible'));
+            }
+          }
+        }
+      }
+
+      updateUI() {
+        const indicator = document.getElementById('playerIndicator');
+        const playerText = document.getElementById('currentPlayerText');
+
+        indicator.className = `player-indicator ${this.game.currentPlayer === 1 ? 'black' : 'white'}`;
+
+        const currentName = this.game.currentPlayer === 1 ? this.game.blackPlayer : this.game.whitePlayer;
+        playerText.textContent = this.game.isGameOver ? '对局结束' : `${currentName}落子`;
+
+        if (this.game.isGameOver) {
+          document.getElementById('gameOverBanner').classList.add('active');
+          // 游戏结束后禁用封盘、悔棋、停一手按钮
+          document.getElementById('undoBtn').disabled = true;
+          document.getElementById('passBtn').disabled = true;
+          document.getElementById('sealBoardBtn').disabled = true;
+        }
+
+        this.updateTimerDisplay();
+        this.updateMoveList();
+      }
+
+      updateTimerDisplay() {
+        const blackTimerEl = document.getElementById('blackTimer');
+        const whiteTimerEl = document.getElementById('whiteTimer');
+
+        let blackTotal = this.game.blackTime;
+        let whiteTotal = this.game.whiteTime;
+
+        if (!this.game.isGameOver) {
+          const elapsed = this.game.getCurrentElapsed();
+          if (this.game.currentPlayer === 1) {
+            blackTotal += elapsed;
+          } else {
+            whiteTotal += elapsed;
+          }
+        }
+
+        blackTimerEl.textContent = this.game.getFormattedTime(blackTotal);
+        whiteTimerEl.textContent = this.game.getFormattedTime(whiteTotal);
+
+        blackTimerEl.classList.toggle('active', this.game.currentPlayer === 1 && !this.game.isGameOver);
+        whiteTimerEl.classList.toggle('active', this.game.currentPlayer === 2 && !this.game.isGameOver);
+      }
+
+      updateMoveList() {
+        const moveList = document.getElementById('moveList');
+        moveList.innerHTML = '';
+
+        this.game.moveHistory.forEach((move, index) => {
+          const item = document.createElement('div');
+          item.className = 'move-item';
+
+          const num = document.createElement('span');
+          num.className = 'move-num';
+          num.textContent = index + 1;
+
+          const stone = document.createElement('span');
+          stone.className = `move-stone ${move.player === 1 ? 'black' : 'white'}`;
+
+          const coord = document.createElement('span');
+          coord.textContent = move.pass ? 'Pass' : `${String.fromCharCode(65 + move.x)}${this.game.size - move.y}`;
+
+          item.appendChild(num);
+          item.appendChild(stone);
+          item.appendChild(coord);
+          moveList.appendChild(item);
+        });
+
+        moveList.scrollTop = moveList.scrollHeight;
+      }
+
+      startTimer() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => this.updateTimerDisplay(), 1000);
+      }
+
+      bindEvents() {
+        document.getElementById('goban').addEventListener('click', (e) => {
+          if (this.isBoardSealed || this.game.isGameOver) return;
+
+          const intersection = e.target.closest('.intersection');
+          if (intersection) {
+            const x = parseInt(intersection.dataset.x);
+            const y = parseInt(intersection.dataset.y);
+            this.handleMove(x, y);
+          }
+        });
+
+        document.getElementById('undoBtn').addEventListener('click', () => this.undo());
+        document.getElementById('passBtn').addEventListener('click', () => this.pass());
+        document.getElementById('commentBtn').addEventListener('click', () => this.showCommentModal());
+        document.getElementById('sealBoardBtn').addEventListener('click', () => this.toggleSealBoard());
+        document.getElementById('unsealBtn').addEventListener('click', () => this.toggleSealBoard());
+        document.getElementById('endGameBtn').addEventListener('click', () => this.endGame());
+        document.getElementById('aiAnalyzeBtn').addEventListener('click', () => this.aiAnalyze());
+        document.getElementById('backHomeBtn').addEventListener('click', () => this.backHome());
+
+
+
+        document.getElementById('confirmCancel').addEventListener('click', () => this.hideConfirmModal());
+        document.getElementById('confirmOk').addEventListener('click', () => {
+          if (this.confirmCallback) {
+            this.confirmCallback();
+            this.confirmCallback = null;
+          }
+          this.hideConfirmModal();
+        });
+      }
+
+      handleMove(x, y) {
+        const result = this.game.play(x, y);
+        if (result.success) {
+          this.updateStones();
+          this.updateUI();
+          if (result.gameOver) {
+            this.saveGame();
+          }
+        } else {
+          showToast(result.message, 'warning');
+        }
+      }
+
+      undo() {
+        if (this.game.undo()) {
+          this.updateStones();
+          this.updateUI();
+        }
+      }
+
+      pass() {
+        const result = this.game.pass();
+        if (result.success) {
+          this.updateUI();
+          if (result.gameOver) {
+            this.saveGame();
+          }
+        }
+      }
+
+      async showCommentModal() {
+        if (this.game.moveHistory.length === 0) {
+          showToast('请先落子', 'warning');
+          return;
+        }
+
+        const lastMoveIndex = this.game.moveHistory.length - 1;
+        const lastMove = this.game.moveHistory[lastMoveIndex];
+
+        if (lastMove.pass) {
+          showToast('Pass 无法点评', 'warning');
+          return;
+        }
+
+        const panel = document.getElementById('aiResultPanel');
+        const content = document.getElementById('aiResultContent');
+        panel.classList.add('active');
+        content.innerHTML = '<div class="ai-result-loading"><div class="spinner"></div>AI点评中...</div>';
+
+        try {
+          const result = await AIAnalyzer.rateMove(this.game, lastMoveIndex);
+          this.game.addComment(lastMoveIndex, result.analysis);
+
+          let html = `<p><strong>评分：</strong><span style="color:${result.score >= 0 ? '#2E7D32' : '#C62828'};font-size:1.2rem;font-weight:700;">${result.score > 0 ? '+' : ''}${result.score}</span></p>`;
+          html += `<p style="margin-top:8px;">${result.analysis}</p>`;
+          if (result.suggestion) {
+            html += `<p style="margin-top:8px;color:var(--accent-gold)">💡 建议：${result.suggestion}</p>`;
+          }
+          content.innerHTML = html;
+          showToast('AI点评完成', 'success');
+        } catch (error) {
+          content.innerHTML = '<p style="color: var(--accent-red)">点评失败，请检查网络连接</p>';
+          showToast('点评失败', 'error');
+        }
+      }
+
+      showConfirm(title, message, callback) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        this.confirmCallback = callback;
+        document.getElementById('confirmModal').classList.add('active');
+      }
+
+      hideConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('active');
+        this.confirmCallback = null;
+      }
+
+      backHome() {
+        // 游戏已结束或没有棋步，直接返回首页
+        if (this.game.isGameOver || this.game.moveHistory.length === 0) {
+          window.location.href = 'home.html';
+          return;
+        }
+        // 游戏未结束且有棋步，需要确认
+        this.showConfirm('返回首页', '当前对局尚未结束，返回首页后将对局将不会保存。确定要返回吗？', () => {
+          window.location.href = 'home.html';
+        });
+      }
+
+      toggleSealBoard() {
+        this.isBoardSealed = !this.isBoardSealed;
+        const overlay = document.getElementById('sealedOverlay');
+        const sealBtn = document.getElementById('sealBoardBtn');
+
+        if (this.isBoardSealed) {
+          overlay.classList.add('active');
+          sealBtn.textContent = '解封';
+          document.getElementById('undoBtn').disabled = true;
+          document.getElementById('passBtn').disabled = true;
+          document.getElementById('commentBtn').disabled = true;
+          showToast('棋盘已封盘', 'info');
+        } else {
+          overlay.classList.remove('active');
+          sealBtn.textContent = '封盘';
+          document.getElementById('undoBtn').disabled = false;
+          document.getElementById('passBtn').disabled = false;
+          document.getElementById('commentBtn').disabled = false;
+          showToast('棋盘已解封', 'success');
+        }
+      }
+
+      endGame() {
+        this.showConfirm('结束游戏', '确定要结束当前对局吗？结束后将保存到历史记录。', () => {
+          this.game.endGame();
+          this.updateUI();
+          this.saveGame();
+          showToast('对局已保存', 'success');
+        });
+      }
+
+      async aiAnalyze() {
+        if (this.game.moveHistory.length === 0) {
+          showToast('请先完成一些对局步骤', 'warning');
+          return;
+        }
+
+        const panel = document.getElementById('aiResultPanel');
+        const content = document.getElementById('aiResultContent');
+        panel.classList.add('active');
+        content.innerHTML = '<div class="ai-result-loading"><div class="spinner"></div>AI分析中...</div>';
+
+        try {
+          const analysis = await AIAnalyzer.analyze(this.game);
+          content.innerHTML = analysis.replace(/\n/g, '<br>');
+        } catch (error) {
+          content.innerHTML = '<p style="color: var(--accent-red)">分析失败，请检查网络连接</p>';
+        }
+      }
+
+      saveGame() {
+        const gameData = {
+          size: this.game.size,
+          blackPlayer: this.game.blackPlayer,
+          whitePlayer: this.game.whitePlayer,
+          blackTime: this.game.blackTime,
+          whiteTime: this.game.whiteTime,
+          moveHistory: this.game.moveHistory
+        };
+        Storage.addGame(gameData);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new GameApp();
+    });
+  </script>
+</body>
+</html>

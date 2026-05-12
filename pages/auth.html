@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户登录 - 围棋对练复盘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-card {
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .auth-logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+    }
+    .auth-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .auth-subtitle {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      font-size: 0.95rem;
+    }
+    .auth-form {
+      margin-bottom: 24px;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.2s ease;
+      margin-bottom: 16px;
+    }
+    .auth-input:focus {
+      border-color: var(--accent-gold);
+    }
+    .auth-input::placeholder {
+      color: var(--text-secondary);
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+    }
+    .auth-skip {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      font-family: inherit;
+    }
+    .auth-skip:hover {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="card auth-card">
+      <div class="logo-icon auth-logo"></div>
+      <h1 class="auth-title">围棋对练复盘</h1>
+      <p class="auth-subtitle">请输入您的昵称，用于记录对局历史</p>
+      
+      <div class="auth-form">
+        <input type="text" class="auth-input" id="usernameInput" placeholder="请输入您的昵称" maxlength="20">
+        <button class="btn btn-primary auth-btn" id="loginBtn">开始使用</button>
+      </div>
+      
+      <button class="auth-skip" id="skipBtn">跳过，使用默认名称</button>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script>
+    // 检查是否已登录
+    if (Storage.getUsername()) {
+      window.location.href = 'home.html';
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const username = document.getElementById('usernameInput').value.trim();
+      if (!username) {
+        showToast('请输入昵称', 'warning');
+        return;
+      }
+      Storage.saveUsername(username);
+      window.location.href = 'home.html';
+    });
+
+    document.getElementById('skipBtn').addEventListener('click', () => {
+      Storage.saveUsername('棋手');
+      window.location.href = 'home.html';
+    });
+
+    document.getElementById('usernameInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('loginBtn').click();
+      }
+    });
+  </script>
+</body>
+</html>
