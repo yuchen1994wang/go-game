@@ -378,6 +378,15 @@
           <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 6px;">用于AI复盘和评分功能。Key仅存储在本地浏览器中。</p>
           <div id="apiStatus" style="margin-top: 8px; font-size: 0.85rem;"></div>
         </div>
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label">音效设置</label>
+          <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+            <button class="btn btn-secondary" id="soundToggleBtn" style="padding: 8px 16px;">
+              🔊 开启
+            </button>
+            <span id="soundStatus" style="font-size: 0.85rem; color: var(--text-secondary);">落子、提子、胜利时播放音效</span>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" id="testSettings">测试</button>
@@ -466,6 +475,24 @@
             testBtn.textContent = '测试';
           }
         });
+
+        // 音效开关
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        const soundStatus = document.getElementById('soundStatus');
+        
+        const updateSoundUI = () => {
+          const enabled = SoundManager.isEnabled();
+          soundToggleBtn.textContent = enabled ? '🔊 开启' : '🔇 关闭';
+          soundStatus.textContent = enabled ? '落子、提子、胜利时播放音效' : '音效已关闭';
+        };
+        
+        soundToggleBtn.addEventListener('click', () => {
+          SoundManager.toggle();
+          updateSoundUI();
+          showToast(SoundManager.isEnabled() ? '音效已开启' : '音效已关闭', 'info');
+        });
+        
+        updateSoundUI();
 
         save.addEventListener('click', () => {
           const key = input.value.trim();

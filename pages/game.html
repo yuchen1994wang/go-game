@@ -557,8 +557,9 @@
       }
 
       init() {
-        // 初始化主题
+        // 初始化主题和音效
         ThemeManager.init();
+        SoundManager.init();
         document.getElementById('themeToggle').addEventListener('click', () => {
           ThemeManager.toggle();
         });
@@ -663,19 +664,36 @@
       }
 
       updateStones() {
-        const intersections = document.querySelectorAll('.intersection');
-        intersections.forEach(int => {
-          int.querySelectorAll('.stone').forEach(s => s.remove());
-        });
-
-        for (let y = 0; y < this.game.size; y++) {
-          for (let x = 0; x < this.game.size; x++) {
-            if (this.game.board[y][x] !== 0) {
-              const intersection = document.querySelector(`.intersection[data-x="${x}"][data-y="${y}"]`);
-              const stone = document.createElement('div');
-              stone.className = `stone ${this.game.board[y][x] === 1 ? 'black' : 'white'}`;
-              intersection.appendChild(stone);
-              requestAnimationFrame(() => stone.classList.add('visible'));
+        const size = this.game.size;
+        
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const intersection = document.querySelector(`.intersection[data-x="${x}"][data-y="${y}"]`);
+            if (!intersection) continue;
+            
+            const existingStone = intersection.querySelector('.stone');
+            const boardValue = this.game.board[y][x];
+            
+            if (boardValue === 0) {
+              // 移除棋子
+              if (existingStone) {
+                existingStone.classList.remove('visible');
+                setTimeout(() => existingStone.remove(), 200);
+              }
+            } else {
+              const stoneColor = boardValue === 1 ? 'black' : 'white';
+              if (existingStone) {
+                // 更新现有棋子颜色（如果需要）
+                if (!existingStone.classList.contains(stoneColor)) {
+                  existingStone.className = `stone ${stoneColor}`;
+                }
+              } else {
+                // 添加新棋子
+                const stone = document.createElement('div');
+                stone.className = `stone ${stoneColor}`;
+                intersection.appendChild(stone);
+                requestAnimationFrame(() => stone.classList.add('visible'));
+              }
             }
           }
         }
@@ -793,12 +811,18 @@
       handleMove(x, y) {
         const result = this.game.play(x, y);
         if (result.success) {
+          SoundManager.playPlaceStone();
+          if (result.captured && result.captured.length > 0) {
+            SoundManager.playCapture(result.captured.length);
+          }
           this.updateStones();
           this.updateUI();
           if (result.gameOver) {
+            SoundManager.playVictory();
             this.saveGame();
           }
         } else {
+          SoundManager.playError();
           showToast(result.message, 'warning');
         }
       }

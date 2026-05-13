@@ -1,5 +1,84 @@
 // 公共工具函数
 
+// 音效管理器
+const SoundManager = {
+  SOUND_KEY: 'go_sound_enabled',
+  sounds: {},
+  enabled: true,
+
+  init() {
+    this.enabled = localStorage.getItem(this.SOUND_KEY) !== 'false';
+    this.loadSounds();
+  },
+
+  loadSounds() {
+    // 使用 Web Audio API 生成音效
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  },
+
+  isEnabled() {
+    return this.enabled;
+  },
+
+  toggle() {
+    this.enabled = !this.enabled;
+    localStorage.setItem(this.SOUND_KEY, this.enabled);
+    return this.enabled;
+  },
+
+  // 落子音效 - 清脆的咔嗒声
+  playPlaceStone() {
+    if (!this.enabled || !this.audioContext) return;
+    this.playTone(800, 0.05, 'square', 0.1);
+  },
+
+  // 提子音效 - 连续的咔咔声
+  playCapture(count = 1) {
+    if (!this.enabled || !this.audioContext) return;
+    for (let i = 0; i < Math.min(count, 5); i++) {
+      setTimeout(() => {
+        this.playTone(600 + i * 100, 0.03, 'sawtooth', 0.08);
+      }, i * 50);
+    }
+  },
+
+  // 胜利音效
+  playVictory() {
+    if (!this.enabled || !this.audioContext) return;
+    const notes = [523, 659, 784, 1047]; // C E G C
+    notes.forEach((freq, i) => {
+      setTimeout(() => this.playTone(freq, 0.15, 'sine', 0.15), i * 120);
+    });
+  },
+
+  // 错误音效
+  playError() {
+    if (!this.enabled || !this.audioContext) return;
+    this.playTone(200, 0.1, 'sawtooth', 0.1);
+  },
+
+  // 通用音调播放
+  playTone(frequency, duration, type = 'sine', volume = 0.1) {
+    try {
+      const oscillator = this.audioContext.createOscillator();
+      const gainNode = this.audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
+
+      oscillator.frequency.value = frequency;
+      oscillator.type = type;
+      gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+
+      oscillator.start(this.audioContext.currentTime);
+      oscillator.stop(this.audioContext.currentTime + duration);
+    } catch (e) {
+      // 音频上下文可能被浏览器阻止
+    }
+  }
+};
+
 // 主题管理
 const ThemeManager = {
   THEME_KEY: 'go_theme',
