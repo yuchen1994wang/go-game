@@ -106,7 +106,7 @@
         this.problem = null;
         this.problemId = null;
         this.currentMoveCount = 0;
-        this.maxMoves = 3;
+        this.maxMoves = 1;
         this.isCorrect = false;
         this.isFinished = false;
         this.showedHint = false;
@@ -272,12 +272,10 @@
           showToast('回答正确！', 'success');
           SoundManager && SoundManager.playVictory && SoundManager.playVictory();
         } else {
+          this.isFinished = true;
+          TsumegoStats.recordAttempt(this.problemId, false);
           this.showResult(false);
-          if (this.currentMoveCount >= this.maxMoves) {
-            this.isFinished = true;
-            TsumegoStats.recordAttempt(this.problemId, false);
-            showToast('次数用完，请重试或查看答案', 'warning');
-          }
+          showToast('回答错误，请重试或查看答案', 'warning');
         }
         this.updateUI();
       }
