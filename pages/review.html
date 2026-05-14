@@ -343,6 +343,8 @@
       border-radius: 12px;
       padding: 16px;
       margin-top: 12px;
+      max-height: 200px;
+      overflow-y: auto;
     }
 
     .move-detail-title {
@@ -351,12 +353,18 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      position: sticky;
+      top: 0;
+      background: var(--bg-secondary);
+      padding-bottom: 4px;
     }
 
     .move-detail-content {
       font-size: 0.85rem;
       line-height: 1.5;
       color: var(--text-secondary);
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .move-detail-score {
@@ -809,6 +817,30 @@
         return item;
       }
 
+      updateMoveRatingDisplay(moveIndex) {
+        const moveList = document.getElementById('moveList');
+        const item = moveList.querySelector(`.move-item[data-index="${moveIndex}"]`);
+        if (!item) return;
+
+        // 移除旧的评分显示
+        const oldRating = item.querySelector('.move-rating');
+        if (oldRating) oldRating.remove();
+
+        if (this.moveRatings[moveIndex]) {
+          const rating = document.createElement('span');
+          rating.className = 'move-rating';
+          const score = this.moveRatings[moveIndex].score;
+          rating.textContent = score > 0 ? `+${score}` : score;
+
+          if (score >= 50) rating.classList.add('rating-excellent');
+          else if (score >= 20) rating.classList.add('rating-good');
+          else if (score >= 0) rating.classList.add('rating-ok');
+          else rating.classList.add('rating-bad');
+
+          item.appendChild(rating);
+        }
+      }
+
       updateTimelineInfo() {
         document.getElementById('timelineInfo').textContent = `${this.currentStep}/${this.game.moveHistory.length}`;
         document.getElementById('timelineSlider').value = this.currentStep;
@@ -949,6 +981,7 @@
           }
 
           this.updateMoveList();
+          this.updateMoveRatingDisplay(moveIndex);
           this.showMoveDetail(moveIndex);
           showToast(`评分完成: ${result.score > 0 ? '+' : ''}${result.score}`, 'success');
         } catch (error) {
