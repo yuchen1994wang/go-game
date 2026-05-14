@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>死活题练习 - 围棋对弈复盘</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .practice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .practice-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .practice-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: var(--accent-gold);
+    }
+
+    .difficulty-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .difficulty-tab {
+      padding: 8px 16px;
+      border: 2px solid var(--border-color);
+      border-radius: 20px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .difficulty-tab:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+
+    .difficulty-tab.active {
+      background: var(--accent-gold);
+      border-color: var(--accent-gold);
+      color: white;
+    }
+
+    .problem-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .problem-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .problem-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+      border-color: var(--accent-gold);
+    }
+
+    .problem-info {
+      flex: 1;
+    }
+
+    .problem-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .problem-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .problem-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .difficulty-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .difficulty-badge.easy {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .difficulty-badge.medium {
+      background: #FFF3E0;
+      color: #E65100;
+    }
+
+    .difficulty-badge.hard {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    .problem-stats {
+      text-align: right;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .accuracy {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .accuracy.high { color: #2E7D32; }
+    .accuracy.medium { color: #E65100; }
+    .accuracy.low { color: #C62828; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">← 返回首页</a>
+      <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+    </div>
+
+    <div class="practice-header">
+      <h1 class="practice-title">死活题练习</h1>
+      <div class="practice-stats">
+        <div class="stat-item">
+          <span>总题数:</span>
+          <span class="stat-value" id="totalCount">0</span>
+        </div>
+        <div class="stat-item">
+          <span>已完成:</span>
+          <span class="stat-value" id="completedCount">0</span>
+        </div>
+        <div class="stat-item">
+          <span>总正确率:</span>
+          <span class="stat-value" id="totalAccuracy">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="difficulty-tabs">
+      <button class="difficulty-tab active" data-filter="all">全部</button>
+      <button class="difficulty-tab" data-filter="初级">初级</button>
+      <button class="difficulty-tab" data-filter="中级">中级</button>
+      <button class="difficulty-tab" data-filter="高级">高级</button>
+    </div>
+
+    <div class="problem-list" id="problemList">
+      <!-- 题目列表将在这里渲染 -->
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <div class="empty-icon">📚</div>
+      <p>暂无该难度的题目</p>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/tsumego-data.js"></script>
+  <script>
+    class PracticeApp {
+      constructor() {
+        this.currentFilter = 'all';
+        this.init();
+      }
+
+      init() {
+        ThemeManager.init();
+        document.getElementById('themeToggle').addEventListener('click', () => {
+          ThemeManager.toggle();
+        });
+
+        this.bindEvents();
+        this.render();
+        this.updateStats();
+      }
+
+      bindEvents() {
+        const tabs = document.querySelectorAll('.difficulty-tab');
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            this.currentFilter = tab.dataset.filter;
+            this.render();
+          });
+        });
+      }
+
+      render() {
+        const list = document.getElementById('problemList');
+        const empty = document.getElementById('emptyState');
+        
+        let problems = TsumegoData.getAll();
+        
+        if (this.currentFilter !== 'all') {
+          problems = problems.filter(p => p.difficulty === this.currentFilter);
+        }
+
+        if (problems.length === 0) {
+          list.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+
+        empty.style.display = 'none';
+        list.innerHTML = problems.map(problem => this.createProblemCard(problem)).join('');
+
+        // 绑定点击事件
+        list.querySelectorAll('.problem-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const id = parseInt(card.dataset.id);
+            window.location.href = `tsumego.html?id=${id}`;
+          });
+        });
+      }
+
+      createProblemCard(problem) {
+        const stats = TsumegoStats.get(problem.id);
+        const accuracy = TsumegoStats.getAccuracy(problem.id);
+        
+        let accuracyClass = 'low';
+        if (accuracy >= 70) accuracyClass = 'high';
+        else if (accuracy >= 40) accuracyClass = 'medium';
+
+        const difficultyClass = {
+          '初级': 'easy',
+          '中级': 'medium',
+          '高级': 'hard'
+        }[problem.difficulty] || 'easy';
+
+        return `
+          <div class="problem-card" data-id="${problem.id}">
+            <div class="problem-info">
+              <div class="problem-title">${problem.title}</div>
+              <div class="problem-desc">${problem.description}</div>
+            </div>
+            <div class="problem-meta">
+              <span class="difficulty-badge ${difficultyClass}">${problem.difficulty}</span>
+              <div class="problem-stats">
+                <div class="accuracy ${accuracyClass}">${accuracy}%</div>
+                <div>${stats.correct}/${stats.attempts}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      updateStats() {
+        const problems = TsumegoData.getAll();
+        const totalProblems = problems.length;
+        
+        let totalAttempts = 0;
+        let totalCorrect = 0;
+        let completedProblems = 0;
+
+        problems.forEach(p => {
+          const stats = TsumegoStats.get(p.id);
+          totalAttempts += stats.attempts;
+          totalCorrect += stats.correct;
+          if (stats.correct > 0) completedProblems++;
+        });
+
+        const totalAccuracy = totalAttempts > 0 
+          ? Math.round((totalCorrect / totalAttempts) * 100) 
+          : 0;
+
+        document.getElementById('totalCount').textContent = totalProblems;
+        document.getElementById('completedCount').textContent = completedProblems;
+        document.getElementById('totalAccuracy').textContent = totalAccuracy + '%';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new PracticeApp();
+    });
+  </script>
+</body>
+</html>
