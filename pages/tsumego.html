@@ -111,6 +111,7 @@
         this.isFinished = false;
         this.showedHint = false;
         this.showedAnswer = false;
+        this.userMoves = []; // 记录用户下的位置
         this.init();
       }
 
@@ -137,6 +138,7 @@
         this.isFinished = false;
         this.showedHint = false;
         this.showedAnswer = false;
+        this.userMoves = [];
         this.renderBoard();
         this.updateUI();
       }
@@ -257,6 +259,7 @@
         if (!intersection || intersection.querySelector('.stone')) return;
 
         this.placeStone(x, y, 'black', true);
+        this.userMoves.push({x, y});
         this.currentMoveCount++;
 
         const isCorrectMove = this.problem.correctMoves.some(m => m.x === x && m.y === y);
@@ -319,12 +322,23 @@
       }
 
       reset() {
-        this.placeSetupStones();
+        // 清除用户下的所有棋子
+        this.userMoves.forEach(move => this.removeStone(move.x, move.y));
+        this.userMoves = [];
+        
+        // 重置状态
         this.currentMoveCount = 0;
         this.isCorrect = false;
         this.isFinished = false;
+        this.showedHint = false;
+        this.showedAnswer = false;
+        
+        // 隐藏结果面板
         document.getElementById('resultPanel').className = 'result-panel';
+        document.getElementById('hintPanel').classList.remove('visible');
+        
         this.updateUI();
+        showToast('已重置', 'info');
       }
 
       showAnswer() {
