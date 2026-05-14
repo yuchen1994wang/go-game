@@ -212,7 +212,8 @@ SGF棋谱：${sgf}
       return { score: 0, analysis: content, suggestion: '' };
     } catch (error) {
       console.error('AI评分失败:', error.message || error);
-      return this.localRateMove(game, moveIndex);
+      // 网络/API错误时抛出，让上层处理
+      throw error;
     }
   }
 

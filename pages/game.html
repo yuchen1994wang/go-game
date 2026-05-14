@@ -1131,8 +1131,9 @@
           content.innerHTML = html;
           showToast('AI点评完成', 'success');
         } catch (error) {
-          content.innerHTML = '<p style="color: var(--accent-red)">点评失败，请检查网络连接</p>';
-          showToast('点评失败', 'error');
+          console.error('AI点评错误:', error);
+          content.innerHTML = `<p style="color: var(--accent-red)">点评失败: ${error.message || '请检查网络连接或API Key是否有效'}</p>`;
+          showToast(`点评失败: ${error.message || '请检查网络连接'}`, 'error');
         }
       }
 
