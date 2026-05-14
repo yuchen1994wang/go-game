@@ -33,6 +33,10 @@ const Storage = {
     return history;
   },
 
+  clearHistory() {
+    localStorage.removeItem(this.HISTORY_KEY);
+  },
+
   getUsername() {
     return localStorage.getItem(this.USERNAME_KEY);
   },

@@ -401,6 +401,20 @@
             <span id="soundStatus" style="font-size: 0.85rem; color: var(--text-secondary);">落子、提子、胜利时播放音效</span>
           </div>
         </div>
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label">清除缓存</label>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+            <button class="btn btn-secondary" id="clearGamesBtn" style="padding: 8px 16px;">
+              📊 清除对局记录
+            </button>
+            <button class="btn btn-secondary" id="clearPracticeBtn" style="padding: 8px 16px;">
+              📚 清除练习统计
+            </button>
+            <button class="btn btn-secondary" id="clearAllBtn" style="padding: 8px 16px; background: #ffebec;">
+              🗑️ 清除所有缓存
+            </button>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" id="testSettings">测试</button>
@@ -541,6 +555,35 @@
 
         modal.addEventListener('click', (e) => {
           if (e.target === modal) hideModal();
+        });
+
+        // 清除缓存
+        document.getElementById('clearGamesBtn').addEventListener('click', () => {
+          if (confirm('确定要清除所有对局记录吗？')) {
+            Storage.clearHistory();
+            this.loadHistory();
+            showToast('对局记录已清除', 'success');
+          }
+        });
+
+        document.getElementById('clearPracticeBtn').addEventListener('click', () => {
+          if (confirm('确定要清除练习统计吗？')) {
+            localStorage.removeItem('go_tsumego_stats');
+            showToast('练习统计已清除', 'success');
+          }
+        });
+
+        document.getElementById('clearAllBtn').addEventListener('click', () => {
+          if (confirm('确定要清除所有缓存吗？这将删除对局记录、练习统计、API Key、主题和音效设置。')) {
+            Storage.clearHistory();
+            localStorage.removeItem('go_tsumego_stats');
+            localStorage.removeItem('openrouter_api_key');
+            localStorage.removeItem('go_theme');
+            localStorage.removeItem('go_sound_enabled');
+            this.loadHistory();
+            hideModal();
+            window.location.reload();
+          }
         });
       }
 
