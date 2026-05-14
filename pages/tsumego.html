@@ -139,9 +139,15 @@
         this.showedHint = false;
         this.showedAnswer = false;
         this.userMoves = [];
+        
+        // 清除上一题的结果面板
+        document.getElementById('resultPanel').className = 'result-panel';
+        // 清除上一题的提示面板
+        document.getElementById('hintPanel').classList.remove('visible');
+        
         this.renderBoard();
         this.updateUI();
-      }
+      },}
 
       renderBoard() {
         const goban = document.getElementById('goban');
@@ -301,7 +307,7 @@
         const hintContent = document.getElementById('hintContent');
         if (this.showedHint) {
           hintPanel.classList.add('visible');
-          hintContent.textContent = '请仔细思考杀棋的要点...';
+          hintContent.textContent = this.problem.hint || '请仔细思考要点...';
         } else {
           hintPanel.classList.remove('visible');
         }
