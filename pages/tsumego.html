@@ -158,7 +158,17 @@
 
         goban.style.width = boardSize + 'px';
         goban.style.height = boardSize + 'px';
+        
+        const cacheKey = `board_${size}`;
+        if (goban.dataset.cacheSize === String(size)) {
+          const stones = goban.querySelectorAll('.stone');
+          stones.forEach(s => s.remove());
+          this.placeSetupStones();
+          return;
+        }
+        
         goban.innerHTML = '';
+        goban.dataset.cacheSize = size;
 
         const svgNS = 'http://www.w3.org/2000/svg';
         const svg = document.createElementNS(svgNS, 'svg');
