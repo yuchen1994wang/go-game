@@ -480,14 +480,45 @@
         const komi = this.size === 9 ? 4.5 : 6.5;
         const winner = black > white + komi ? '黑方' : '白方';
         
+        this.saveGameToHistory(winner, black, white, komi);
+        
         document.getElementById('resultTitle').textContent = '🏁 对局结束';
         document.getElementById('resultDetails').innerHTML = `
           <p><strong>${winner} 胜！</strong></p>
           <p>黑方：${black} 子</p>
           <p>白方（含贴目 ${komi}）：${(white + komi).toFixed(1)} 子</p>
           <p>总手数：${this.moveHistory.length} 手</p>
+          <p style="margin-top: 12px; font-size: 0.85rem; color: var(--text-secondary);">
+            <a href="review.html" style="color: var(--accent-gold); text-decoration: none;">📖 查看复盘</a>
+          </p>
         `;
         document.getElementById('resultModal').classList.add('visible');
+      }
+
+      saveGameToHistory(winner, black, white, komi) {
+        try {
+          const games = JSON.parse(localStorage.getItem('go_game_history') || '[]');
+          const game = {
+            id: Date.now(),
+            date: new Date().toLocaleString('zh-CN'),
+            size: this.size,
+            level: this.ai.level,
+            winner: winner,
+            black: black,
+            white: white,
+            komi: komi,
+            totalMoves: this.moveHistory.length,
+            moves: this.moveHistory.map(m => ({ x: m.x, y: m.y, color: m.color })),
+            type: 'ai',
+            blackPlayer: '你',
+            whitePlayer: 'AI'
+          };
+          games.unshift(game);
+          if (games.length > 50) games.pop();
+          localStorage.setItem('go_game_history', JSON.stringify(games));
+        } catch (e) {
+          console.error('Failed to save game:', e);
+        }
       }
 
       newGame() {

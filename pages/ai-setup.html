@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 对弈设置 - 围棋对弈复盘</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .setup-container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .setup-title { font-family: 'Noto Serif SC', serif; font-size: 1.5rem; font-weight: 600; text-align: center; margin-bottom: 30px; color: var(--text-primary); }
+    .setup-section { background: var(--card-bg); border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: var(--text-primary); }
+    .option-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .option-card { padding: 16px; border: 2px solid var(--border-color); border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.3s; background: var(--bg-secondary); }
+    .option-card:hover { border-color: var(--accent-gold); transform: translateY(-2px); }
+    .option-card.selected { border-color: var(--accent-gold); background: var(--accent-gold-light); }
+    .option-icon { font-size: 2rem; margin-bottom: 8px; }
+    .option-label { font-weight: 600; color: var(--text-primary); }
+    .option-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+    .start-btn { width: 100%; padding: 16px; font-size: 1.1rem; background: var(--accent-gold); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .start-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
+    .start-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    @media (max-width: 480px) { .option-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="practice.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">← 返回</a>
+      <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+    </div>
+
+    <div class="setup-container">
+      <h1 class="setup-title">🤖 AI 对弈设置</h1>
+
+      <div class="setup-section">
+        <div class="section-title">📐 棋盘大小</div>
+        <div class="option-grid" id="sizeOptions">
+          <div class="option-card selected" data-size="9">
+            <div class="option-icon">9️⃣</div>
+            <div class="option-label">9路</div>
+            <div class="option-desc">快速对局</div>
+          </div>
+          <div class="option-card" data-size="13">
+            <div class="option-icon">1️⃣3️⃣</div>
+            <div class="option-label">13路</div>
+            <div class="option-desc">标准练习</div>
+          </div>
+          <div class="option-card" data-size="19">
+            <div class="option-icon">1️⃣9️⃣</div>
+            <div class="option-label">19路</div>
+            <div class="option-desc">完整对局</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-section">
+        <div class="section-title">🎯 AI 难度</div>
+        <div class="option-grid" id="levelOptions">
+          <div class="option-card selected" data-level="easy">
+            <div class="option-icon">🌱</div>
+            <div class="option-label">简单</div>
+            <div class="option-desc">适合新手</div>
+          </div>
+          <div class="option-card" data-level="medium">
+            <div class="option-icon">🌿</div>
+            <div class="option-label">中等</div>
+            <div class="option-desc">有一定挑战</div>
+          </div>
+          <div class="option-card" data-level="hard">
+            <div class="option-icon">🌳</div>
+            <div class="option-label">困难</div>
+            <div class="option-desc">高手对决</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="start-btn" id="startBtn">开始对弈</button>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script>
+    class AISetup {
+      constructor() {
+        this.selectedSize = 9;
+        this.selectedLevel = 'easy';
+        this.init();
+      }
+
+      init() {
+        ThemeManager.init();
+        document.getElementById('themeToggle').addEventListener('click', () => ThemeManager.toggle());
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        document.querySelectorAll('#sizeOptions .option-card').forEach(card => {
+          card.addEventListener('click', () => {
+            document.querySelectorAll('#sizeOptions .option-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            this.selectedSize = parseInt(card.dataset.size);
+          });
+        });
+
+        document.querySelectorAll('#levelOptions .option-card').forEach(card => {
+          card.addEventListener('click', () => {
+            document.querySelectorAll('#levelOptions .option-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            this.selectedLevel = card.dataset.level;
+          });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+          window.location.href = `ai-match.html?size=${this.selectedSize}&level=${this.selectedLevel}`;
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new AISetup();
+    });
+  </script>
+</body>
+</html>
