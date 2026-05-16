@@ -502,11 +502,23 @@
       }
 
       handleClick(x, y) {
-        if (this.isFinished) return;
+        console.log('handleClick called', x, y, 'isFinished:', this.isFinished);
+        if (this.isFinished) {
+          console.log('Rejected: isFinished is true');
+          return;
+        }
 
         const intersection = document.querySelector('.intersection[data-x="' + x + '"][data-y="' + y + '"]');
-        if (!intersection || intersection.querySelector('.stone')) return;
+        if (!intersection) {
+          console.log('Rejected: no intersection found');
+          return;
+        }
+        if (intersection.querySelector('.stone')) {
+          console.log('Rejected: stone already exists');
+          return;
+        }
 
+        console.log('Placing stone at', x, y);
         this.placeStone(x, y, 'black', true);
         sound.playStone();
         this.userMoves.push({x, y});
@@ -719,22 +731,24 @@
       }
 
       bindEvents() {
-        document.getElementById('goban').addEventListener('click', (e) => {
-          // 直接找最近的intersection元素
-          let target = e.target;
-          let intersection = null;
-          while (target && target !== document.getElementById('goban')) {
-            if (target.classList.contains('intersection')) {
-              intersection = target;
-              break;
-            }
-            target = target.parentElement;
-          }
+        const goban = document.getElementById('goban');
+        
+        // 测试 goban 是否可点击
+        goban.addEventListener('click', (e) => {
+          console.log('Goban clicked', e.target.className, e.target.tagName);
+        });
+        
+        goban.addEventListener('click', (e) => {
+          // 使用 closest 方法查找 intersection
+          const intersection = e.target.closest('.intersection');
           
           if (intersection) {
             const x = parseInt(intersection.dataset.x);
             const y = parseInt(intersection.dataset.y);
+            console.log('Found intersection', x, y, 'hasStone:', !!intersection.querySelector('.stone'));
             this.handleClick(x, y);
+          } else {
+            console.log('No intersection found, target:', e.target.className, e.target.tagName);
           }
         });
 
