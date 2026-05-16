@@ -276,7 +276,7 @@ class GoGame {
       this.koPoint = lastMove.koPoint;
     }
 
-    this.currentPlayer = lastMove.pass ? lastMove.player : (lastMove.player === 1 ? 2 : 1);
+    this.currentPlayer = lastMove.player;
     this.isGameOver = false;
     this.turnStartTime = Date.now();
 
