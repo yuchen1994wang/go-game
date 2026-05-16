@@ -789,6 +789,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      // 全局点击调试
+      document.addEventListener('click', (e) => {
+        console.log('Global click:', e.target.tagName, e.target.className, 'path:', e.composedPath().map(el => el.tagName + (el.className ? '.' + el.className : '')).join(' > '));
+      });
       try { new TsumegoApp(); } catch (e) { console.error(e); showErrorBoundary('加载失败'); }
     });
   </script>
