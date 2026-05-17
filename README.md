@@ -9,6 +9,7 @@
 - 📝 **棋谱记录**：完整记录对局过程，支持悔棋
 - 🤖 **AI 复盘**：使用 OpenRouter API 提供全局复盘和单步评分
 - 🎓 **死活题练习**：包含 30+ 道经典死活题，支持提示、答案、错题本
+- 📖 **经典打谱**：收录名家名局，每步都有详细讲解，支持自动播放回放
 - 💾 **本地存储**：对局记录和设置自动保存到浏览器
 - 🌓 **主题切换**：支持深色/浅色主题
 - 📱 **响应式设计**：适配移动端和桌面端
@@ -77,6 +78,14 @@ npx serve
 6. 使用 **🔄 重置** 重新开始
 7. 错题会自动加入 **错题本**，方便复习
 
+### 经典打谱
+
+1. 在首页点击 **📖 经典打谱**
+2. 浏览经典棋谱列表（秀策流、吴清源新布局、AlphaGo vs 李世石等）
+3. 点击棋谱进入回放页面
+4. 使用播放控制按钮或键盘快捷键浏览棋局
+5. 每步都有详细讲解，学习名家思路
+
 ## 📂 项目结构
 
 ```
@@ -91,7 +100,8 @@ go-game-project/
 │   ├── go-engine.js       # 围棋规则引擎
 │   ├── ai.js              # AI 分析
 │   ├── tsumego-data.js    # 死活题题库
-│   └── tsumego-storage.js # 死活题进度存储
+│   ├── tsumego-storage.js # 死活题进度存储
+│   └── kifu-data.js       # 经典棋谱数据
 ├── pages/
 │   ├── auth.html           # 登录页
 │   ├── home.html           # 首页/对局列表
@@ -99,7 +109,9 @@ go-game-project/
 │   ├── game.html           # 对弈页
 │   ├── review.html         # 复盘页
 │   ├── practice.html       # 死活题列表
-│   └── tsumego.html        # 死活题练习
+│   ├── tsumego.html        # 死活题练习
+│   ├── kifu.html           # 经典打谱列表
+│   └── kifu-player.html    # 打谱回放页
 └── .github/
     └── workflows/
         └── deploy.yml      # GitHub Pages 部署配置

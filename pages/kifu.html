@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>经典打谱 - 围棋对弈复盘</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .kifu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .kifu-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .kifu-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .kifu-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .kifu-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .kifu-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+      border-color: var(--accent-gold);
+    }
+
+    .kifu-info {
+      flex: 1;
+    }
+
+    .kifu-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .kifu-players {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .kifu-player {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .player-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .player-dot.black {
+      background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%);
+    }
+
+    .player-dot.white {
+      background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%);
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .kifu-vs {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    .kifu-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .kifu-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .kifu-tag {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+    }
+
+    .kifu-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      min-width: 100px;
+    }
+
+    .kifu-date {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .kifu-result {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .kifu-moves {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .kifu-arrow {
+      font-size: 1.5rem;
+      color: var(--accent-gold);
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .kifu-card:hover .kifu-arrow {
+      opacity: 1;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">← 返回首页</a>
+      <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+    </div>
+
+    <div class="kifu-header">
+      <div>
+        <h1 class="kifu-title">经典打谱</h1>
+        <p class="kifu-subtitle">学习名家名局，每一步都有详细讲解</p>
+      </div>
+    </div>
+
+    <div class="kifu-list" id="kifuList">
+      <!-- 棋谱列表将在这里渲染 -->
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <div class="empty-icon">📖</div>
+      <p>暂无棋谱</p>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/kifu-data.js"></script>
+  <script>
+    class KifuListApp {
+      constructor() {
+        this.init();
+      }
+
+      init() {
+        ThemeManager.init();
+        document.getElementById('themeToggle').addEventListener('click', () => {
+          ThemeManager.toggle();
+        });
+
+        this.render();
+      }
+
+      render() {
+        const list = document.getElementById('kifuList');
+        const empty = document.getElementById('emptyState');
+        const kifus = KifuData.getAll();
+
+        if (kifus.length === 0) {
+          list.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+
+        empty.style.display = 'none';
+        list.innerHTML = kifus.map(kifu => this.createKifuCard(kifu)).join('');
+
+        // 绑定点击事件
+        list.querySelectorAll('.kifu-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const id = parseInt(card.dataset.id);
+            window.location.href = `kifu-player.html?id=${id}`;
+          });
+        });
+      }
+
+      createKifuCard(kifu) {
+        return `
+          <div class="kifu-card" data-id="${kifu.id}">
+            <div class="kifu-info">
+              <div class="kifu-name">${kifu.title}</div>
+              <div class="kifu-players">
+                <div class="kifu-player">
+                  <span class="player-dot black"></span>
+                  <span>${kifu.players.black}</span>
+                </div>
+                <span class="kifu-vs">VS</span>
+                <div class="kifu-player">
+                  <span class="player-dot white"></span>
+                  <span>${kifu.players.white}</span>
+                </div>
+              </div>
+              <div class="kifu-desc">${kifu.description}</div>
+              <div class="kifu-tags">
+                ${kifu.tags.map(tag => `<span class="kifu-tag">${tag}</span>`).join('')}
+              </div>
+            </div>
+            <div class="kifu-meta">
+              <div class="kifu-date">${kifu.date}</div>
+              <div class="kifu-result">${kifu.result}</div>
+              <div class="kifu-moves">${kifu.moves.length}手</div>
+              <div class="kifu-arrow">→</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new KifuListApp();
+    });
+  </script>
+</body>
+</html>
