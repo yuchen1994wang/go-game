@@ -26,9 +26,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">← 返回</a>
-    </div>
+    <div id="header-container"></div>
 
     <div class="setup-container">
       <h1 class="setup-title">🤖 AI 对弈设置</h1>
@@ -80,6 +78,9 @@
   </div>
 
   <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/ai.js"></script>
+  <script src="../js/header.js"></script>
   <script>
     class AISetup {
       constructor() {
@@ -89,7 +90,11 @@
       }
 
       init() {
-        ThemeManager.init();
+        Header.mount(document.getElementById('header-container'), {
+          backUrl: 'home.html',
+          showSettings: true,
+          showUser: true
+        });
         this.bindEvents();
       }
 

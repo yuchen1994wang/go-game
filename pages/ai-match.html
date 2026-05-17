@@ -65,9 +65,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <button class="btn btn-secondary" id="backBtn" style="padding: 8px 16px; font-size: 0.85rem;">← 返回</button>
-    </div>
+    <div id="header-container"></div>
 
     <div class="match-container">
       <div class="board-section">
@@ -128,12 +126,19 @@
     <div class="result-content">
       <div class="result-title" id="resultTitle">对局结束</div>
       <div class="result-details" id="resultDetails"></div>
-      <button class="btn btn-primary" id="closeModal">确定</button>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn btn-secondary" id="homeBtn">🏠 返回首页</button>
+        <button class="btn btn-primary" id="reviewBtn">📖 查看复盘</button>
+        <button class="btn btn-primary" id="closeModal">再来一局</button>
+      </div>
     </div>
   </div>
 
   <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/ai.js"></script>
   <script src="../js/go-engine.js"></script>
+  <script src="../js/header.js"></script>
   <script>
     class AIMatch {
       constructor() {
@@ -150,7 +155,11 @@
       }
 
       init() {
-        ThemeManager.init();
+        Header.mount(document.getElementById('header-container'), {
+          backUrl: 'home.html',
+          showSettings: true,
+          showUser: true
+        });
 
         const params = new URLSearchParams(window.location.search);
         this.size = parseInt(params.get('size')) || 9;
@@ -283,7 +292,10 @@
 
       handleClick(x, y) {
         if (this.isPaused || !this.isUserTurn) return;
-        if (this.engine.board[y][x] !== null) return;
+        if (!this.engine.isValidMove(x, y)) {
+          showToast('无效落子', 'warning');
+          return;
+        }
 
         this.makeMove(x, y, 'black');
         
@@ -478,7 +490,8 @@
         const komi = this.size === 9 ? 4.5 : 6.5;
         const winner = black > white + komi ? '黑方' : '白方';
         
-        this.saveGameToHistory(winner, black, white, komi);
+        const gameId = this.saveGameToHistory(winner, black, white, komi);
+        this.lastGameId = gameId;
         
         document.getElementById('resultTitle').textContent = '🏁 对局结束';
         document.getElementById('resultDetails').innerHTML = `
@@ -486,9 +499,6 @@
           <p>黑方：${black} 子</p>
           <p>白方（含贴目 ${komi}）：${(white + komi).toFixed(1)} 子</p>
           <p>总手数：${this.moveHistory.length} 手</p>
-          <p style="margin-top: 12px; font-size: 0.85rem; color: var(--text-secondary);">
-            <a href="review.html" style="color: var(--accent-gold); text-decoration: none;">📖 查看复盘</a>
-          </p>
         `;
         document.getElementById('resultModal').classList.add('visible');
       }
@@ -496,8 +506,9 @@
       saveGameToHistory(winner, black, white, komi) {
         try {
           const games = JSON.parse(localStorage.getItem('go_game_history') || '[]');
+          const gameId = Date.now();
           const game = {
-            id: Date.now(),
+            id: gameId,
             date: new Date().toLocaleString('zh-CN'),
             size: this.size,
             level: this.ai.level,
@@ -514,8 +525,10 @@
           games.unshift(game);
           if (games.length > 50) games.pop();
           localStorage.setItem('go_game_history', JSON.stringify(games));
+          return gameId;
         } catch (e) {
           console.error('Failed to save game:', e);
+          return null;
         }
       }
 
@@ -560,6 +573,19 @@
         document.getElementById('newGameBtn').addEventListener('click', () => this.newGame());
         document.getElementById('closeModal').addEventListener('click', () => {
           document.getElementById('resultModal').classList.remove('visible');
+          this.newGame();
+        });
+
+        document.getElementById('homeBtn').addEventListener('click', () => {
+          window.location.href = 'home.html';
+        });
+
+        document.getElementById('reviewBtn').addEventListener('click', () => {
+          if (this.lastGameId) {
+            window.location.href = `review.html?id=${this.lastGameId}`;
+          } else {
+            window.location.href = 'review.html';
+          }
         });
 
         window.addEventListener('resize', () => {

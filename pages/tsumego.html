@@ -89,9 +89,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <a href="practice.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">← 返回列表</a>
-    </div>
+    <div id="header-container"></div>
 
     <div class="tsumego-container">
       <div class="board-section">
@@ -244,7 +242,12 @@
       }
 
       init() {
-        ThemeManager.init();
+        Header.mount(document.getElementById('header-container'), {
+          backUrl: 'practice.html',
+          backText: '← 返回列表',
+          showSettings: true,
+          showUser: true
+        });
 
         const params = new URLSearchParams(window.location.search);
         this.problemId = parseInt(params.get('id')) || 1;

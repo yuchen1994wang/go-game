@@ -334,6 +334,20 @@ class GoAI {
     const candidates = [];
     const checked = new Set();
 
+    // 如果棋盘为空，返回天元及附近位置
+    const emptyCount = engine.getEmptyIntersections().length;
+    const totalSize = engine.size * engine.size;
+    if (emptyCount === totalSize) {
+      const center = Math.floor(engine.size / 2);
+      return [
+        { x: center, y: center, score: 100 },
+        { x: center - 1, y: center, score: 90 },
+        { x: center + 1, y: center, score: 90 },
+        { x: center, y: center - 1, score: 90 },
+        { x: center, y: center + 1, score: 90 }
+      ];
+    }
+
     for (const group of engine.analyzePosition().groups) {
       for (const [x, y] of group.stones) {
         engine.getNeighbors(x, y).forEach(([nx, ny]) => {
@@ -348,6 +362,18 @@ class GoAI {
             }
           }
         });
+      }
+    }
+
+    // 如果没有找到候选（比如棋盘很空），搜索所有空位
+    if (candidates.length === 0) {
+      for (let y = 0; y < engine.size; y++) {
+        for (let x = 0; x < engine.size; x++) {
+          if (engine.board[y][x] === null && this.isSafeMove(engine, x, y)) {
+            const score = this.evaluatePosition(engine, x, y);
+            candidates.push({ x, y, score });
+          }
+        }
       }
     }
 
