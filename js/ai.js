@@ -17,7 +17,7 @@ class AIAnalyzer {
     const whiteMoves = game.moveHistory.filter(m => m.player === 2).length;
     const captures = game.moveHistory.reduce((sum, m) => sum + (m.captured ? m.captured.length : 0), 0);
 
-    const prompt = `你是一位专业的围棋教练。请对以下围棋对局进行简要分析：
+    const prompt = `你是一位专业的围棋教练。请对以下围棋对局进行全局复盘分析：
 
 对局信息：
 - 棋盘大小：${game.size}路
@@ -34,11 +34,24 @@ SGF棋谱：${sgf}
 - 请使用棋盘显示的坐标系统：横向使用大写字母A-J（不含I），纵向使用数字1-${game.size}（从下往上）
 - 例如：棋盘左下角是A1，右下角是J1，左上角是A${game.size}，右上角是J${game.size}
 
-请从以下几个方面进行分析（用中文回答，控制在300字以内）：
-1. 开局评价（布局是否合理）
-2. 中盘要点（关键战斗和转换）
-3. 双方优劣判断
-4. 改进建议
+请从以下几个方面进行分析（用中文回答）：
+
+### 1. 全局评价
+- 开局评价（布局是否合理）
+- 中盘要点（关键战斗和转换）
+- 双方优劣判断
+- 改进建议
+
+### 2. 本局最佳手（1-5手）
+请明确列出本局中最好的1-5手棋，每手包含：
+- 手数序号和坐标
+- 为什么这手棋好（简明扼要）
+
+### 3. 本局最差手（1-5手）
+请明确列出本局中最差的1-5手棋，每手包含：
+- 手数序号和坐标
+- 为什么这手棋差（简明扼要）
+- 更好的下法建议
 
 请给出专业但易懂的分析。`;
 
@@ -68,7 +81,7 @@ SGF棋谱：${sgf}
               content: prompt
             }
           ],
-          max_tokens: 500
+          max_tokens: 800
         })
       });
 
@@ -102,12 +115,25 @@ SGF棋谱：${sgf}
     const letters = 'ABCDEFGHJKLMNOPQRST';
     const currentPos = `${letters[currentMove.x]}${game.size - currentMove.y}`;
     
-    const prompt = `你是一位专业的围棋教练。请评价以下围棋对局中的特定一步棋，使用正负分数系统：
+    // 构建前面所有棋步的信息
+    const previousMoves = game.moveHistory.slice(0, moveIndex).map((m, i) => {
+      if (m.pass) return `${i + 1}. ${m.playerName} Pass`;
+      const pos = `${letters[m.x]}${game.size - m.y}`;
+      const cap = m.captured && m.captured.length > 0 ? ` (提${m.captured.length}子)` : '';
+      return `${i + 1}. ${m.playerName} ${pos}${cap}`;
+    }).join('\n');
+    
+    const prompt = `你是一位专业的围棋教练。请评价以下围棋对局中的特定一步棋。
+
+【重要：必须结合前面所有已下棋步造成的当前形势来综合评价这一步棋】
 
 棋局信息：
 - 棋盘大小：${game.size}路
 - 黑方：${game.blackPlayer}
 - 白方：${game.whitePlayer}
+
+前面已下的所有棋步（请仔细分析这些棋步形成的当前形势）：
+${previousMoves}
 
 需要评价的第${moveIndex + 1}手棋：
 - 棋手：${currentMove.playerName}
@@ -116,6 +142,11 @@ SGF棋谱：${sgf}
 【重要：坐标说明】
 - 请使用棋盘显示的坐标系统：横向使用大写字母A-J（不含I），纵向使用数字1-${game.size}（从下往上）
 - 例如：棋盘左下角是A1，右下角是J1，左上角是A${game.size}，右上角是J${game.size}
+
+【评价要求】
+1. 先分析前面所有棋步形成的当前形势（厚薄、实地、外势、死活等）
+2. 在此基础上评价这手棋：是否顺应了当前形势？是否改善了局面？
+3. 考虑全局配合，不要孤立评价这一手
 
 评分标准（-100到+100）：
 - +80到+100：妙手！神之一手，非常精彩
@@ -127,15 +158,10 @@ SGF棋谱：${sgf}
 - -50到-79：很差，明显的错误
 - -80到-100：败着，严重失误
 
-请从以下几个角度进行评价（用中文回答）：
-1. 这一手棋的分数（-100到+100）
-2. 详细分析：为什么给出这个分数？这手棋好在哪/不好在哪？具体分析了哪些方面（如厚薄、效率、方向、时机等）？
-3. 如果不是最佳选择，提出更好的建议
-
 请用以下JSON格式返回：
 {
   "score": 分数(-100到+100),
-  "analysis": "详细评价理由",
+  "analysis": "详细评价理由（必须包含对当前形势的分析，再评价这手棋）",
   "suggestion": "如有更好的建议则提供，否则为空"
 }`;
 
@@ -167,7 +193,7 @@ SGF棋谱：${sgf}
               content: prompt
             }
           ],
-          max_tokens: 600
+          max_tokens: 800
         })
       });
 
