@@ -52,7 +52,6 @@ class Header {
   }
 
   static mount(container, options = {}) {
-    const { showSettingsModal = true } = options;
     container.innerHTML = this.render(options);
     this.init(options);
   }
@@ -65,7 +64,7 @@ class Header {
     this.loadUserInfo();
 
     // 初始化设置模态框（如果有）
-    if (options.showSettingsModal) {
+    if (options.showSettings) {
       this.initSettingsModal();
     }
   }

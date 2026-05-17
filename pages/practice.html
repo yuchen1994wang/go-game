@@ -71,20 +71,20 @@
 
     .problem-list {
       display: grid;
-      gap: 12px;
+      gap: 16px;
     }
 
     .problem-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 16px 20px;
+      border-radius: 16px;
+      padding: 20px 24px;
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 20px;
     }
 
     .problem-card:hover {
@@ -100,20 +100,19 @@
 
     .problem-title {
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 1.1rem;
       color: var(--text-primary);
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      margin-bottom: 6px;
     }
 
     .problem-desc {
       font-size: 0.85rem;
       color: var(--text-secondary);
+      line-height: 1.5;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-bottom: 8px;
     }
 
     .problem-meta {
