@@ -32,7 +32,6 @@ class GoEngine {
     
     const opponent = this.currentPlayer === 'black' ? 'white' : 'black';
     const captured = testBoard.removeCapturedStones(opponent);
-    testBoard.board[y][x] = null;
     
     if (captured > 0) return true;
     

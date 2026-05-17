@@ -338,14 +338,37 @@
           return;
         }
 
+        // 先设置引擎当前玩家为白方（AI执白）
+        const originalPlayer = this.engine.currentPlayer;
+        this.engine.currentPlayer = 'white';
+
         const move = this.ai.getMove(this.engine);
-        if (move) {
+        let moved = false;
+
+        if (move && this.engine.isValidMove(move.x, move.y)) {
           this.makeMove(move.x, move.y, 'white');
+          moved = true;
         } else {
+          // 找不到好棋，尝试找任意可行位置
+          for (let y = 0; y < this.size; y++) {
+            for (let x = 0; x < this.size; x++) {
+              if (this.engine.isValidMove(x, y)) {
+                this.makeMove(x, y, 'white');
+                moved = true;
+                break;
+              }
+            }
+            if (moved) break;
+          }
+        }
+
+        if (!moved) {
           this.engine.pass();
+          this.moveHistory.push({ x: -1, y: -1, color: 'white' });
           showToast('AI 停了一手', 'info');
         }
         
+        // 恢复玩家状态并切换回用户
         this.isUserTurn = true;
         this.updateUI();
       }
