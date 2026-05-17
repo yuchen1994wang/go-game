@@ -175,9 +175,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">← 返回首页</a>
-    </div>
+    <div id="header-container"></div>
 
     <div class="practice-header">
       <h1 class="practice-title">死活题练习</h1>
@@ -217,6 +215,7 @@
   </div>
 
   <script src="../js/utils.js"></script>
+  <script src="../js/header.js"></script>
   <script src="../js/tsumego-data.js"></script>
   <script>
     class PracticeApp {
@@ -226,7 +225,12 @@
       }
 
       init() {
-        ThemeManager.init();
+        // 使用通用Header组件
+        Header.mount(document.getElementById('header-container'), {
+          backUrl: 'home.html',
+          backText: '← 返回首页',
+          showSettingsModal: true
+        });
 
         this.bindEvents();
         this.render();
