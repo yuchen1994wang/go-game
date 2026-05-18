@@ -96,17 +96,16 @@ class Header {
           </div>
           <div class="modal-body">
             <div class="settings-section">
-              <h3>🎨 主题</h3>
-              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <button class="btn btn-secondary" id="themeToggleBtn" style="padding: 8px 12px;">🌙 深色</button>
-                <span id="themeStatus"></span>
-              </div>
-            </div>
-            <div class="settings-section">
-              <h3>🔊 音效</h3>
-              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <button class="btn btn-secondary" id="soundToggleBtn" style="padding: 8px 12px;">🔊 开启</button>
-                <span id="soundStatus"></span>
+              <h3>🎨 外观与声音</h3>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <button class="btn btn-secondary" id="themeToggleBtn" style="padding: 8px 12px;">🌙 深色</button>
+                  <span id="themeStatus"></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <button class="btn btn-secondary" id="soundToggleBtn" style="padding: 8px 12px;">🔊 开启</button>
+                  <span id="soundStatus"></span>
+                </div>
               </div>
             </div>
             <div class="settings-section">
@@ -120,8 +119,10 @@ class Header {
             <div class="settings-section">
               <h3>🗑️ 清除缓存</h3>
               <div style="display: flex; flex-direction: column; gap: 8px;">
-                <button class="btn btn-secondary" id="clearGamesBtn">清除对局记录</button>
-                <button class="btn btn-secondary" id="clearPracticeBtn">清除练习统计</button>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-secondary" id="clearGamesBtn" style="flex: 1;">清除对局记录</button>
+                  <button class="btn btn-secondary" id="clearPracticeBtn" style="flex: 1;">清除练习统计</button>
+                </div>
                 <button class="btn btn-secondary" id="clearAllBtn" style="background: var(--accent-red); border-color: var(--accent-red);">全部清除</button>
               </div>
             </div>

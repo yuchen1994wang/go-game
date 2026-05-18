@@ -34,7 +34,7 @@
       <div class="setup-section">
         <div class="section-title">📐 棋盘大小</div>
         <div class="option-grid" id="sizeOptions">
-          <div class="option-card selected" data-size="9">
+          <div class="option-card" data-size="9">
             <div class="option-icon">9️⃣</div>
             <div class="option-label">9路</div>
             <div class="option-desc">快速对局</div>
@@ -44,7 +44,7 @@
             <div class="option-label">13路</div>
             <div class="option-desc">标准练习</div>
           </div>
-          <div class="option-card" data-size="19">
+          <div class="option-card selected" data-size="19">
             <div class="option-icon">1️⃣9️⃣</div>
             <div class="option-label">19路</div>
             <div class="option-desc">完整对局</div>
@@ -84,7 +84,7 @@
   <script>
     class AISetup {
       constructor() {
-        this.selectedSize = 9;
+        this.selectedSize = 19;
         this.selectedLevel = 'easy';
         this.init();
       }

@@ -139,8 +139,7 @@
         <div class="action-buttons">
           <button class="btn btn-primary" id="hintBtn">💡 AI 建议</button>
           <button class="btn btn-secondary" id="analyzeBtn">🔍 分析局面</button>
-          <button class="btn btn-secondary" id="pauseBtn">⏸️ 暂停</button>
-          <button class="btn btn-danger" id="newGameBtn">🆕 新局</button>
+          <button class="btn btn-secondary" id="pauseBtn">📦 封盘</button>
         </div>
       </div>
     </div>
@@ -580,8 +579,12 @@
 
       pause() {
         this.isPaused = !this.isPaused;
-        document.getElementById('pauseBtn').textContent = this.isPaused ? '▶️ 继续' : '⏸️ 暂停';
+        document.getElementById('pauseBtn').textContent = this.isPaused ? '▶️ 继续' : '📦 封盘';
         this.updateUI();
+        
+        if (this.isPaused) {
+          showToast('对局已封盘，点击继续可恢复', 'info');
+        }
         
         if (!this.isPaused && !this.isUserTurn) {
           this.aiMove();
@@ -664,7 +667,6 @@
         document.getElementById('hintBtn').addEventListener('click', () => this.showHint());
         document.getElementById('analyzeBtn').addEventListener('click', () => this.analyzePosition());
         document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
-        document.getElementById('newGameBtn').addEventListener('click', () => this.newGame());
         document.getElementById('closeModal').addEventListener('click', () => {
           document.getElementById('resultModal').classList.remove('visible');
           this.newGame();
