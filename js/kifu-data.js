@@ -135,6 +135,127 @@ const KifuData = {
         { x: 4, y: 4, player: 1, comment: "黑11占中腹：控制中央，连接两边。" },
         { x: 3, y: 4, player: 2, comment: "白12收官：最后阶段争夺小地方，每目都很重要！" }
       ]
+    },
+    {
+      id: 6,
+      title: "布局：小目定式",
+      players: {
+        black: "黑方",
+        white: "白方"
+      },
+      date: "基础教程",
+      size: 9,
+      result: "教学对局",
+      tags: ["入门", "小目", "定式"],
+      description: "学习小目定式的基本变化，理解角部的标准应对。",
+      moves: [
+        { x: 2, y: 3, player: 1, comment: "黑1下小目：小目是最常见的开局点之一。" },
+        { x: 2, y: 2, player: 2, comment: "白2小飞挂角：从外侧挂角攻击。" },
+        { x: 3, y: 2, player: 1, comment: "黑3尖顶：压迫白棋。" },
+        { x: 4, y: 2, player: 2, comment: "白4长：向外发展。" },
+        { x: 3, y: 3, player: 1, comment: "黑5挡：守住角部。" },
+        { x: 4, y: 3, player: 2, comment: "白6拆二：在边上安定。" },
+        { x: 5, y: 4, player: 1, comment: "黑7飞：扩张势力。" }
+      ]
+    },
+    {
+      id: 7,
+      title: "基础：打劫",
+      players: {
+        black: "黑方",
+        white: "白方"
+      },
+      date: "基础教程",
+      size: 9,
+      result: "教学对局",
+      tags: ["入门", "打劫", "规则"],
+      description: "学习围棋中有趣的打劫规则，理解劫的基本概念。",
+      moves: [
+        { x: 2, y: 2, player: 1, comment: "黑1占角。" },
+        { x: 6, y: 2, player: 2, comment: "白2占角。" },
+        { x: 3, y: 2, player: 1, comment: "黑3小飞守角。" },
+        { x: 3, y: 3, player: 2, comment: "白4点三三：侵入角部。" },
+        { x: 2, y: 3, player: 1, comment: "黑5挡。" },
+        { x: 2, y: 4, player: 2, comment: "白6爬。" },
+        { x: 1, y: 3, player: 1, comment: "黑7扳。" },
+        { x: 1, y: 4, player: 2, comment: "白8打吃！形成打劫！" },
+        { x: 1, y: 2, player: 1, comment: "黑9提劫：吃掉白棋。" },
+        { x: 4, y: 2, player: 2, comment: "白10找劫材：不能马上提回。" },
+        { x: 5, y: 2, player: 1, comment: "黑11应劫。" },
+        { x: 1, y: 4, player: 2, comment: "白12提劫：现在可以提回来了！" }
+      ]
+    },
+    {
+      id: 8,
+      title: "基础：双活",
+      players: {
+        black: "黑方",
+        white: "白方"
+      },
+      date: "基础教程",
+      size: 9,
+      result: "教学对局",
+      tags: ["入门", "双活", "死活"],
+      description: "学习双活的概念，双方共享气的特殊形态。",
+      moves: [
+        { x: 4, y: 4, player: 1, comment: "黑1天元。" },
+        { x: 3, y: 4, player: 2, comment: "白2靠近。" },
+        { x: 5, y: 4, player: 1, comment: "黑3另一边。" },
+        { x: 4, y: 3, player: 2, comment: "白4上边。" },
+        { x: 4, y: 5, player: 1, comment: "黑5下边。" },
+        { x: 3, y: 3, player: 2, comment: "白6斜着走。" },
+        { x: 5, y: 5, player: 1, comment: "黑7另一边。" },
+        { x: 5, y: 3, player: 2, comment: "白8继续。" },
+        { x: 3, y: 5, player: 1, comment: "黑9完成：形成双活！双方各有一口公气。" }
+      ]
+    },
+    {
+      id: 9,
+      title: "实战：序盘要点",
+      players: {
+        black: "黑方",
+        white: "白方"
+      },
+      date: "实战教程",
+      size: 9,
+      result: "教学对局",
+      tags: ["实战", "序盘", "要点"],
+      description: "学习序盘阶段的关键要点，掌握开局的基本思路。",
+      moves: [
+        { x: 2, y: 2, player: 1, comment: "黑1星位。" },
+        { x: 6, y: 6, player: 2, comment: "白2对角星。" },
+        { x: 6, y: 2, player: 1, comment: "黑3占另一边。" },
+        { x: 2, y: 6, player: 2, comment: "白4占最后一角。" },
+        { x: 3, y: 2, player: 1, comment: "黑5小飞守角。" },
+        { x: 5, y: 6, player: 2, comment: "白6小飞守角。" },
+        { x: 4, y: 2, player: 1, comment: "黑7拆边。" },
+        { x: 4, y: 6, player: 2, comment: "白8拆边。" },
+        { x: 4, y: 4, player: 1, comment: "黑9占天元：控制中央！" }
+      ]
+    },
+    {
+      id: 10,
+      title: "技巧：扑",
+      players: {
+        black: "黑方",
+        white: "白方"
+      },
+      date: "技巧教程",
+      size: 9,
+      result: "教学对局",
+      tags: ["技巧", "扑", "吃子"],
+      description: "学习'扑'的技巧，这是高级吃子手段的基础。",
+      moves: [
+        { x: 2, y: 2, player: 1, comment: "黑1占角。" },
+        { x: 3, y: 2, player: 2, comment: "白2靠近。" },
+        { x: 2, y: 3, player: 1, comment: "黑3跳。" },
+        { x: 3, y: 3, player: 2, comment: "白4连接。" },
+        { x: 1, y: 2, player: 1, comment: "黑5立下。" },
+        { x: 1, y: 3, player: 2, comment: "白6挡住。" },
+        { x: 1, y: 4, player: 1, comment: "黑7扑！精妙的一手！" },
+        { x: 1, y: 3, player: 2, comment: "白8必须提掉黑棋。" },
+        { x: 2, y: 4, player: 1, comment: "黑9打吃！白棋被吃掉了！" }
+      ]
     }
   ]
 };

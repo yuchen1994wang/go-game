@@ -95,10 +95,9 @@
 
     .problem-info {
       flex: 1;
-      min-width: 0;
     }
 
-    .problem-title {
+    .problem-name {
       font-weight: 600;
       font-size: 1.1rem;
       color: var(--text-primary);
@@ -109,23 +108,35 @@
       font-size: 0.85rem;
       color: var(--text-secondary);
       line-height: 1.5;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .problem-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .problem-tag {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
     }
 
     .problem-meta {
       display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-shrink: 0;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      min-width: 100px;
     }
 
     .difficulty-badge {
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 12px;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 500;
     }
 
@@ -145,7 +156,6 @@
     }
 
     .problem-stats {
-      text-align: right;
       font-size: 0.85rem;
       color: var(--text-secondary);
     }
@@ -158,6 +168,17 @@
     .accuracy.high { color: #2E7D32; }
     .accuracy.medium { color: #E65100; }
     .accuracy.low { color: #C62828; }
+
+    .problem-arrow {
+      font-size: 1.5rem;
+      color: var(--accent-gold);
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .problem-card:hover .problem-arrow {
+      opacity: 1;
+    }
 
     .empty-state {
       text-align: center;
@@ -292,11 +313,16 @@
           '高级': 'hard'
         }[problem.difficulty] || 'easy';
 
+        const tags = problem.tags || ['死活', problem.difficulty];
+
         return `
           <div class="problem-card" data-id="${problem.id}">
             <div class="problem-info">
-              <div class="problem-title">${problem.title}</div>
+              <div class="problem-name">${problem.title}</div>
               <div class="problem-desc">${problem.description}</div>
+              <div class="problem-tags">
+                ${tags.map(tag => `<span class="problem-tag">${tag}</span>`).join('')}
+              </div>
             </div>
             <div class="problem-meta">
               <span class="difficulty-badge ${difficultyClass}">${problem.difficulty}</span>
@@ -304,6 +330,7 @@
                 <div class="accuracy ${accuracyClass}">${accuracy}%</div>
                 <div>${stats.correct}/${stats.attempts}</div>
               </div>
+              <div class="problem-arrow">→</div>
             </div>
           </div>
         `;
