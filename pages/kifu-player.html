@@ -826,13 +826,11 @@
           const stone = document.createElement('div');
           stone.className = `stone ${stoneColor}${isLastMove ? ' last-move' : ''}`;
 
-          // 添加手数标记（最近10手显示手数）
-          if (i >= Math.max(0, this.currentMove - 9)) {
-            const num = document.createElement('span');
-            num.className = 'move-number';
-            num.textContent = i + 1;
-            stone.appendChild(num);
-          }
+          // 添加手数标记（所有手都显示手数）
+          const num = document.createElement('span');
+          num.className = 'move-number';
+          num.textContent = i + 1;
+          stone.appendChild(num);
 
           intersection.appendChild(stone);
           requestAnimationFrame(() => stone.classList.add('visible'));

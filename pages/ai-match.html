@@ -51,15 +51,39 @@
     .result-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 16px; color: var(--text-primary); }
     .result-details { font-size: 1rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6; }
     @media (max-width: 900px) {
-      .board-wrapper { padding: 15px; }
-      .intersection { width: 32px; height: 32px; }
-      .stone { width: 28px; height: 28px; }
-      .btn { padding: 16px; font-size: 1rem; }
+      .board-wrapper { padding: 12px; }
+      .intersection { width: 28px; height: 28px; }
+      .stone { width: 24px; height: 24px; }
+      .btn { padding: 12px; font-size: 0.9rem; }
+      .info-panel { padding: 12px; }
+      .game-title { font-size: 1.1rem; margin-bottom: 10px; }
+      .status-row { padding: 8px; margin-bottom: 10px; }
+      .stats-grid { gap: 8px; margin-bottom: 10px; }
+      .stat-box { padding: 8px; }
+      .analysis-section { margin-bottom: 10px; }
+      .analysis-content { max-height: 80px; padding: 8px; }
+      .action-buttons { gap: 8px; }
+      .match-container { padding: 8px; }
     }
     @media (max-width: 480px) {
-      .board-wrapper { padding: 10px; }
-      .intersection { width: 26px; height: 26px; }
-      .stone { width: 22px; height: 22px; }
+      .board-wrapper { padding: 8px; }
+      .intersection { width: calc((100vw - 40px) / var(--board-size)); height: calc((100vw - 40px) / var(--board-size)); max-width: 24px; max-height: 24px; }
+      .stone { width: calc(((100vw - 40px) / var(--board-size)) - 4px); height: calc(((100vw - 40px) / var(--board-size)) - 4px); max-width: 20px; max-height: 20px; }
+      .board-section { margin-bottom: 10px; }
+      .info-panel { padding: 10px; }
+      .game-title { font-size: 1rem; margin-bottom: 8px; }
+      .status-row { padding: 6px; margin-bottom: 8px; }
+      .current-player { width: 20px; height: 20px; }
+      .status-text { font-size: 0.85rem; }
+      .stats-grid { gap: 6px; margin-bottom: 8px; }
+      .stat-box { padding: 6px; }
+      .stat-label { font-size: 0.7rem; }
+      .stat-value { font-size: 0.9rem; }
+      .analysis-title { font-size: 0.8rem; }
+      .analysis-content { font-size: 0.75rem; max-height: 60px; padding: 6px; }
+      .btn { padding: 10px; font-size: 0.85rem; }
+      .action-buttons { gap: 6px; }
+      .match-container { padding: 4px; gap: 10px; }
     }
   </style>
 </head>
@@ -151,6 +175,8 @@
         this.cellSize = 36;
         this.boardPadding = 25;
         this.lastMove = null;
+        this.userColor = 'black';
+        this.aiColor = 'white';
         this.init();
       }
 
@@ -165,7 +191,7 @@
         this.size = parseInt(params.get('size')) || 9;
         const level = params.get('level') || 'medium';
 
-        this.engine = new GoEngine(this.size);
+        this.resetGame();
         this.ai = new GoAI(level);
 
         this.calculateBoardSize();
@@ -173,21 +199,50 @@
         this.updateUI();
         this.updateAnalysis();
         this.bindEvents();
+      }
 
-        this.cellSize = this.calculateCellSize();
-        this.boardPadding = Math.max(20, this.cellSize);
+      resetGame() {
+        this.engine = new GoEngine(this.size);
+        this.moveHistory = [];
+        this.isPaused = false;
+        this.lastMove = null;
+        
+        const isUserBlack = Math.random() < 0.5;
+        if (isUserBlack) {
+          this.userColor = 'black';
+          this.aiColor = 'white';
+          this.isUserTurn = true;
+          this.engine.currentPlayer = 'black';
+          showToast('你执黑先行', 'info');
+        } else {
+          this.userColor = 'white';
+          this.aiColor = 'black';
+          this.isUserTurn = false;
+          this.engine.currentPlayer = 'black';
+          showToast('AI执黑先行', 'info');
+          setTimeout(() => {
+            this.aiMove();
+          }, 500);
+        }
+        
+        const goban = document.getElementById('goban');
+        const stones = goban.querySelectorAll('.stone');
+        stones.forEach(s => s.remove());
+        
+        document.getElementById('pauseBtn').textContent = '⏸️ 暂停';
+        document.getElementById('resultModal').classList.remove('visible');
       }
 
       calculateCellSize() {
         const container = document.querySelector('.board-section');
-        const containerWidth = container ? container.clientWidth - 80 : 300;
-        const maxCell = Math.floor(containerWidth / this.size);
-        return Math.min(Math.max(maxCell, 20), 40);
+        const containerWidth = container ? container.clientWidth - 40 : 300; // Account for padding
+        const maxCell = Math.floor(containerWidth / (this.size + 0.5)); // Add buffer for board padding
+        return Math.min(Math.max(maxCell, 16), 40);
       }
 
       calculateBoardSize() {
         this.cellSize = this.calculateCellSize();
-        this.boardPadding = Math.max(20, this.cellSize);
+        this.boardPadding = Math.max(10, Math.min(25, Math.floor(this.cellSize / 2)));
       }
 
       renderBoard() {
@@ -292,12 +347,18 @@
 
       handleClick(x, y) {
         if (this.isPaused || !this.isUserTurn) return;
+        
+        // Ensure engine's current player is user's color
+        if (this.engine.currentPlayer !== this.userColor) {
+          this.engine.currentPlayer = this.userColor;
+        }
+        
         if (!this.engine.isValidMove(x, y)) {
           showToast('无效落子', 'warning');
           return;
         }
 
-        this.makeMove(x, y, 'black');
+        this.makeMove(x, y, this.userColor);
         
         if (!this.engine.isTwoPasses()) {
           this.isUserTurn = false;
@@ -311,6 +372,10 @@
 
       makeMove(x, y, color) {
         this.removeLastMoveMarker();
+        
+        // Set engine's current player to the color making the move
+        const originalPlayer = this.engine.currentPlayer;
+        this.engine.currentPlayer = color;
         
         if (this.engine.play(x, y)) {
           this.placeStone(x, y, color);
@@ -328,6 +393,9 @@
           if (this.engine.isTwoPasses()) {
             this.endGame();
           }
+        } else {
+          // Restore original player if play failed
+          this.engine.currentPlayer = originalPlayer;
         }
       }
 
@@ -338,38 +406,44 @@
           return;
         }
 
-        // 先设置引擎当前玩家为白方（AI执白）
-        const originalPlayer = this.engine.currentPlayer;
-        this.engine.currentPlayer = 'white';
+        try {
+          // Set engine's current player to AI's color
+          this.engine.currentPlayer = this.aiColor;
 
-        const move = this.ai.getMove(this.engine);
-        let moved = false;
+          const move = this.ai.getMove(this.engine, this.aiColor);
+          let moved = false;
 
-        if (move && this.engine.isValidMove(move.x, move.y)) {
-          this.makeMove(move.x, move.y, 'white');
-          moved = true;
-        } else {
-          // 找不到好棋，尝试找任意可行位置
-          for (let y = 0; y < this.size; y++) {
-            for (let x = 0; x < this.size; x++) {
-              if (this.engine.isValidMove(x, y)) {
-                this.makeMove(x, y, 'white');
-                moved = true;
-                break;
+          if (move && this.engine.isValidMove(move.x, move.y)) {
+            this.makeMove(move.x, move.y, this.aiColor);
+            moved = true;
+          } else {
+            for (let y = 0; y < this.size; y++) {
+              for (let x = 0; x < this.size; x++) {
+                if (this.engine.isValidMove(x, y)) {
+                  this.makeMove(x, y, this.aiColor);
+                  moved = true;
+                  break;
+                }
               }
+              if (moved) break;
             }
-            if (moved) break;
           }
-        }
 
-        if (!moved) {
-          this.engine.pass();
-          this.moveHistory.push({ x: -1, y: -1, color: 'white' });
-          showToast('AI 停了一手', 'info');
+          if (!moved) {
+            this.engine.currentPlayer = this.aiColor;
+            this.engine.pass();
+            this.moveHistory.push({ x: -1, y: -1, color: this.aiColor });
+            showToast('AI 停了一手', 'info');
+          }
+        } catch (e) {
+          console.error('AI move error:', e);
+          showToast('AI思考出错，跳过此回合', 'warning');
         }
         
-        // 恢复玩家状态并切换回用户
         this.isUserTurn = true;
+        if (this.engine.currentPlayer !== this.userColor) {
+          this.engine.currentPlayer = this.userColor;
+        }
         this.updateUI();
       }
 
@@ -406,7 +480,12 @@
       }
 
       pass() {
+        // Ensure engine's current player is user's color
+        if (this.engine.currentPlayer !== this.userColor) {
+          this.engine.currentPlayer = this.userColor;
+        }
         this.engine.pass();
+        this.moveHistory.push({ x: -1, y: -1, color: this.userColor });
         this.isUserTurn = false;
         this.updateUI();
         
@@ -428,7 +507,7 @@
         if (this.isPaused) {
           statusText.textContent = '已暂停';
         } else if (this.isUserTurn) {
-          statusText.textContent = this.engine.currentPlayer === 'black' ? '黑方落子（你）' : '白方落子（AI）';
+          statusText.textContent = (this.userColor === 'black' ? '黑方' : '白方') + '落子（你）';
         } else {
           statusText.textContent = 'AI 思考中...';
         }
@@ -442,21 +521,22 @@
 
       updateAnalysis() {
         const analysis = this.engine.analyzePosition();
-        const deadBlack = analysis.groups.filter(g => g.color === 'black' && g.liberties <= 2);
-        const deadWhite = analysis.groups.filter(g => g.color === 'white' && g.liberties <= 2);
+        const opponentColor = this.userColor === 'black' ? 'white' : 'black';
+        const userDeadGroups = analysis.groups.filter(g => g.color === this.userColor && g.liberties <= 2);
+        const opponentDeadGroups = analysis.groups.filter(g => g.color === opponentColor && g.liberties <= 2);
         
         let text = '';
         
-        if (deadBlack.length > 0) {
-          text += `⚠️ 你的黑棋有 ${deadBlack.length} 块危险\n`;
-          deadBlack.forEach(g => {
+        if (userDeadGroups.length > 0) {
+          text += `⚠️ 你的${this.userColor === 'black' ? '黑' : '白'}棋有 ${userDeadGroups.length} 块危险\n`;
+          userDeadGroups.forEach(g => {
             text += `   - ${g.stones.length}子，仅剩 ${g.liberties} 气\n`;
           });
         }
         
-        if (deadWhite.length > 0) {
-          text += `🎯 可杀白棋 ${deadWhite.length} 块\n`;
-          deadWhite.forEach(g => {
+        if (opponentDeadGroups.length > 0) {
+          text += `🎯 可杀${opponentColor === 'black' ? '黑' : '白'}棋 ${opponentDeadGroups.length} 块\n`;
+          opponentDeadGroups.forEach(g => {
             text += `   - ${g.stones.length}子，仅剩 ${g.liberties} 气\n`;
           });
         }
@@ -473,7 +553,7 @@
       }
 
       showHint() {
-        const move = this.ai.getMove(this.engine);
+        const move = this.ai.getMove(this.engine, this.userColor);
         if (move) {
           showToast(`AI 建议：(${move.x}, ${move.y})`, 'info');
         } else {
@@ -530,6 +610,13 @@
         try {
           const games = JSON.parse(localStorage.getItem('go_game_history') || '[]');
           const gameId = Date.now();
+          // Convert moveHistory to use player numbers (1 for black, 2 for white) instead of color strings
+          const moveHistory = this.moveHistory.map(m => ({
+            x: m.x,
+            y: m.y,
+            player: m.color === 'black' ? 1 : 2,
+            pass: m.x === -1 && m.y === -1
+          }));
           const game = {
             id: gameId,
             date: new Date().toLocaleString('zh-CN'),
@@ -540,7 +627,7 @@
             white: white,
             komi: komi,
             totalMoves: this.moveHistory.length,
-            moves: this.moveHistory.map(m => ({ x: m.x, y: m.y, color: m.color })),
+            moveHistory: moveHistory, // Use the correct key that review.html expects
             type: 'ai',
             blackPlayer: '你',
             whitePlayer: 'AI'
@@ -556,19 +643,7 @@
       }
 
       newGame() {
-        this.engine = new GoEngine(this.size);
-        this.moveHistory = [];
-        this.isUserTurn = true;
-        this.isPaused = false;
-        this.lastMove = null;
-        
-        const goban = document.getElementById('goban');
-        const stones = goban.querySelectorAll('.stone');
-        stones.forEach(s => s.remove());
-        
-        document.getElementById('pauseBtn').textContent = '⏸️ 暂停';
-        document.getElementById('resultModal').classList.remove('visible');
-        
+        this.resetGame();
         this.updateUI();
         this.updateAnalysis();
         showToast('新对局开始！', 'success');

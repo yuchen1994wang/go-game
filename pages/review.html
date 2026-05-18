@@ -548,10 +548,13 @@
         this.game.blackTime = gameData.blackTime || 0;
         this.game.whiteTime = gameData.whiteTime || 0;
 
-        for (const move of gameData.moveHistory) {
-          if (move.pass) {
+        // Use moveHistory if available, otherwise fall back to moves (backward compatibility)
+        const moves = gameData.moveHistory || gameData.moves || [];
+        for (const move of moves) {
+          if (move.pass || (move.x === -1 && move.y === -1)) {
             this.game.pass();
           } else {
+            // Handle both player number (1/2) and color string ('black'/'white')
             this.game.play(move.x, move.y, move.comment || '');
           }
         }

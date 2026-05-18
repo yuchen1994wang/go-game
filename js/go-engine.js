@@ -250,39 +250,81 @@ class GoAI {
     this.level = level;
   }
 
-  getMove(engine) {
-    const deadGroups = engine.findDeadGroups();
-    
-    if (deadGroups.length > 0) {
-      const target = deadGroups[0];
-      const lib = this.findLibertyWithMinimumNeighbor(target, engine);
-      if (lib) return lib;
-    }
+  getMove(engine, aiColor = 'white') {
+    try {
+      const opponentColor = aiColor === 'black' ? 'white' : 'black';
+      
+      const deadGroups = this.findDeadGroupsForColor(engine, opponentColor);
+      
+      if (deadGroups.length > 0) {
+        const target = deadGroups[0];
+        const lib = this.findLibertyWithMinimumNeighbor(target, engine, aiColor);
+        if (lib && this.isValidMoveForColor(engine, lib.x, lib.y, aiColor)) {
+          return lib;
+        }
+      }
 
-    const analysis = engine.analyzePosition();
-    
-    for (const threat of analysis.atariThreats) {
-      if (threat.color === 'white') {
-        const escape = this.findEscapeMove(threat, engine);
-        if (escape) return escape;
+      const analysis = engine.analyzePosition();
+      
+      for (const threat of analysis.atariThreats) {
+        if (threat.color === aiColor) {
+          const escape = this.findEscapeMove(threat, engine, aiColor);
+          if (escape && this.isValidMoveForColor(engine, escape.x, escape.y, aiColor)) {
+            return escape;
+          }
+        }
+      }
+
+      const candidates = this.getCandidateMoves(engine, aiColor);
+      if (candidates.length === 0) return null;
+
+      let selected;
+      if (this.level === 'easy') {
+        selected = candidates[Math.floor(Math.random() * Math.min(5, candidates.length))];
+      } else if (this.level === 'medium') {
+        selected = candidates[Math.floor(Math.random() * Math.min(10, candidates.length))];
+      } else {
+        selected = candidates[0];
+      }
+
+      if (selected && this.isValidMoveForColor(engine, selected.x, selected.y, aiColor)) {
+        return selected;
+      }
+
+      return candidates.find(c => this.isValidMoveForColor(engine, c.x, c.y, aiColor)) || null;
+    } catch (e) {
+      console.error('GoAI getMove error:', e);
+      return null;
+    }
+  }
+
+  isValidMoveForColor(engine, x, y, color) {
+    const testEngine = engine.clone();
+    testEngine.currentPlayer = color;
+    return testEngine.isValidMove(x, y);
+  }
+  
+  findDeadGroupsForColor(engine, color) {
+    const deadGroups = [];
+    const checked = new Set();
+
+    for (let y = 0; y < engine.size; y++) {
+      for (let x = 0; x < engine.size; x++) {
+        if (engine.board[y][x] === color && !checked.has(`${x},${y}`)) {
+          const group = engine.getGroup(x, y);
+          group.stones.forEach(([sx, sy]) => checked.add(`${sx},${sy}`));
+          
+          if (group.liberties <= 2) {
+            deadGroups.push(group);
+          }
+        }
       }
     }
 
-    const candidates = this.getCandidateMoves(engine);
-    if (candidates.length === 0) return null;
-
-    if (this.level === 'easy') {
-      return candidates[Math.floor(Math.random() * Math.min(5, candidates.length))];
-    }
-    
-    if (this.level === 'medium') {
-      return candidates[Math.floor(Math.random() * Math.min(10, candidates.length))];
-    }
-    
-    return candidates[0];
+    return deadGroups;
   }
 
-  findLibertyWithMinimumNeighbor(group, engine) {
+  findLibertyWithMinimumNeighbor(group, engine, aiColor) {
     const liberties = new Set();
     for (const [x, y] of group.stones) {
       engine.getNeighbors(x, y).forEach(([nx, ny]) => {
@@ -297,7 +339,7 @@ class GoAI {
 
     for (const key of liberties) {
       const [x, y] = key.split(',').map(Number);
-      const score = this.evaluatePosition(engine, x, y);
+      const score = this.evaluatePosition(engine, x, y, aiColor);
       if (score < minScore) {
         minScore = score;
         best = { x, y };
@@ -307,7 +349,7 @@ class GoAI {
     return best;
   }
 
-  findEscapeMove(group, engine) {
+  findEscapeMove(group, engine, aiColor) {
     const liberties = [];
     for (const [x, y] of group.stones) {
       engine.getNeighbors(x, y).forEach(([nx, ny]) => {
@@ -321,7 +363,7 @@ class GoAI {
     }
 
     for (const lib of liberties) {
-      if (this.isSafeMove(engine, lib.x, lib.y)) {
+      if (this.isSafeMove(engine, lib.x, lib.y, aiColor)) {
         return lib;
       }
     }
@@ -329,7 +371,8 @@ class GoAI {
     return liberties[0] || null;
   }
 
-  getCandidateMoves(engine) {
+  getCandidateMoves(engine, aiColor) {
+    const opponentColor = aiColor === 'black' ? 'white' : 'black';
     const candidates = [];
     const checked = new Set();
 
@@ -354,8 +397,8 @@ class GoAI {
             const key = `${nx},${ny}`;
             if (!checked.has(key)) {
               checked.add(key);
-              if (this.isSafeMove(engine, nx, ny)) {
-                const score = this.evaluatePosition(engine, nx, ny);
+              if (this.isSafeMove(engine, nx, ny, aiColor)) {
+                const score = this.evaluatePosition(engine, nx, ny, aiColor);
                 candidates.push({ x: nx, y: ny, score });
               }
             }
@@ -368,8 +411,8 @@ class GoAI {
     if (candidates.length === 0) {
       for (let y = 0; y < engine.size; y++) {
         for (let x = 0; x < engine.size; x++) {
-          if (engine.board[y][x] === null && this.isSafeMove(engine, x, y)) {
-            const score = this.evaluatePosition(engine, x, y);
+          if (engine.board[y][x] === null && this.isSafeMove(engine, x, y, aiColor)) {
+            const score = this.evaluatePosition(engine, x, y, aiColor);
             candidates.push({ x, y, score });
           }
         }
@@ -380,22 +423,23 @@ class GoAI {
     return candidates;
   }
 
-  isSafeMove(engine, x, y) {
+  isSafeMove(engine, x, y, aiColor) {
     const testEngine = engine.clone();
-    testEngine.currentPlayer = 'white';
+    testEngine.currentPlayer = aiColor;
     return testEngine.isValidMove(x, y);
   }
 
-  evaluatePosition(engine, x, y) {
+  evaluatePosition(engine, x, y, aiColor) {
+    const opponentColor = aiColor === 'black' ? 'white' : 'black';
     let score = 0;
     
     const neighbors = engine.getNeighbors(x, y);
     for (const [nx, ny] of neighbors) {
-      if (engine.board[ny][nx] === 'white') score += 10;
-      if (engine.board[ny][nx] === 'black') score -= 5;
+      if (engine.board[ny][nx] === aiColor) score += 10;
+      if (engine.board[ny][nx] === opponentColor) score -= 5;
       
       const group = engine.getGroup(nx, ny);
-      if (engine.board[ny][nx] === 'black' && group.liberties <= 2) {
+      if (engine.board[ny][nx] === opponentColor && group.liberties <= 2) {
         score += 20;
       }
     }
