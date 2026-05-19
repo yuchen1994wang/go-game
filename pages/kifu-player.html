@@ -798,11 +798,7 @@
           item.classList.toggle('active', index === this.currentMove);
         });
 
-        // 滚动到当前手
-        const activeItem = document.querySelector('.move-item.active');
-        if (activeItem) {
-          activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        // 不滚动到手数列表，保持页面不动
 
         // 更新棋盘
         this.updateBoard();

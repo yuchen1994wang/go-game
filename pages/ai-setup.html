@@ -21,7 +21,11 @@
     .start-btn { width: 100%; padding: 16px; font-size: 1.1rem; background: var(--accent-gold); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
     .start-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
     .start-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    @media (max-width: 480px) { .option-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .option-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 480px) { .option-card { padding: 12px 8px; } }
+    @media (max-width: 480px) { .option-icon { font-size: 1.5rem; } }
+    @media (max-width: 480px) { .option-label { font-size: 0.9rem; } }
+    @media (max-width: 480px) { .option-desc { display: none; } }
   </style>
 </head>
 <body>

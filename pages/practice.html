@@ -12,6 +12,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     .practice-title {
@@ -95,6 +97,7 @@
 
     .problem-info {
       flex: 1;
+      min-width: 0;
     }
 
     .problem-name {
@@ -131,6 +134,7 @@
       align-items: flex-end;
       gap: 8px;
       min-width: 100px;
+      flex-shrink: 0;
     }
 
     .difficulty-badge {
@@ -158,6 +162,7 @@
     .problem-stats {
       font-size: 0.85rem;
       color: var(--text-secondary);
+      text-align: right;
     }
 
     .accuracy {
@@ -191,6 +196,20 @@
       margin-bottom: 16px;
       opacity: 0.5;
     }
+
+    @media (max-width: 480px) {
+      .practice-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .problem-card {
+        padding: 16px;
+        gap: 12px;
+      }
+      .problem-meta {
+        min-width: 80px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -199,8 +218,7 @@
 
     <div class="practice-header">
       <h1 class="practice-title">死活题练习</h1>
-      <div style="display: flex; gap: 12px; align-items: center;">
-        <div class="practice-stats">
+      <div class="practice-stats">
         <div class="stat-item">
           <span>总题数:</span>
           <span class="stat-value" id="totalCount">0</span>

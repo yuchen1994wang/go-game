@@ -42,6 +42,20 @@
     .setup-actions .btn {
       flex: 1;
     }
+    @media (max-width: 480px) {
+      .board-size-options {
+        grid-template-columns: repeat(3, 1fr) !important;
+      }
+      .board-size-option {
+        padding: 12px 8px !important;
+      }
+      .size-number {
+        font-size: 1.5rem !important;
+      }
+      .size-label {
+        font-size: 0.8rem !important;
+      }
+    }
   </style>
 </head>
 <body>
