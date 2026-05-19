@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>围棋定式库学习</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/pattern-library.css">
+</head>
+<body>
+  <header class="page-header">
+    <div class="header-container">
+      <a href="../index.html" class="logo">
+        <div class="logo-icon"></div>
+        <span class="logo-text">围棋定式库</span>
+      </a>
+      <nav class="header-nav">
+        <a href="../index.html" class="nav-link">首页</a>
+        <a href="pattern-study.html" class="nav-link active">定式学习</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div id="pattern-study-container"></div>
+  </main>
+
+  <script src="../js/pattern-library.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const studyUI = new PatternStudyUI('pattern-study-container');
+      
+      window.patternStudyUI = studyUI;
+      
+      console.log('围棋定式库学习模块已加载');
+      console.log('示例:');
+      console.log('- 获取所有星位定式:', studyUI.library.getByCategory('星位').map(p => p.name));
+      console.log('- 搜索定式:', studyUI.library.search('小飞挂'));
+      console.log('- 获取收藏:', studyUI.library.getFavorites().map(p => p.name));
+      console.log('- 学习进度:', studyUI.library.getProgress());
+    });
+  </script>
+</body>
+</html>
