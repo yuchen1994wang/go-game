@@ -14,7 +14,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#C4A35A">
   <link rel="manifest" href="../manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400,600,700&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/common.css">
   <style>
     .home-page { display: flex; flex-direction: column; min-height: 100vh; }
@@ -127,16 +127,16 @@
           <p class="feature-desc">查看、管理和复盘您的棋谱</p>
         </a>
 
-        <a href="practice.html" class="feature-card" aria-label="定式练习">
+        <a href="pattern-study.html" class="feature-card" aria-label="定式库学习">
           <div class="feature-icon">📐</div>
-          <h2 class="feature-title">定式练习</h2>
-          <p class="feature-desc">学习经典定式，掌握开局要领</p>
+          <h2 class="feature-title">定式库学习</h2>
+          <p class="feature-desc">26个经典定式，包含练习和测试</p>
         </a>
 
-        <a href="review.html" class="feature-card" aria-label="复盘分析">
-          <div class="feature-icon">🔍</div>
-          <h2 class="feature-title">复盘分析</h2>
-          <p class="feature-desc">AI辅助分析对局，找出关键手</p>
+        <a href="statistics.html" class="feature-card" aria-label="数据统计">
+          <div class="feature-icon">📊</div>
+          <h2 class="feature-title">数据统计</h2>
+          <p class="feature-desc">查看学习进度、成长曲线和能力分析</p>
         </a>
 
         <a href="setup.html" class="feature-card" aria-label="自由对弈">
@@ -301,7 +301,8 @@
 
       bindEvents() {
         document.getElementById('settingsBtn').addEventListener('click', () => {
-          showToast('设置功能开发中...', 'info');
+          Header.initSettingsModal();
+          document.getElementById('settingsModal').style.display = 'flex';
         });
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
