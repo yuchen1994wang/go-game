@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>打谱回放 - 围棋对弈复盘</title>
-  <meta name="description" content="围棋棋谱回放，名家名局逐手讲解">
+  <title>棋谱复盘 - 围棋对弈复盘</title>
+  <meta name="description" content="复盘您的对局，分析关键手">
   <meta name="keywords" content="围棋,围棋对弈,围棋学习,死活题,棋谱,AI对弈">
   <meta name="author" content="围棋对弈复盘">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="打谱回放 - 围棋对弈复盘">
-  <meta property="og:description" content="围棋棋谱回放，名家名局逐手讲解">
+  <meta property="og:title" content="棋谱复盘 - 围棋对弈复盘">
+  <meta property="og:description" content="复盘您的对局，分析关键手">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#C4A35A">
+  <link rel="manifest" href="../manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/common.css">
   <style>
     .kifu-player-page { display: flex; flex-direction: column; min-height: 100vh; }
-
     header {
       background: var(--panel-bg);
       backdrop-filter: blur(10px);
@@ -29,455 +29,97 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-
     .header-left { display: flex; align-items: center; gap: 16px; }
     .header-right { display: flex; align-items: center; gap: 12px; }
-
-    .kifu-info-header {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .kifu-info-title {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .kifu-info-players {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .player-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .player-indicator.black {
-      background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%);
-    }
-
-    .player-indicator.white {
-      background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%);
-      border: 1px solid rgba(0,0,0,0.1);
-    }
-
-    main {
-      flex: 1;
-      display: flex;
-      padding: 20px;
-      gap: 20px;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .board-section {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .board-wrapper {
-      position: relative;
-      background: linear-gradient(145deg, var(--board-wood-light) 0%, var(--board-wood) 50%, var(--board-dark) 100%);
-      border-radius: 8px;
-      padding: 30px;
-      box-shadow: var(--shadow-medium);
-    }
-
-    .goban {
-      position: relative;
-      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
-      border-radius: 4px;
-      overflow: visible;
-    }
-
-    .board-grid {
-      position: absolute;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-    }
-
-    .grid-line {
-      stroke: var(--line-color);
-      stroke-width: 1;
-      opacity: 0.7;
-    }
-
-    .star-point {
-      fill: var(--line-color);
-    }
-
-    .intersection {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      transform: translate(-50%, -50%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
-
-    .stone {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      position: absolute;
-      transform: scale(0);
-      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 20;
-    }
-
+    .game-info { display: flex; align-items: center; gap: 16px; font-size: 0.9rem; color: var(--text-secondary); }
+    .game-info-item { display: flex; align-items: center; gap: 6px; }
+    .player-info { display: flex; align-items: center; gap: 8px; }
+    .player-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .player-dot.black { background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%); }
+    .player-dot.white { background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%); border: 1px solid rgba(0,0,0,0.1); }
+    main { flex: 1; display: flex; padding: 20px; gap: 20px; max-width: 1400px; margin: 0 auto; width: 100%; }
+    .board-section { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .board-wrapper { position: relative; background: linear-gradient(145deg, var(--board-wood-light) 0%, var(--board-wood) 50%, var(--board-dark) 100%); border-radius: 8px; padding: 30px; box-shadow: var(--shadow-medium); }
+    .goban { position: relative; background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%); border-radius: 4px; overflow: visible; }
+    .board-grid { position: absolute; top: 0; left: 0; pointer-events: none; }
+    .grid-line { stroke: var(--line-color); stroke-width: 1; opacity: 0.7; }
+    .star-point { fill: var(--line-color); }
+    .intersection { position: absolute; width: 40px; height: 40px; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; z-index: 10; }
+    .stone { width: 36px; height: 36px; border-radius: 50%; position: absolute; transform: scale(0); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 20; }
     .stone.visible { transform: scale(1); }
-
-    .stone.black {
-      background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%);
-      box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.4);
-    }
-
-    .stone.white {
-      background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%);
-      box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.1);
-    }
-
-    /* 最后落子标记 */
-    .stone.last-move::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--accent-red);
-      box-shadow: 0 0 4px rgba(196, 30, 58, 0.6);
-    }
-
-    /* 手数标记 */
-    .stone .move-number {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 11px;
-      font-weight: 600;
-      font-family: 'JetBrains Mono', monospace;
-      z-index: 25;
-      pointer-events: none;
-    }
-
+    .stone.black { background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%); box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.4); }
+    .stone.white { background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%); box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.1); }
+    .stone.last-move::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background: var(--accent-red); box-shadow: 0 0 4px rgba(196, 30, 58, 0.6); }
+    .stone .move-number { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; z-index: 25; pointer-events: none; }
     .stone.black .move-number { color: rgba(255,255,255,0.9); }
     .stone.white .move-number { color: rgba(0,0,0,0.8); }
-
-    .control-panel {
-      width: 380px;
-      background: var(--panel-bg);
-      border-radius: 16px;
-      box-shadow: var(--shadow-medium);
-      border: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      max-height: calc(100vh - 140px);
-    }
-
-    .panel-section {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
+    .control-panel { width: 380px; background: var(--panel-bg); border-radius: 16px; box-shadow: var(--shadow-medium); border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; max-height: calc(100vh - 140px); }
+    .panel-section { padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
     .panel-section:last-child { border-bottom: none; }
-
-    .panel-title {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    /* 播放控制 */
-    .playback-controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .control-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 2px solid var(--border-color);
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      font-size: 1.2rem;
-    }
-
-    .control-btn:hover {
-      border-color: var(--accent-gold);
-      color: var(--accent-gold);
-      transform: scale(1.05);
-    }
-
-    .control-btn.primary {
-      width: 52px;
-      height: 52px;
-      background: var(--accent-gold);
-      border-color: var(--accent-gold);
-      color: white;
-      font-size: 1.4rem;
-    }
-
-    .control-btn.primary:hover {
-      background: #D4A017;
-      transform: scale(1.1);
-    }
-
-    .control-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* 进度条 */
-    .progress-bar-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .progress-bar {
-      flex: 1;
-      height: 6px;
-      background: var(--bg-secondary);
-      border-radius: 3px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: var(--accent-gold);
-      border-radius: 3px;
-      transition: width 0.3s ease;
-      width: 0%;
-    }
-
-    .progress-text {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      font-family: 'JetBrains Mono', monospace;
-      min-width: 50px;
-      text-align: right;
-    }
-
-    /* 速度控制 */
-    .speed-control {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-content: center;
-    }
-
-    .speed-label {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-
-    .speed-btn {
-      padding: 4px 10px;
-      border: 1px solid var(--border-color);
-      background: transparent;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .speed-btn:hover, .speed-btn.active {
-      background: var(--accent-gold);
-      border-color: var(--accent-gold);
-      color: white;
-    }
-
-    /* 当前手信息 */
-    .move-info {
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      padding: 16px;
-    }
-
-    .move-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .move-number-badge {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 0.85rem;
-      flex-shrink: 0;
-    }
-
-    .move-number-badge.black {
-      background: var(--stone-black);
-      color: white;
-    }
-
-    .move-number-badge.white {
-      background: var(--stone-white);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-    }
-
-    .move-position {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
-      color: var(--text-primary);
-    }
-
-    .move-comment {
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: var(--text-primary);
-    }
-
-    /* 手数列表 */
-    .move-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .move-item {
-      padding: 8px 12px;
-      background: var(--bg-secondary);
-      border-radius: 8px;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .move-item:hover {
-      background: var(--border-color);
-    }
-
-    .move-item.active {
-      background: var(--accent-gold);
-      color: white;
-    }
-
-    .move-item.active .move-item-stone {
-      border-color: white;
-    }
-
-    .move-item-num {
-      min-width: 24px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .move-item-stone {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
+    .panel-title { font-family: 'Noto Serif SC', serif; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .game-controls { display: flex; gap: 8px; margin-bottom: 12px; }
+    .control-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+    .control-btn:hover { background: var(--border-color); }
+    .control-btn.primary { background: var(--accent-gold); color: white; border-color: var(--accent-gold); }
+    .control-btn.primary:hover { background: #D4A017; }
+    .control-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .game-status { padding: 12px; background: var(--bg-secondary); border-radius: 10px; font-size: 0.9rem; }
+    .status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .status-row:last-child { margin-bottom: 0; }
+    .status-label { color: var(--text-secondary); }
+    .status-value { font-weight: 600; }
+    .status-value.black { color: var(--stone-black); }
+    .status-value.white { color: var(--stone-white-shadow); }
+    .move-list { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
+    .move-item { padding: 6px 10px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
+    .move-item:hover { background: var(--border-color); }
+    .move-item.active { background: var(--accent-gold); color: white; }
+    .move-item-num { min-width: 28px; font-family: 'JetBrains Mono', monospace; }
+    .move-item-stone { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
     .move-item-stone.black { background: var(--stone-black); }
     .move-item-stone.white { background: var(--stone-white); border: 1px solid var(--stone-white-shadow); }
-
-    .move-item-coord {
-      flex: 1;
-    }
-
-    /* 棋谱信息 */
-    .kifu-detail-info {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-
-    .kifu-detail-info p {
-      margin-bottom: 6px;
-    }
-
-    .kifu-detail-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .kifu-detail-tag {
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 0.75rem;
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-    }
-
-    @media (max-width: 900px) {
-      main { flex-direction: column; }
-      .control-panel { width: 100%; max-height: none; }
-    }
+    .move-item-coord { flex: 1; }
+    .result-display { padding: 12px; background: #E8F5E9; border-radius: 10px; border-left: 4px solid #4CAF50; }
+    .result-display.draw { background: #FFF3E0; border-left-color: #FF9800; }
+    .result-title { font-weight: 600; color: #2E7D32; margin-bottom: 4px; }
+    .result-title.draw { color: #EF6C00; }
+    .result-text { font-size: 0.85rem; color: var(--text-secondary); }
+    .progress-bar { width: 100%; height: 4px; background: var(--bg-secondary); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent-gold); border-radius: 2px; transition: width 0.3s ease; }
+    @media (max-width: 900px) { main { flex-direction: column; } .control-panel { width: 100%; max-height: none; } }
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
   <div class="kifu-player-page">
     <header>
       <div class="header-left">
-        <a href="kifu.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">← 返回列表</a>
-        <div class="kifu-info-header">
-          <div class="kifu-info-title" id="kifuTitle">加载中...</div>
-          <div class="kifu-info-players">
-            <span class="player-indicator black"></span>
-            <span id="blackPlayer">黑方</span>
-            <span style="color: var(--text-secondary);">VS</span>
-            <span class="player-indicator white"></span>
-            <span id="whitePlayer">白方</span>
-            <span style="color: var(--text-secondary); margin-left: 8px;" id="kifuDate"></span>
+        <a href="kifu.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" aria-label="返回棋谱列表">← 返回</a>
+        <div class="game-info">
+          <div class="game-info-item">
+            <div class="player-info">
+              <div class="player-dot black"></div>
+              <span id="blackPlayerName">黑方</span>
+            </div>
+          </div>
+          <div class="game-info-item">VS</div>
+          <div class="game-info-item">
+            <div class="player-info">
+              <div class="player-dot white"></div>
+              <span id="whitePlayerName">白方</span>
+            </div>
           </div>
         </div>
       </div>
       <div class="header-right">
+        <div class="game-info-item">
+          <span>🎯</span>
+          <span id="moveCount">0手</span>
+        </div>
       </div>
     </header>
 
-    <main>
+    <main id="main-content">
       <section class="board-section">
         <div class="board-wrapper">
           <div class="goban" id="goban"></div>
@@ -485,55 +127,64 @@
       </section>
 
       <aside class="control-panel">
-        <!-- 播放控制 -->
         <div class="panel-section">
-          <h3 class="panel-title">播放控制</h3>
-          <div class="playback-controls">
-            <button class="control-btn" id="btnFirst" title="第一手">⏮</button>
-            <button class="control-btn" id="btnPrev" title="上一手">◀</button>
-            <button class="control-btn primary" id="btnPlay" title="播放/暂停">▶</button>
-            <button class="control-btn" id="btnNext" title="下一手">▶</button>
-            <button class="control-btn" id="btnLast" title="最后一手">⏭</button>
-          </div>
-          <div class="progress-bar-container">
-            <div class="progress-bar" id="progressBar">
-              <div class="progress-fill" id="progressFill"></div>
+          <h3 class="panel-title">对局信息</h3>
+          <div class="game-status">
+            <div class="status-row">
+              <span class="status-label">棋盘大小</span>
+              <span class="status-value" id="boardSize">19×19</span>
             </div>
-            <span class="progress-text" id="progressText">0 / 0</span>
-          </div>
-          <div class="speed-control">
-            <span class="speed-label">速度:</span>
-            <button class="speed-btn" data-speed="2000">慢</button>
-            <button class="speed-btn active" data-speed="1000">中</button>
-            <button class="speed-btn" data-speed="500">快</button>
-          </div>
-        </div>
-
-        <!-- 当前手讲解 -->
-        <div class="panel-section">
-          <h3 class="panel-title">当前手讲解</h3>
-          <div class="move-info" id="moveInfo">
-            <div class="move-header">
-              <div class="move-number-badge black" id="moveBadge">1</div>
-              <span class="move-position" id="movePosition">请点击播放开始</span>
+            <div class="status-row">
+              <span class="status-label">黑方</span>
+              <span class="status-value black" id="blackPlayer">黑方</span>
             </div>
-            <div class="move-comment" id="moveComment">点击播放按钮开始回放棋谱，每步都有详细讲解。</div>
+            <div class="status-row">
+              <span class="status-label">白方</span>
+              <span class="status-value white" id="whitePlayer">白方</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">提子数</span>
+              <span class="status-value" id="captures">黑: 0 | 白: 0</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">日期</span>
+              <span class="status-value" id="gameDate">-</span>
+            </div>
           </div>
         </div>
 
-        <!-- 手数列表 -->
-        <div class="panel-section">
-          <h3 class="panel-title">手数列表</h3>
-          <div class="move-list" id="moveList">
-            <!-- 动态生成 -->
+        <div class="panel-section" id="resultSection" style="display: none;">
+          <h3 class="panel-title">对局结果</h3>
+          <div class="result-display" id="resultDisplay">
+            <div class="result-title" id="resultTitle">黑棋胜</div>
+            <div class="result-text" id="resultText">3.5目</div>
           </div>
         </div>
 
-        <!-- 棋谱信息 -->
         <div class="panel-section">
-          <h3 class="panel-title">棋谱信息</h3>
-          <div class="kifu-detail-info" id="kifuDetailInfo">
-            <!-- 动态生成 -->
+          <h3 class="panel-title">回放控制</h3>
+          <div class="game-controls">
+            <button type="button" class="control-btn" id="firstBtn" title="第一手" aria-label="第一手">⏮</button>
+            <button type="button" class="control-btn" id="prevBtn" title="上一手" aria-label="上一手">◀</button>
+            <button type="button" class="control-btn primary" id="playBtn" title="播放/暂停" aria-label="播放或暂停">▶</button>
+            <button type="button" class="control-btn" id="nextBtn" title="下一手" aria-label="下一手">▶</button>
+            <button type="button" class="control-btn" id="lastBtn" title="最后一手" aria-label="最后一手">⏭</button>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="panel-title">手数记录</h3>
+          <div class="move-list" id="moveList"></div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="panel-title">操作</h3>
+          <div class="game-controls">
+            <button type="button" class="control-btn" id="exportBtn" title="导出SGF" aria-label="导出SGF">📥 导出SGF</button>
+            <button type="button" class="control-btn danger" id="deleteBtn" title="删除" aria-label="删除对局">🗑 删除</button>
           </div>
         </div>
       </aside>
@@ -543,63 +194,61 @@
   <script src="../js/utils.js"></script>
   <script src="../js/error-handler.js"></script>
   <script src="../js/loading.js"></script>
+  <script src="../js/focus-manager.js"></script>
+  <script src="../js/analytics.js"></script>
   <script src="../js/storage.js"></script>
   <script src="../js/board-component.js"></script>
   <script src="../js/ai.js"></script>
   <script src="../js/header.js"></script>
-  <script src="../js/kifu-data.js"></script>
   <script>
     class KifuPlayerApp {
       constructor() {
-        this.kifu = null;
-        this.currentMove = 0;
-        this.isPlaying = false;
-        this.playInterval = null;
-        this.playSpeed = 1000;
+        this.game = null;
+        this.gameData = null;
         this.cellSize = 40;
         this.boardPadding = 30;
         this.letters = 'ABCDEFGHJKLMNOPQRST';
+        this.currentMove = -1;
+        this.isPlaying = false;
+        this.playInterval = null;
+        this.playSpeed = 1000;
 
         this.init();
       }
 
       init() {
         Header.init();
-
-        // 加载棋谱
-        const urlParams = new URLSearchParams(window.location.search);
-        const kifuId = parseInt(urlParams.get('id'));
-
-        if (!kifuId) {
-          window.location.href = 'kifu.html';
-          return;
-        }
-
-        this.kifu = KifuData.getById(kifuId);
-        if (!this.kifu) {
-          window.location.href = 'kifu.html';
-          return;
-        }
-
-        this.loadKifuInfo();
+        this.loadGame();
         this.renderBoard();
-        this.renderCoords();
-        this.renderMoveList();
-        this.renderKifuDetail();
         this.updateUI();
         this.bindEvents();
       }
 
-      loadKifuInfo() {
-        document.getElementById('kifuTitle').textContent = this.kifu.title;
-        document.getElementById('blackPlayer').textContent = this.kifu.players.black;
-        document.getElementById('whitePlayer').textContent = this.kifu.players.white;
-        document.getElementById('kifuDate').textContent = this.kifu.date;
+      loadGame() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameId = urlParams.get('id');
+
+        if (!gameId) {
+          showToast('未找到棋谱', 'error');
+          setTimeout(() => window.location.href = 'kifu.html', 1500);
+          return;
+        }
+
+        const games = Storage.getSavedGames();
+        this.gameData = games.find(g => g.id === gameId);
+
+        if (!this.gameData) {
+          showToast('棋谱不存在', 'error');
+          setTimeout(() => window.location.href = 'kifu.html', 1500);
+          return;
+        }
+
+        this.game = new GoGame(this.gameData.size);
       }
 
       renderBoard() {
         const goban = document.getElementById('goban');
-        const size = this.kifu.size;
+        const size = this.game.size;
         const boardSize = this.cellSize * (size - 1) + this.boardPadding * 2;
 
         goban.style.width = `${boardSize}px`;
@@ -615,7 +264,6 @@
 
         for (let i = 0; i < size; i++) {
           const pos = this.boardPadding + i * this.cellSize;
-
           const hLine = document.createElementNS(svgNS, 'line');
           hLine.setAttribute('class', 'grid-line');
           hLine.setAttribute('x1', this.boardPadding);
@@ -656,55 +304,8 @@
             goban.appendChild(intersection);
           }
         }
-      }
 
-      renderCoords() {
-        const goban = document.getElementById('goban');
-        const size = this.kifu.size;
-
-        // 顶部坐标 (A-T)
-        const topCoords = document.createElement('div');
-        topCoords.className = 'board-coords coord-top';
-        for (let i = 0; i < size; i++) {
-          const label = document.createElement('span');
-          label.className = 'coord-label';
-          label.textContent = this.letters[i] || '';
-          topCoords.appendChild(label);
-        }
-        goban.appendChild(topCoords);
-
-        // 底部坐标
-        const bottomCoords = document.createElement('div');
-        bottomCoords.className = 'board-coords coord-bottom';
-        for (let i = 0; i < size; i++) {
-          const label = document.createElement('span');
-          label.className = 'coord-label';
-          label.textContent = this.letters[i] || '';
-          bottomCoords.appendChild(label);
-        }
-        goban.appendChild(bottomCoords);
-
-        // 左侧坐标 (1-19)
-        const leftCoords = document.createElement('div');
-        leftCoords.className = 'board-coords coord-left';
-        for (let i = 0; i < size; i++) {
-          const label = document.createElement('span');
-          label.className = 'coord-label';
-          label.textContent = size - i;
-          leftCoords.appendChild(label);
-        }
-        goban.appendChild(leftCoords);
-
-        // 右侧坐标
-        const rightCoords = document.createElement('div');
-        rightCoords.className = 'board-coords coord-right';
-        for (let i = 0; i < size; i++) {
-          const label = document.createElement('span');
-          label.className = 'coord-label';
-          label.textContent = size - i;
-          rightCoords.appendChild(label);
-        }
-        goban.appendChild(rightCoords);
+        this.updateBoard();
       }
 
       getStarPoints(size) {
@@ -727,14 +328,131 @@
         return points;
       }
 
+      updateBoard() {
+        const size = this.game.size;
+        const intersections = document.querySelectorAll('.intersection');
+
+        intersections.forEach(intersection => {
+          const x = parseInt(intersection.dataset.x);
+          const y = parseInt(intersection.dataset.y);
+          const stone = intersection.querySelector('.stone');
+
+          if (stone) stone.remove();
+
+          const cellValue = this.game.board[y][x];
+          if (cellValue !== 0) {
+            const stoneColor = cellValue === 1 ? 'black' : 'white';
+            const isLastMove = this.currentMove >= 0 &&
+              this.gameData.moveHistory[this.currentMove] &&
+              this.gameData.moveHistory[this.currentMove].x === x &&
+              this.gameData.moveHistory[this.currentMove].y === y;
+
+            const newStone = document.createElement('div');
+            newStone.className = `stone ${stoneColor}${isLastMove ? ' last-move' : ''}`;
+
+            // 添加手数标记
+            const moveNum = this.getMoveNumber(x, y);
+            if (moveNum > 0) {
+              const numSpan = document.createElement('span');
+              numSpan.className = 'move-number';
+              numSpan.textContent = moveNum;
+              newStone.appendChild(numSpan);
+            }
+
+            intersection.appendChild(newStone);
+            requestAnimationFrame(() => newStone.classList.add('visible'));
+          }
+        });
+      }
+
+      getMoveNumber(x, y) {
+        for (let i = 0; i <= this.currentMove; i++) {
+          const move = this.gameData.moveHistory[i];
+          if (move && move.x === x && move.y === y) {
+            return i + 1;
+          }
+        }
+        return 0;
+      }
+
+      goToMove(index) {
+        if (index < -1 || index >= this.gameData.moveHistory.length) return;
+
+        this.game = new GoGame(this.gameData.size);
+        this.currentMove = index;
+
+        for (let i = 0; i <= index; i++) {
+          const move = this.gameData.moveHistory[i];
+          if (move && !move.isPass) {
+            this.game.makeMove(move.x, move.y);
+          }
+        }
+
+        this.updateBoard();
+        this.updateUI();
+        this.renderMoveList();
+      }
+
+      updateUI() {
+        document.getElementById('blackPlayerName').textContent = this.gameData.blackPlayer;
+        document.getElementById('whitePlayerName').textContent = this.gameData.whitePlayer;
+        document.getElementById('boardSize').textContent = `${this.gameData.size}×${this.gameData.size}`;
+        document.getElementById('blackPlayer').textContent = this.gameData.blackPlayer;
+        document.getElementById('whitePlayer').textContent = this.gameData.whitePlayer;
+        document.getElementById('captures').textContent = `黑: ${this.gameData.blackCaptures || 0} | 白: ${this.gameData.whiteCaptures || 0}`;
+        document.getElementById('moveCount').textContent = `${this.currentMove + 1}/${this.gameData.moveHistory.length}手`;
+
+        const date = new Date(this.gameData.savedAt);
+        document.getElementById('gameDate').textContent = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+
+        // 更新进度条
+        const progress = this.gameData.moveHistory.length > 0
+          ? ((this.currentMove + 1) / this.gameData.moveHistory.length) * 100
+          : 0;
+        document.getElementById('progressFill').style.width = `${progress}%`;
+
+        // 显示结果
+        if (this.gameData.result) {
+          document.getElementById('resultSection').style.display = 'block';
+          const resultDisplay = document.getElementById('resultDisplay');
+          const resultTitle = document.getElementById('resultTitle');
+
+          if (this.gameData.result.winner === 'black') {
+            resultDisplay.className = 'result-display';
+            resultTitle.className = 'result-title';
+            resultTitle.textContent = '黑棋胜';
+          } else if (this.gameData.result.winner === 'white') {
+            resultDisplay.className = 'result-display';
+            resultTitle.className = 'result-title';
+            resultTitle.textContent = '白棋胜';
+          } else {
+            resultDisplay.className = 'result-display draw';
+            resultTitle.className = 'result-title draw';
+            resultTitle.textContent = '和棋';
+          }
+
+          document.getElementById('resultText').textContent =
+            this.gameData.result.margin ? `${this.gameData.result.margin.toFixed(1)}目` : '';
+        }
+
+        // 更新按钮状态
+        document.getElementById('firstBtn').disabled = this.currentMove <= -1;
+        document.getElementById('prevBtn').disabled = this.currentMove <= -1;
+        document.getElementById('nextBtn').disabled = this.currentMove >= this.gameData.moveHistory.length - 1;
+        document.getElementById('lastBtn').disabled = this.currentMove >= this.gameData.moveHistory.length - 1;
+      }
+
       renderMoveList() {
         const list = document.getElementById('moveList');
         list.innerHTML = '';
 
-        this.kifu.moves.forEach((move, index) => {
+        this.gameData.moveHistory.forEach((move, index) => {
           const item = document.createElement('div');
           item.className = 'move-item';
           item.dataset.index = index;
+          if (index === this.currentMove) {
+            item.classList.add('active');
+          }
 
           const num = document.createElement('span');
           num.className = 'move-item-num';
@@ -745,205 +463,145 @@
 
           const coord = document.createElement('span');
           coord.className = 'move-item-coord';
-          coord.textContent = `${this.letters[move.x]}${this.kifu.size - move.y}`;
+          if (move.isPass) {
+            coord.textContent = '停一手';
+          } else {
+            coord.textContent = `${this.letters[move.x]}${this.gameData.size - move.y}`;
+          }
 
           item.appendChild(num);
           item.appendChild(stone);
           item.appendChild(coord);
 
           item.addEventListener('click', () => {
+            this.stopPlayback();
             this.goToMove(index);
           });
 
           list.appendChild(item);
         });
-      }
 
-      renderKifuDetail() {
-        const info = document.getElementById('kifuDetailInfo');
-        info.innerHTML = `
-          <p><strong>对局结果：</strong>${this.kifu.result}</p>
-          <p><strong>棋盘大小：</strong>${this.kifu.size}×${this.kifu.size}</p>
-          <p><strong>总手数：</strong>${this.kifu.moves.length}手</p>
-          <p>${this.kifu.description}</p>
-          <div class="kifu-detail-tags">
-            ${this.kifu.tags.map(tag => `<span class="kifu-detail-tag">${tag}</span>`).join('')}
-          </div>
-        `;
-      }
-
-      updateUI() {
-        const move = this.kifu.moves[this.currentMove];
-        const totalMoves = this.kifu.moves.length;
-
-        // 更新进度
-        const progress = totalMoves > 0 ? ((this.currentMove + 1) / totalMoves) * 100 : 0;
-        document.getElementById('progressFill').style.width = `${progress}%`;
-        document.getElementById('progressText').textContent = `${this.currentMove + 1} / ${totalMoves}`;
-
-        // 更新按钮状态
-        document.getElementById('btnFirst').disabled = this.currentMove === 0;
-        document.getElementById('btnPrev').disabled = this.currentMove === 0;
-        document.getElementById('btnNext').disabled = this.currentMove >= totalMoves - 1;
-        document.getElementById('btnLast').disabled = this.currentMove >= totalMoves - 1;
-
-        // 更新播放按钮
-        document.getElementById('btnPlay').textContent = this.isPlaying ? '⏸' : '▶';
-
-        // 更新当前手信息
-        if (move) {
-          const badge = document.getElementById('moveBadge');
-          badge.className = `move-number-badge ${move.player === 1 ? 'black' : 'white'}`;
-          badge.textContent = this.currentMove + 1;
-
-          document.getElementById('movePosition').textContent =
-            `${move.player === 1 ? '黑棋' : '白棋'} ${this.letters[move.x]}${this.kifu.size - move.y}`;
-          document.getElementById('moveComment').textContent = move.comment;
-        } else {
-          document.getElementById('moveBadge').textContent = '-';
-          document.getElementById('movePosition').textContent = '请点击播放开始';
-          document.getElementById('moveComment').textContent = '点击播放按钮开始回放棋谱，每步都有详细讲解。';
-        }
-
-        // 更新手数列表高亮
-        document.querySelectorAll('.move-item').forEach((item, index) => {
-          item.classList.toggle('active', index === this.currentMove);
-        });
-
-        // 不滚动到手数列表，保持页面不动
-
-        // 更新棋盘
-        this.updateBoard();
-      }
-
-      updateBoard() {
-        const size = this.kifu.size;
-
-        // 清除所有棋子
-        document.querySelectorAll('.intersection .stone').forEach(stone => stone.remove());
-
-        // 放置当前步数之前的所有棋子
-        for (let i = 0; i <= this.currentMove; i++) {
-          const move = this.kifu.moves[i];
-          const intersection = document.querySelector(`.intersection[data-x="${move.x}"][data-y="${move.y}"]`);
-          if (!intersection) continue;
-
-          const stoneColor = move.player === 1 ? 'black' : 'white';
-          const isLastMove = i === this.currentMove;
-
-          const stone = document.createElement('div');
-          stone.className = `stone ${stoneColor}${isLastMove ? ' last-move' : ''}`;
-
-          // 添加手数标记（所有手都显示手数）
-          const num = document.createElement('span');
-          num.className = 'move-number';
-          num.textContent = i + 1;
-          stone.appendChild(num);
-
-          intersection.appendChild(stone);
-          requestAnimationFrame(() => stone.classList.add('visible'));
+        // 滚动到当前手
+        const activeItem = list.querySelector('.move-item.active');
+        if (activeItem) {
+          activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       }
 
-      goToMove(index) {
-        if (index < 0) index = 0;
-        if (index >= this.kifu.moves.length) index = this.kifu.moves.length - 1;
-
-        this.currentMove = index;
-        this.updateUI();
-      }
-
-      nextMove() {
-        if (this.currentMove < this.kifu.moves.length - 1) {
-          this.currentMove++;
-          this.updateUI();
-          return true;
-        }
-        return false;
-      }
-
-      prevMove() {
-        if (this.currentMove > 0) {
-          this.currentMove--;
-          this.updateUI();
-          return true;
-        }
-        return false;
-      }
-
-      firstMove() {
-        this.currentMove = 0;
-        this.updateUI();
-      }
-
-      lastMove() {
-        this.currentMove = this.kifu.moves.length - 1;
-        this.updateUI();
-      }
-
-      togglePlay() {
+      startPlayback() {
         if (this.isPlaying) {
-          this.pause();
-        } else {
-          this.play();
-        }
-      }
-
-      play() {
-        if (this.currentMove >= this.kifu.moves.length - 1) {
-          this.currentMove = -1;
+          this.stopPlayback();
+          return;
         }
 
         this.isPlaying = true;
-        this.updateUI();
+        document.getElementById('playBtn').textContent = '⏸';
 
         this.playInterval = setInterval(() => {
-          if (!this.nextMove()) {
-            this.pause();
+          if (this.currentMove < this.gameData.moveHistory.length - 1) {
+            this.goToMove(this.currentMove + 1);
+          } else {
+            this.stopPlayback();
           }
         }, this.playSpeed);
       }
 
-      pause() {
+      stopPlayback() {
         this.isPlaying = false;
+        document.getElementById('playBtn').textContent = '▶';
         if (this.playInterval) {
           clearInterval(this.playInterval);
           this.playInterval = null;
         }
-        this.updateUI();
       }
 
-      setSpeed(speed) {
-        this.playSpeed = speed;
-        if (this.isPlaying) {
-          this.pause();
-          this.play();
+      exportSGF() {
+        const sgf = this.generateSGF();
+        const blob = new Blob([sgf], { type: 'application/x-go-sgf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `game_${this.gameData.id}.sgf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('SGF文件已导出', 'success');
+      }
+
+      generateSGF() {
+        const date = new Date(this.gameData.savedAt);
+        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+        let sgf = `(;GM[1]FF[4]CA[UTF-8]AP[围棋对弈复盘:1.0]KM[${this.gameData.komi || 6.5}]SZ[${this.gameData.size}]`;
+        sgf += `PB[${this.gameData.blackPlayer}]PW[${this.gameData.whitePlayer}]DT[${dateStr}]`;
+
+        if (this.gameData.result) {
+          if (this.gameData.result.winner === 'black') {
+            sgf += `RE[B+${this.gameData.result.margin.toFixed(1)}]`;
+          } else if (this.gameData.result.winner === 'white') {
+            sgf += `RE[W+${this.gameData.result.margin.toFixed(1)}]`;
+          } else {
+            sgf += `RE[Draw]`;
+          }
+        }
+
+        this.gameData.moveHistory.forEach(move => {
+          if (move.isPass) {
+            sgf += move.player === 1 ? ';B[]' : ';W[]';
+          } else {
+            const coord = this.toSGFCoord(move.x, move.y);
+            sgf += move.player === 1 ? `;B[${coord}]` : `;W[${coord}]`;
+          }
+        });
+
+        sgf += ')';
+        return sgf;
+      }
+
+      toSGFCoord(x, y) {
+        const letters = 'abcdefghijklmnopqrstuvwxyz';
+        return letters[x] + letters[y];
+      }
+
+      deleteGame() {
+        if (!confirm('确定要删除这局棋谱吗？此操作不可恢复。')) return;
+
+        const games = Storage.getSavedGames();
+        const index = games.findIndex(g => g.id === this.gameData.id);
+        if (index > -1) {
+          games.splice(index, 1);
+          localStorage.setItem('go_games', JSON.stringify(games));
+          showToast('棋谱已删除', 'success');
+          setTimeout(() => window.location.href = 'kifu.html', 1000);
         }
       }
 
       bindEvents() {
-        document.getElementById('btnFirst').addEventListener('click', () => this.firstMove());
-        document.getElementById('btnPrev').addEventListener('click', () => this.prevMove());
-        document.getElementById('btnPlay').addEventListener('click', () => this.togglePlay());
-        document.getElementById('btnNext').addEventListener('click', () => this.nextMove());
-        document.getElementById('btnLast').addEventListener('click', () => this.lastMove());
-
-        // 进度条点击
-        document.getElementById('progressBar').addEventListener('click', (e) => {
-          const rect = e.currentTarget.getBoundingClientRect();
-          const ratio = (e.clientX - rect.left) / rect.width;
-          const targetMove = Math.floor(ratio * this.kifu.moves.length);
-          this.goToMove(Math.min(targetMove, this.kifu.moves.length - 1));
+        document.getElementById('firstBtn').addEventListener('click', () => {
+          this.stopPlayback();
+          this.goToMove(-1);
         });
 
-        // 速度控制
-        document.querySelectorAll('.speed-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            this.setSpeed(parseInt(btn.dataset.speed));
-          });
+        document.getElementById('prevBtn').addEventListener('click', () => {
+          this.stopPlayback();
+          this.goToMove(this.currentMove - 1);
         });
+
+        document.getElementById('playBtn').addEventListener('click', () => {
+          this.startPlayback();
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+          this.stopPlayback();
+          this.goToMove(this.currentMove + 1);
+        });
+
+        document.getElementById('lastBtn').addEventListener('click', () => {
+          this.stopPlayback();
+          this.goToMove(this.gameData.moveHistory.length - 1);
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', () => this.exportSGF());
+        document.getElementById('deleteBtn').addEventListener('click', () => this.deleteGame());
 
         // 键盘快捷键
         document.addEventListener('keydown', (e) => {
@@ -951,26 +609,18 @@
 
           switch (e.key) {
             case 'ArrowLeft':
-            case 'ArrowUp':
               e.preventDefault();
-              this.prevMove();
+              this.stopPlayback();
+              this.goToMove(this.currentMove - 1);
               break;
             case 'ArrowRight':
-            case 'ArrowDown':
               e.preventDefault();
-              this.nextMove();
+              this.stopPlayback();
+              this.goToMove(this.currentMove + 1);
               break;
             case ' ':
               e.preventDefault();
-              this.togglePlay();
-              break;
-            case 'Home':
-              e.preventDefault();
-              this.firstMove();
-              break;
-            case 'End':
-              e.preventDefault();
-              this.lastMove();
+              this.startPlayback();
               break;
           }
         });

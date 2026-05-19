@@ -26,7 +26,23 @@
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23333'/><circle cx='50' cy='50' r='15' fill='white'/></svg>">
   
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  
   <script>
+    // 注册 Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((registration) => {
+            console.log('Service Worker 注册成功:', registration.scope);
+          })
+          .catch((error) => {
+            console.warn('Service Worker 注册失败:', error);
+          });
+      });
+    }
+    
     // 入口跳转：已登录去首页，未登录去授权页
     const username = localStorage.getItem('go_username');
     if (username) {

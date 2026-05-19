@@ -3,23 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>首页 - 围棋对弈复盘</title>
-  <meta name="description" content="围棋对弈复盘平台首页，查看历史对局、开始对弈、练习死活题、学习经典棋谱">
+  <title>围棋对弈复盘 - 在线围棋平台</title>
+  <meta name="description" content="围棋对弈复盘 - 专业的在线围棋平台，支持AI对弈、死活题练习、棋谱管理和复盘分析">
   <meta name="keywords" content="围棋,围棋对弈,围棋学习,死活题,棋谱,AI对弈">
   <meta name="author" content="围棋对弈复盘">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="首页 - 围棋对弈复盘">
-  <meta property="og:description" content="围棋对弈复盘平台首页，查看历史对局、开始对弈、练习死活题、学习经典棋谱">
+  <meta property="og:title" content="围棋对弈复盘 - 在线围棋平台">
+  <meta property="og:description" content="专业的在线围棋平台，支持AI对弈、死活题练习、棋谱管理和复盘分析">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#C4A35A">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="manifest" href="../manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/common.css">
   <style>
     .home-page { display: flex; flex-direction: column; min-height: 100vh; }
-
     header {
       background: var(--panel-bg);
       backdrop-filter: blur(10px);
@@ -29,353 +27,171 @@
       align-items: center;
       justify-content: space-between;
     }
-
     .header-left { display: flex; align-items: center; gap: 16px; }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      background: var(--bg-secondary);
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
-
-    .user-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-gold), #D4A017);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
-      font-size: 0.8rem;
-    }
-
-    main {
-      flex: 1;
-      padding: 32px 24px;
-      max-width: 900px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .welcome-section {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .welcome-title {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .welcome-subtitle {
-      color: var(--text-secondary);
-      font-size: 1rem;
-    }
-
-    .action-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 40px;
-    }
-
-    .action-card {
-      background: var(--panel-bg);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 1px solid var(--border-color);
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-
-    .action-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-medium);
-      border-color: var(--accent-gold);
-    }
-
-    .action-icon {
-      font-size: 2.5rem;
-      margin-bottom: 12px;
-    }
-
-    .action-title {
-      font-weight: 600;
-      font-size: 1.1rem;
-      margin-bottom: 4px;
-    }
-
-    .action-desc {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .history-section {
-      margin-top: 20px;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .section-title {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 1.3rem;
-      font-weight: 600;
-    }
-
-    .section-count {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      background: var(--bg-secondary);
-      padding: 4px 12px;
-      border-radius: 12px;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
-    }
-
-    .empty-icon {
-      font-size: 4rem;
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-
-    .empty-text {
-      font-size: 1rem;
-      margin-bottom: 8px;
-    }
-
-    .empty-hint {
-      font-size: 0.85rem;
-      opacity: 0.7;
-    }
-
-    .history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .history-item {
-      background: var(--panel-bg);
-      border-radius: 16px;
-      padding: 20px 24px;
-      box-shadow: var(--shadow-soft);
-      border: 1px solid var(--border-color);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .history-item:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-medium);
-      border-color: var(--accent-gold);
-    }
-
-    .history-board-preview {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(145deg, var(--board-wood-light) 0%, var(--board-wood) 50%, var(--board-dark) 100%);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--line-color);
-    }
-
-    .history-info {
-      flex: 1;
-    }
-
-    .history-players {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-
-    .history-player {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 500;
-    }
-
-    .history-vs {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-
-    .history-meta {
-      display: flex;
-      gap: 16px;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .history-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .history-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .history-actions .btn {
-      padding: 8px 16px;
-      font-size: 0.85rem;
-    }
-
-    .delete-btn {
-      background: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .delete-btn:hover {
-      background: #FFEBEE;
-      border-color: #EF9A9A;
-      color: #C62828;
-    }
-
-    .time-summary {
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 12px;
-      display: flex;
-      gap: 24px;
-      justify-content: center;
-    }
-
-    .time-item {
-      text-align: center;
-    }
-
-    .time-label {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      margin-bottom: 4px;
-    }
-
-    .time-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    @media (max-width: 600px) {
-      .history-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .history-board-preview {
-        width: 60px;
-        height: 60px;
-        font-size: 1.2rem;
-      }
-
-      .history-actions {
-        width: 100%;
-        justify-content: flex-end;
-      }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 48px; height: 48px; background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%); border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.3); position: relative; }
+    .logo-icon::after { content: ''; position: absolute; width: 18px; height: 18px; background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%); border-radius: 50%; top: 50%; left: 50%; transform: translate(-30%, -30%); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    .logo-text { font-family: 'Noto Serif SC', serif; font-size: 1.5rem; font-weight: 700; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .user-info { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--text-secondary); }
+    .user-name { font-weight: 600; color: var(--text-primary); }
+    main { flex: 1; padding: 32px 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .welcome-section { text-align: center; margin-bottom: 48px; }
+    .welcome-title { font-family: 'Noto Serif SC', serif; font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
+    .welcome-subtitle { color: var(--text-secondary); font-size: 1.1rem; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 48px; }
+    .feature-card { background: var(--panel-bg); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); transition: all 0.3s ease; cursor: pointer; text-decoration: none; color: inherit; display: block; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-gold); }
+    .feature-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 16px; background: var(--bg-secondary); }
+    .feature-card:nth-child(1) .feature-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .feature-card:nth-child(2) .feature-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .feature-card:nth-child(3) .feature-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .feature-card:nth-child(4) .feature-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    .feature-card:nth-child(5) .feature-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    .feature-card:nth-child(6) .feature-icon { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+    .feature-title { font-family: 'Noto Serif SC', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+    .feature-desc { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
+    .stats-section { background: var(--panel-bg); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); margin-bottom: 24px; }
+    .stats-title { font-family: 'Noto Serif SC', serif; font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; }
+    .stat-item { text-align: center; padding: 16px; background: var(--bg-secondary); border-radius: 12px; }
+    .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 4px; }
+    .stat-label { font-size: 0.85rem; color: var(--text-secondary); }
+    .recent-games { background: var(--panel-bg); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); }
+    .recent-games-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .recent-games-title { font-family: 'Noto Serif SC', serif; font-size: 1.1rem; font-weight: 600; }
+    .view-all-btn { padding: 8px 16px; font-size: 0.85rem; }
+    .game-list { display: flex; flex-direction: column; gap: 12px; }
+    .game-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-secondary); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .game-item:hover { background: var(--border-color); }
+    .game-info { display: flex; align-items: center; gap: 12px; }
+    .game-players { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+    .game-vs { color: var(--text-secondary); font-size: 0.8rem; }
+    .game-meta { display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--text-secondary); }
+    .game-result { padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+    .game-result.win { background: #E8F5E9; color: #2E7D32; }
+    .game-result.loss { background: #FFEBEE; color: #C62828; }
+    .game-result.draw { background: #FFF3E0; color: #EF6C00; }
+    .empty-state { text-align: center; padding: 32px; color: var(--text-secondary); }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.5; }
+    footer { background: var(--panel-bg); border-top: 1px solid var(--border-color); padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.85rem; }
+    @media (max-width: 768px) {
+      .welcome-title { font-size: 1.5rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
   <div class="home-page">
-    <div id="header-container"></div>
-
-    <main>
-      <div class="welcome-section">
-        <h2 class="welcome-title">欢迎来到围棋对弈复盘</h2>
-        <p class="welcome-subtitle">记录每一步成长，复盘每一次对弈</p>
-      </div>
-
-      <div class="action-cards">
-        <a href="setup.html" class="action-card">
-          <div class="action-icon">⚫</div>
-          <div class="action-title">开始对弈</div>
-          <div class="action-desc">开始新的围棋对局</div>
-        </a>
-        <a href="practice.html" class="action-card">
-          <div class="action-icon">📚</div>
-          <div class="action-title">死活题练习</div>
-          <div class="action-desc">练习经典死活题，提升棋力</div>
-        </a>
-        <a href="kifu.html" class="action-card">
-          <div class="action-icon">📖</div>
-          <div class="action-title">经典打谱</div>
-          <div class="action-desc">学习名家名局，每一步都有讲解</div>
-        </a>
-        <a href="ai-setup.html" class="action-card">
-          <div class="action-icon">🤖</div>
-          <div class="action-title">AI 对弈</div>
-          <div class="action-desc">与 AI 对弈，提升棋力</div>
-        </a>
-        <a href="review.html" class="action-card" id="lastGameCard" style="display: none;">
-          <div class="action-icon">🔍</div>
-          <div class="action-title">继续复盘</div>
-          <div class="action-desc">查看最近的对局</div>
-        </a>
-      </div>
-
-      <div class="history-section">
-        <div class="section-header">
-          <h3 class="section-title">历史对局</h3>
-          <span class="section-count" id="historyCount">0 局</span>
-        </div>
-
-        <div class="history-list" id="historyList">
-          <!-- 动态生成 -->
-        </div>
-
-        <div class="empty-state" id="emptyState" style="display: none;">
-          <div class="empty-icon">🎯</div>
-          <div class="empty-text">还没有对局记录</div>
-          <div class="empty-hint">点击上方"开始对弈"开始你的第一局</div>
+    <header>
+      <div class="header-left">
+        <div class="logo">
+          <div class="logo-icon"></div>
+          <span class="logo-text">围棋对弈复盘</span>
         </div>
       </div>
+      <div class="header-right">
+        <div class="user-info">
+          <span>👤</span>
+          <span class="user-name" id="userName">棋手</span>
+        </div>
+        <button type="button" class="btn btn-secondary" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
+        <button type="button" class="btn btn-secondary" id="logoutBtn" title="退出" aria-label="退出登录">🚪</button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="welcome-section">
+        <h1 class="welcome-title">欢迎回来，<span id="welcomeName">棋手</span>！</h1>
+        <p class="welcome-subtitle">今天想要进行什么练习呢？</p>
+      </section>
+
+      <section class="features-grid">
+        <a href="ai-setup.html" class="feature-card" aria-label="AI 对弈">
+          <div class="feature-icon">🤖</div>
+          <h2 class="feature-title">AI 对弈</h2>
+          <p class="feature-desc">与不同难度的AI进行对弈，提升棋力</p>
+        </a>
+
+        <a href="tsumego.html" class="feature-card" aria-label="死活题练习">
+          <div class="feature-icon">🎯</div>
+          <h2 class="feature-title">死活题练习</h2>
+          <p class="feature-desc">海量死活题库，从入门到高级</p>
+        </a>
+
+        <a href="kifu.html" class="feature-card" aria-label="棋谱管理">
+          <div class="feature-icon">📚</div>
+          <h2 class="feature-title">棋谱管理</h2>
+          <p class="feature-desc">查看、管理和复盘您的棋谱</p>
+        </a>
+
+        <a href="practice.html" class="feature-card" aria-label="定式练习">
+          <div class="feature-icon">📐</div>
+          <h2 class="feature-title">定式练习</h2>
+          <p class="feature-desc">学习经典定式，掌握开局要领</p>
+        </a>
+
+        <a href="review.html" class="feature-card" aria-label="复盘分析">
+          <div class="feature-icon">🔍</div>
+          <h2 class="feature-title">复盘分析</h2>
+          <p class="feature-desc">AI辅助分析对局，找出关键手</p>
+        </a>
+
+        <a href="setup.html" class="feature-card" aria-label="自由对弈">
+          <div class="feature-icon">⚔️</div>
+          <h2 class="feature-title">自由对弈</h2>
+          <p class="feature-desc">本地双人对弈，随时开始</p>
+        </a>
+      </section>
+
+      <section class="stats-section">
+        <h2 class="stats-title">📊 学习统计</h2>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" id="totalGames">0</div>
+            <div class="stat-label">对局数</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="totalTsumego">0</div>
+            <div class="stat-label">死活题</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="winRate">0%</div>
+            <div class="stat-label">胜率</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="studyDays">1</div>
+            <div class="stat-label">学习天数</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="recent-games">
+        <div class="recent-games-header">
+          <h2 class="recent-games-title">🎮 最近对局</h2>
+          <a href="kifu.html" class="btn btn-secondary view-all-btn" aria-label="查看全部对局">查看全部</a>
+        </div>
+        <div class="game-list" id="recentGamesList">
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>暂无对局记录</p>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <footer>
+      <p>围棋对弈复盘 - 传承千年智慧，探索黑白奥秘</p>
+    </footer>
   </div>
 
   <script src="../js/utils.js"></script>
   <script src="../js/error-handler.js"></script>
   <script src="../js/loading.js"></script>
+  <script src="../js/focus-manager.js"></script>
+  <script src="../js/analytics.js"></script>
   <script src="../js/storage.js"></script>
   <script src="../js/board-component.js"></script>
   <script src="../js/ai.js"></script>
@@ -387,152 +203,113 @@
       }
 
       init() {
-        Header.mount(document.getElementById('header-container'), {
-          showLogo: true,
-          showSettings: true,
-          showUser: true
-        });
-        this.loadHistory();
-        window.refreshHistory = () => this.loadHistory();
+        this.loadUserInfo();
+        this.loadStats();
+        this.loadRecentGames();
+        this.bindEvents();
       }
 
-      loadHistory() {
-        const history = Storage.getHistory();
-        const historyList = document.getElementById('historyList');
-        const emptyState = document.getElementById('emptyState');
-        const historyCount = document.getElementById('historyCount');
-        const lastGameCard = document.getElementById('lastGameCard');
+      loadUserInfo() {
+        const username = Storage.getUsername();
+        if (username) {
+          document.getElementById('userName').textContent = username;
+          document.getElementById('welcomeName').textContent = username;
+        }
+      }
 
-        historyCount.textContent = `${history.length} 局`;
+      loadStats() {
+        const games = Storage.getSavedGames();
+        const tsumego = Storage.getTsumegoProgress();
 
-        if (history.length === 0) {
-          historyList.style.display = 'none';
-          emptyState.style.display = 'block';
-          lastGameCard.style.display = 'none';
+        document.getElementById('totalGames').textContent = games.length;
+        document.getElementById('totalTsumego').textContent = Object.keys(tsumego).length;
+
+        // 计算胜率
+        if (games.length > 0) {
+          const myUsername = Storage.getUsername();
+          const wins = games.filter(game => {
+            if (game.result && game.result.winner) {
+              const isBlack = game.blackPlayer === myUsername;
+              return (isBlack && game.result.winner === 'black') ||
+                     (!isBlack && game.result.winner === 'white');
+            }
+            return false;
+          }).length;
+          document.getElementById('winRate').textContent = Math.round((wins / games.length) * 100) + '%';
+        }
+
+        // 计算学习天数
+        const firstGame = games.length > 0 ? games[games.length - 1] : null;
+        if (firstGame) {
+          const days = Math.max(1, Math.floor((Date.now() - firstGame.savedAt) / (1000 * 60 * 60 * 24)) + 1);
+          document.getElementById('studyDays').textContent = days;
+        }
+      }
+
+      loadRecentGames() {
+        const games = Storage.getSavedGames().slice(0, 5);
+        const list = document.getElementById('recentGamesList');
+
+        if (games.length === 0) {
+          list.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📭</div>
+              <p>暂无对局记录</p>
+            </div>
+          `;
           return;
         }
 
-        historyList.style.display = 'flex';
-        emptyState.style.display = 'none';
+        list.innerHTML = games.map(game => {
+          const date = new Date(game.savedAt);
+          const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 
-        // 显示"继续复盘"卡片
-        if (history.length > 0) {
-          lastGameCard.style.display = 'block';
-          lastGameCard.href = `review.html?id=${history[0].id}`;
-        }
+          let resultClass = 'draw';
+          let resultText = '进行中';
+          if (game.result) {
+            const myUsername = Storage.getUsername();
+            const isBlack = game.blackPlayer === myUsername;
+            if (game.result.winner === 'black') {
+              resultClass = isBlack ? 'win' : 'loss';
+              resultText = isBlack ? '胜' : '负';
+            } else if (game.result.winner === 'white') {
+              resultClass = isBlack ? 'loss' : 'win';
+              resultText = isBlack ? '负' : '胜';
+            } else {
+              resultText = '和棋';
+            }
+          }
 
-        historyList.innerHTML = '';
-
-        history.forEach(game => {
-          const item = this.createHistoryItem(game);
-          historyList.appendChild(item);
-        });
-      }
-
-      createHistoryItem(game) {
-        const item = document.createElement('div');
-        item.className = 'history-item';
-
-        // 棋盘预览
-        const preview = document.createElement('div');
-        preview.className = 'history-board-preview';
-        preview.textContent = `${game.size}×${game.size}`;
-
-        // 信息区
-        const info = document.createElement('div');
-        info.className = 'history-info';
-
-        const players = document.createElement('div');
-        players.className = 'history-players';
-        players.innerHTML = `
-          <div class="history-player">
-            <span class="player-indicator black"></span>
-            <span>${game.blackPlayer || '黑方'}</span>
-            ${game.type === 'ai' ? '<span class="ai-badge">🤖 AI</span>' : ''}
-          </div>
-          <span class="history-vs">VS</span>
-          <div class="history-player">
-            <span class="player-indicator white"></span>
-            <span>${game.whitePlayer || '白方'}</span>
-          </div>
-        `;
-
-        const meta = document.createElement('div');
-        meta.className = 'history-meta';
-
-        const moveCount = game.moveHistory ? game.moveHistory.length : 0;
-        const date = new Date(game.savedAt);
-        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-
-        meta.innerHTML = `
-          <div class="history-meta-item">
-            <span>📅</span>
-            <span>${dateStr}</span>
-          </div>
-          <div class="history-meta-item">
-            <span>🎯</span>
-            <span>${moveCount}手</span>
-          </div>
-        `;
-
-        // 时间总结
-        if (game.blackTime || game.whiteTime) {
-          const timeSummary = document.createElement('div');
-          timeSummary.className = 'time-summary';
-          timeSummary.innerHTML = `
-            <div class="time-item">
-              <div class="time-label">黑方用时</div>
-              <div class="time-value">${this.formatTime(game.blackTime || 0)}</div>
-            </div>
-            <div class="time-item">
-              <div class="time-label">白方用时</div>
-              <div class="time-value">${this.formatTime(game.whiteTime || 0)}</div>
+          return `
+            <div class="game-item" onclick="window.location.href='kifu-player.html?id=${game.id}'" role="button" tabindex="0" aria-label="查看对局：${game.blackPlayer} vs ${game.whitePlayer}">
+              <div class="game-info">
+                <div class="game-players">
+                  <span>${game.blackPlayer}</span>
+                  <span class="game-vs">VS</span>
+                  <span>${game.whitePlayer}</span>
+                </div>
+              </div>
+              <div class="game-meta">
+                <span>${game.size}×${game.size}</span>
+                <span>${dateStr}</span>
+                <span class="game-result ${resultClass}">${resultText}</span>
+              </div>
             </div>
           `;
-          meta.appendChild(timeSummary);
-        }
-
-        info.appendChild(players);
-        info.appendChild(meta);
-
-        // 操作按钮
-        const actions = document.createElement('div');
-        actions.className = 'history-actions';
-        actions.innerHTML = `
-          <a href="review.html?id=${game.id}" class="btn btn-primary">复盘</a>
-          <button class="delete-btn" data-id="${game.id}" title="删除">🗑</button>
-        `;
-
-        // 删除事件
-        actions.querySelector('.delete-btn').addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.deleteGame(game.id);
-        });
-
-        item.appendChild(preview);
-        item.appendChild(info);
-        item.appendChild(actions);
-
-        // 点击整个卡片也跳转
-        item.addEventListener('click', () => {
-          window.location.href = `review.html?id=${game.id}`;
-        });
-
-        return item;
+        }).join('');
       }
 
-      formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-      }
+      bindEvents() {
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+          showToast('设置功能开发中...', 'info');
+        });
 
-      deleteGame(id) {
-        if (confirm('确定要删除这局对局记录吗？')) {
-          Storage.deleteGame(id);
-          this.loadHistory();
-          showToast('对局已删除', 'success');
-        }
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+          if (confirm('确定要退出登录吗？')) {
+            Storage.clearUserData();
+            window.location.href = 'auth.html';
+          }
+        });
       }
     }
 

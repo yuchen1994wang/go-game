@@ -13,6 +13,7 @@
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#C4A35A">
+  <link rel="manifest" href="../manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/common.css">
   <style>
@@ -158,37 +159,38 @@
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
   <div class="setup-page">
     <div id="header-container"></div>
 
-    <main>
+    <main id="main-content">
       <h1 class="setup-title">AI 对弈设置</h1>
       <p class="setup-subtitle">选择适合您的对弈参数</p>
 
       <div class="setup-section">
         <h2 class="section-title">🎯 棋盘大小</h2>
         <div class="option-group">
-          <button class="option-btn active" data-size="19">19×19</button>
-          <button class="option-btn" data-size="13">13×13</button>
-          <button class="option-btn" data-size="9">9×9</button>
+          <button type="button" class="option-btn active" data-size="19" aria-label="19路棋盘">19×19</button>
+          <button type="button" class="option-btn" data-size="13" aria-label="13路棋盘">13×13</button>
+          <button type="button" class="option-btn" data-size="9" aria-label="9路棋盘">9×9</button>
         </div>
       </div>
 
       <div class="setup-section">
         <h2 class="section-title">🤖 AI 难度</h2>
-        <div class="ai-level-card active" data-level="easy">
+        <div class="ai-level-card active" data-level="easy" role="button" tabindex="0" aria-label="初级 AI">
           <div class="ai-level-name">初级 AI</div>
           <div class="ai-level-desc">适合初学者，会犯一些简单的错误</div>
         </div>
-        <div class="ai-level-card" data-level="medium">
+        <div class="ai-level-card" data-level="medium" role="button" tabindex="0" aria-label="中级 AI">
           <div class="ai-level-name">中级 AI</div>
           <div class="ai-level-desc">有一定水平，适合练习</div>
         </div>
-        <div class="ai-level-card" data-level="hard">
+        <div class="ai-level-card" data-level="hard" role="button" tabindex="0" aria-label="高级 AI">
           <div class="ai-level-name">高级 AI</div>
           <div class="ai-level-desc">较强的对手，需要认真应对</div>
         </div>
-        <div class="ai-level-card" data-level="pro">
+        <div class="ai-level-card" data-level="pro" role="button" tabindex="0" aria-label="职业 AI">
           <div class="ai-level-name">职业 AI</div>
           <div class="ai-level-desc">职业水平，极具挑战性</div>
         </div>
@@ -197,11 +199,11 @@
       <div class="setup-section">
         <h2 class="section-title">⚫⚪ 选择执子</h2>
         <div class="color-selector">
-          <div class="color-option active" data-color="black">
+          <div class="color-option active" data-color="black" role="button" tabindex="0" aria-label="执黑">
             <div class="color-stone black"></div>
             <span class="color-label">执黑</span>
           </div>
-          <div class="color-option" data-color="white">
+          <div class="color-option" data-color="white" role="button" tabindex="0" aria-label="执白">
             <div class="color-stone white"></div>
             <span class="color-label">执白</span>
           </div>
@@ -211,29 +213,31 @@
       <div class="setup-section">
         <h2 class="section-title">📐 让子</h2>
         <div class="option-group">
-          <button class="option-btn active" data-handicap="0">无让子</button>
-          <button class="option-btn" data-handicap="2">2子</button>
-          <button class="option-btn" data-handicap="3">3子</button>
-          <button class="option-btn" data-handicap="4">4子</button>
-          <button class="option-btn" data-handicap="5">5子</button>
+          <button type="button" class="option-btn active" data-handicap="0" aria-label="无让子">无让子</button>
+          <button type="button" class="option-btn" data-handicap="2" aria-label="2子让子">2子</button>
+          <button type="button" class="option-btn" data-handicap="3" aria-label="3子让子">3子</button>
+          <button type="button" class="option-btn" data-handicap="4" aria-label="4子让子">4子</button>
+          <button type="button" class="option-btn" data-handicap="5" aria-label="5子让子">5子</button>
         </div>
       </div>
 
       <div class="setup-section">
         <h2 class="section-title">📊 贴目</h2>
         <div class="option-group">
-          <button class="option-btn active" data-komi="6.5">6.5目</button>
-          <button class="option-btn" data-komi="7.5">7.5目</button>
+          <button type="button" class="option-btn active" data-komi="6.5" aria-label="6.5目贴目">6.5目</button>
+          <button type="button" class="option-btn" data-komi="7.5" aria-label="7.5目贴目">7.5目</button>
         </div>
       </div>
 
-      <button class="btn btn-primary start-btn" id="startBtn">开始对弈</button>
+      <button type="button" class="btn btn-primary start-btn" id="startBtn" aria-label="开始对弈">开始对弈</button>
     </main>
   </div>
 
   <script src="../js/utils.js"></script>
   <script src="../js/error-handler.js"></script>
   <script src="../js/loading.js"></script>
+  <script src="../js/focus-manager.js"></script>
+  <script src="../js/analytics.js"></script>
   <script src="../js/storage.js"></script>
   <script src="../js/board-component.js"></script>
   <script src="../js/ai.js"></script>

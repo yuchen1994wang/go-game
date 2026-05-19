@@ -3,389 +3,263 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>死活题练习 - 围棋对弈复盘</title>
-  <meta name="description" content="围棋死活题练习，包含初级、中级、高级难度的死活题，帮助提升围棋计算能力">
-  <meta name="keywords" content="围棋,死活题,围棋练习,围棋学习,围棋入门">
+  <title>定式练习 - 围棋对弈复盘</title>
+  <meta name="description" content="学习经典围棋定式，掌握开局要领">
+  <meta name="keywords" content="围棋,围棋对弈,围棋学习,死活题,棋谱,AI对弈">
   <meta name="author" content="围棋对弈复盘">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="死活题练习 - 围棋对弈复盘">
-  <meta property="og:description" content="围棋死活题练习，包含初级、中级、高级难度的死活题">
+  <meta property="og:title" content="定式练习 - 围棋对弈复盘">
+  <meta property="og:description" content="学习经典围棋定式，掌握开局要领">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#C4A35A">
+  <link rel="manifest" href="../manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/common.css">
   <style>
-    .practice-header {
+    .practice-page { display: flex; flex-direction: column; min-height: 100vh; }
+    header {
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      gap: 12px;
     }
-
-    .practice-title {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .practice-stats {
-      display: flex;
-      gap: 16px;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-    }
-
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .stat-value {
-      font-weight: 600;
-      color: var(--accent-gold);
-    }
-
-    .difficulty-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .difficulty-tab {
-      padding: 8px 16px;
-      border: 2px solid var(--border-color);
-      border-radius: 20px;
-      background: transparent;
-      color: var(--text-secondary);
-      font-family: inherit;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .difficulty-tab:hover {
-      border-color: var(--accent-gold);
-      color: var(--accent-gold);
-    }
-
-    .difficulty-tab.active {
-      background: var(--accent-gold);
-      border-color: var(--accent-gold);
-      color: white;
-    }
-
-    .problem-list {
-      display: grid;
-      gap: 16px;
-    }
-
-    .problem-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 20px 24px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .problem-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-medium);
-      border-color: var(--accent-gold);
-    }
-
-    .problem-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .problem-name {
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: var(--text-primary);
-      margin-bottom: 6px;
-    }
-
-    .problem-desc {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      margin-bottom: 10px;
-    }
-
-    .problem-tags {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .problem-tag {
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-    }
-
-    .problem-meta {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
-      min-width: 100px;
-      flex-shrink: 0;
-    }
-
-    .difficulty-badge {
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .difficulty-badge.easy {
-      background: #E8F5E9;
-      color: #2E7D32;
-    }
-
-    .difficulty-badge.medium {
-      background: #FFF3E0;
-      color: #E65100;
-    }
-
-    .difficulty-badge.hard {
-      background: #FFEBEE;
-      color: #C62828;
-    }
-
-    .problem-stats {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      text-align: right;
-    }
-
-    .accuracy {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    .accuracy.high { color: #2E7D32; }
-    .accuracy.medium { color: #E65100; }
-    .accuracy.low { color: #C62828; }
-
-    .problem-arrow {
-      font-size: 1.5rem;
-      color: var(--accent-gold);
-      opacity: 0.6;
-      transition: opacity 0.2s;
-    }
-
-    .problem-card:hover .problem-arrow {
-      opacity: 1;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
-    }
-
-    .empty-icon {
-      font-size: 4rem;
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-
-    @media (max-width: 480px) {
-      .practice-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .problem-card {
-        padding: 16px;
-        gap: 12px;
-      }
-      .problem-meta {
-        min-width: 80px;
-      }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    main { flex: 1; padding: 32px 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .page-title { font-family: 'Noto Serif SC', serif; font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+    .page-subtitle { color: var(--text-secondary); margin-bottom: 32px; }
+    .joseki-categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .category-card { background: var(--panel-bg); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); transition: all 0.3s ease; cursor: pointer; }
+    .category-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-gold); }
+    .category-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 16px; background: var(--bg-secondary); }
+    .category-card:nth-child(1) .category-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .category-card:nth-child(2) .category-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .category-card:nth-child(3) .category-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .category-card:nth-child(4) .category-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    .category-title { font-family: 'Noto Serif SC', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+    .category-desc { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px; }
+    .category-count { font-size: 0.85rem; color: var(--accent-gold); font-weight: 600; }
+    .joseki-list { background: var(--panel-bg); border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; }
+    .joseki-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; }
+    .joseki-item:last-child { border-bottom: none; }
+    .joseki-item:hover { background: var(--bg-secondary); }
+    .joseki-info { display: flex; align-items: center; gap: 16px; }
+    .joseki-number { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-gold); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; }
+    .joseki-details h3 { font-weight: 600; margin-bottom: 4px; }
+    .joseki-details p { font-size: 0.85rem; color: var(--text-secondary); }
+    .joseki-status { display: flex; align-items: center; gap: 8px; }
+    .status-badge { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; }
+    .status-badge.completed { background: #E8F5E9; color: #2E7D32; }
+    .status-badge.in-progress { background: #E3F2FD; color: #1976D2; }
+    .status-badge.locked { background: #F5F5F5; color: #9E9E9E; }
+    .progress-section { margin-top: 32px; }
+    .progress-title { font-family: 'Noto Serif SC', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 16px; }
+    .progress-bar-container { background: var(--panel-bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color); }
+    .progress-stats { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .progress-stat { text-align: center; }
+    .progress-stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; color: var(--accent-gold); }
+    .progress-stat-label { font-size: 0.85rem; color: var(--text-secondary); }
+    .progress-bar { width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-gold), #D4A017); border-radius: 4px; transition: width 0.5s ease; }
+    @media (max-width: 768px) {
+      .joseki-categories { grid-template-columns: 1fr; }
+      .joseki-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .joseki-status { align-self: flex-end; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="header-container"></div>
+  <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
+  <div class="practice-page">
+    <header>
+      <div class="header-left">
+        <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" aria-label="返回首页">← 返回首页</a>
+        <h1 style="font-family: 'Noto Serif SC', serif; font-size: 1.3rem; font-weight: 600;">定式练习</h1>
+      </div>
+    </header>
 
-    <div class="practice-header">
-      <h1 class="practice-title">死活题练习</h1>
-      <div class="practice-stats">
-        <div class="stat-item">
-          <span>总题数:</span>
-          <span class="stat-value" id="totalCount">0</span>
+    <main id="main-content">
+      <h2 class="page-title">定式练习</h2>
+      <p class="page-subtitle">学习经典定式，掌握开局要领</p>
+
+      <div class="joseki-categories">
+        <div class="category-card" role="button" tabindex="0" aria-label="星位定式">
+          <div class="category-icon">⭐</div>
+          <h3 class="category-title">星位定式</h3>
+          <p class="category-desc">学习星位（4-4点）的各种变化，包括小飞挂、大飞挂等常见定式</p>
+          <span class="category-count">12个定式</span>
         </div>
-        <div class="stat-item">
-          <span>已完成:</span>
-          <span class="stat-value" id="completedCount">0</span>
+
+        <div class="category-card" role="button" tabindex="0" aria-label="小目定式">
+          <div class="category-icon">🎯</div>
+          <h3 class="category-title">小目定式</h3>
+          <p class="category-desc">掌握小目（3-4点）的经典变化，包括一间高挂、二间高挂等</p>
+          <span class="category-count">15个定式</span>
         </div>
-        <div class="stat-item">
-          <span>总正确率:</span>
-          <span class="stat-value" id="totalAccuracy">0%</span>
+
+        <div class="category-card" role="button" tabindex="0" aria-label="三三定式">
+          <div class="category-icon">🔹</div>
+          <h3 class="category-title">三三定式</h3>
+          <p class="category-desc">学习三三（3-3点）的变化，现代围棋中越来越重要的角部定式</p>
+          <span class="category-count">8个定式</span>
+        </div>
+
+        <div class="category-card" role="button" tabindex="0" aria-label="高目定式">
+          <div class="category-icon">📐</div>
+          <h3 class="category-title">高目定式</h3>
+          <p class="category-desc">探索高目（4-5点）的变化，偏向外势的取法</p>
+          <span class="category-count">6个定式</span>
         </div>
       </div>
-    </div>
 
-    <div class="difficulty-tabs">
-      <button class="difficulty-tab active" data-filter="all">全部</button>
-      <button class="difficulty-tab" data-filter="初级">初级</button>
-      <button class="difficulty-tab" data-filter="中级">中级</button>
-      <button class="difficulty-tab" data-filter="高级">高级</button>
-    </div>
+      <div class="joseki-list">
+        <div class="joseki-item" role="button" tabindex="0" aria-label="星位小飞挂">
+          <div class="joseki-info">
+            <div class="joseki-number">1</div>
+            <div class="joseki-details">
+              <h3>星位小飞挂</h3>
+              <p>最基础的星位定式，黑棋取地白棋取势</p>
+            </div>
+          </div>
+          <div class="joseki-status">
+            <span class="status-badge completed">已完成</span>
+          </div>
+        </div>
 
-    <div class="problem-list" id="problemList">
-      <!-- 题目列表将在这里渲染 -->
-    </div>
+        <div class="joseki-item" role="button" tabindex="0" aria-label="星位大飞挂">
+          <div class="joseki-info">
+            <div class="joseki-number">2</div>
+            <div class="joseki-details">
+              <h3>星位大飞挂</h3>
+              <p>比小飞更重视外势的挂法</p>
+            </div>
+          </div>
+          <div class="joseki-status">
+            <span class="status-badge in-progress">学习中</span>
+          </div>
+        </div>
 
-    <div class="empty-state" id="emptyState" style="display: none;">
-      <div class="empty-icon">📚</div>
-      <p>暂无该难度的题目</p>
-    </div>
+        <div class="joseki-item" role="button" tabindex="0" aria-label="星位一间高挂">
+          <div class="joseki-info">
+            <div class="joseki-number">3</div>
+            <div class="joseki-details">
+              <h3>星位一间高挂</h3>
+              <p>重视中腹势力的挂法</p>
+            </div>
+          </div>
+          <div class="joseki-status">
+            <span class="status-badge locked">未解锁</span>
+          </div>
+        </div>
+
+        <div class="joseki-item" role="button" tabindex="0" aria-label="小目一间高挂">
+          <div class="joseki-info">
+            <div class="joseki-number">4</div>
+            <div class="joseki-details">
+              <h3>小目一间高挂</h3>
+              <p>小目最基础的挂法之一</p>
+            </div>
+          </div>
+          <div class="joseki-status">
+            <span class="status-badge locked">未解锁</span>
+          </div>
+        </div>
+
+        <div class="joseki-item" role="button" tabindex="0" aria-label="小目二间高挂">
+          <div class="joseki-info">
+            <div class="joseki-number">5</div>
+            <div class="joseki-details">
+              <h3>小目二间高挂</h3>
+              <p>较为松缓的挂法，重视外势</p>
+            </div>
+          </div>
+          <div class="joseki-status">
+            <span class="status-badge locked">未解锁</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <h3 class="progress-title">📊 学习进度</h3>
+        <div class="progress-bar-container">
+          <div class="progress-stats">
+            <div class="progress-stat">
+              <div class="progress-stat-value" id="completedCount">1</div>
+              <div class="progress-stat-label">已完成</div>
+            </div>
+            <div class="progress-stat">
+              <div class="progress-stat-value" id="inProgressCount">1</div>
+              <div class="progress-stat-label">学习中</div>
+            </div>
+            <div class="progress-stat">
+              <div class="progress-stat-value" id="totalCount">41</div>
+              <div class="progress-stat-label">总定式</div>
+            </div>
+            <div class="progress-stat">
+              <div class="progress-stat-value" id="progressPercent">5%</div>
+              <div class="progress-stat-label">完成度</div>
+            </div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 5%;"></div>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script src="../js/utils.js"></script>
   <script src="../js/error-handler.js"></script>
   <script src="../js/loading.js"></script>
+  <script src="../js/focus-manager.js"></script>
+  <script src="../js/analytics.js"></script>
   <script src="../js/storage.js"></script>
+  <script src="../js/board-component.js"></script>
+  <script src="../js/ai.js"></script>
   <script src="../js/header.js"></script>
-  <script src="../js/tsumego-data.js"></script>
   <script>
     class PracticeApp {
       constructor() {
-        this.currentFilter = 'all';
         this.init();
       }
 
       init() {
-        // 使用通用Header组件
-        Header.mount(document.getElementById('header-container'), {
-          backUrl: 'home.html',
-          backText: '← 返回首页',
-          showSettings: true,
-          showUser: true
-        });
-
+        Header.init();
+        this.loadProgress();
         this.bindEvents();
-        this.render();
-        this.updateStats();
+      }
+
+      loadProgress() {
+        // 从存储中加载定式学习进度
+        const progress = Storage.getJosekiProgress ? Storage.getJosekiProgress() : {};
+        // 这里可以根据实际进度更新UI
       }
 
       bindEvents() {
-        const tabs = document.querySelectorAll('.difficulty-tab');
-        tabs.forEach(tab => {
-          tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            this.currentFilter = tab.dataset.filter;
-            this.render();
-          });
-        });
-      }
-
-      render() {
-        const list = document.getElementById('problemList');
-        const empty = document.getElementById('emptyState');
-        
-        let problems = TsumegoData.getAll();
-        
-        if (this.currentFilter !== 'all') {
-          problems = problems.filter(p => p.difficulty === this.currentFilter);
-        }
-
-        if (problems.length === 0) {
-          list.innerHTML = '';
-          empty.style.display = 'block';
-          return;
-        }
-
-        empty.style.display = 'none';
-        list.innerHTML = problems.map(problem => this.createProblemCard(problem)).join('');
-
-        // 绑定点击事件
-        list.querySelectorAll('.problem-card').forEach(card => {
+        // 分类卡片点击
+        document.querySelectorAll('.category-card').forEach(card => {
           card.addEventListener('click', () => {
-            const id = parseInt(card.dataset.id);
-            window.location.href = `tsumego.html?id=${id}`;
+            const title = card.querySelector('.category-title').textContent;
+            showToast(`${title} - 功能开发中`, 'info');
           });
         });
-      }
 
-      createProblemCard(problem) {
-        const stats = TsumegoStats.get(problem.id);
-        const accuracy = TsumegoStats.getAccuracy(problem.id);
-        
-        let accuracyClass = 'low';
-        if (accuracy >= 70) accuracyClass = 'high';
-        else if (accuracy >= 40) accuracyClass = 'medium';
+        // 定式项目点击
+        document.querySelectorAll('.joseki-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const title = item.querySelector('h3').textContent;
+            const status = item.querySelector('.status-badge');
 
-        const difficultyClass = {
-          '初级': 'easy',
-          '中级': 'medium',
-          '高级': 'hard'
-        }[problem.difficulty] || 'easy';
-
-        const tags = problem.tags || ['死活', problem.difficulty];
-
-        return `
-          <div class="problem-card" data-id="${problem.id}">
-            <div class="problem-info">
-              <div class="problem-name">${problem.title}</div>
-              <div class="problem-desc">${problem.description}</div>
-              <div class="problem-tags">
-                ${tags.map(tag => `<span class="problem-tag">${tag}</span>`).join('')}
-              </div>
-            </div>
-            <div class="problem-meta">
-              <span class="difficulty-badge ${difficultyClass}">${problem.difficulty}</span>
-              <div class="problem-stats">
-                <div class="accuracy ${accuracyClass}">${accuracy}%</div>
-                <div>${stats.correct}/${stats.attempts}</div>
-              </div>
-              <div class="problem-arrow">→</div>
-            </div>
-          </div>
-        `;
-      }
-
-      updateStats() {
-        const problems = TsumegoData.getAll();
-        const totalProblems = problems.length;
-        
-        let totalAttempts = 0;
-        let totalCorrect = 0;
-        let completedProblems = 0;
-
-        problems.forEach(p => {
-          const stats = TsumegoStats.get(p.id);
-          totalAttempts += stats.attempts;
-          totalCorrect += stats.correct;
-          if (stats.correct > 0) completedProblems++;
+            if (status.classList.contains('locked')) {
+              showToast('请先完成前面的定式', 'warning');
+            } else {
+              showToast(`开始学习: ${title}`, 'info');
+            }
+          });
         });
-
-        const totalAccuracy = totalAttempts > 0 
-          ? Math.round((totalCorrect / totalAttempts) * 100) 
-          : 0;
-
-        document.getElementById('totalCount').textContent = totalProblems;
-        document.getElementById('completedCount').textContent = completedProblems;
-        document.getElementById('totalAccuracy').textContent = totalAccuracy + '%';
       }
     }
 

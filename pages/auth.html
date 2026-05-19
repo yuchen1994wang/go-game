@@ -13,6 +13,7 @@
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#C4A35A">
+  <link rel="manifest" href="../manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
@@ -88,7 +89,8 @@
   </style>
 </head>
 <body>
-  <div class="auth-page">
+  <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
+  <div class="auth-page" id="main-content">
     <div class="card auth-card">
       <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
       </div>
@@ -97,17 +99,19 @@
       <p class="auth-subtitle">请输入您的昵称，用于记录对局历史</p>
       
       <div class="auth-form">
-        <input type="text" class="auth-input" id="usernameInput" placeholder="请输入您的昵称" maxlength="20">
-        <button class="btn btn-primary auth-btn" id="loginBtn">开始使用</button>
+        <input type="text" class="auth-input" id="usernameInput" placeholder="请输入您的昵称" maxlength="20" aria-label="昵称输入框">
+        <button type="button" class="btn btn-primary auth-btn" id="loginBtn" aria-label="开始使用">开始使用</button>
       </div>
       
-      <button class="auth-skip" id="skipBtn">跳过，使用默认名称</button>
+      <button type="button" class="auth-skip" id="skipBtn" aria-label="跳过，使用默认名称">跳过，使用默认名称</button>
     </div>
   </div>
 
   <script src="../js/utils.js"></script>
   <script src="../js/error-handler.js"></script>
   <script src="../js/loading.js"></script>
+  <script src="../js/focus-manager.js"></script>
+  <script src="../js/analytics.js"></script>
   <script src="../js/storage.js"></script>
   <script src="../js/board-component.js"></script>
   <script>

@@ -3,284 +3,331 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>经典打谱 - 围棋对弈复盘</title>
-  <meta name="description" content="围棋经典棋谱学习，名家名局打谱">
+  <title>棋谱管理 - 围棋对弈复盘</title>
+  <meta name="description" content="管理您的棋谱，查看历史对局">
   <meta name="keywords" content="围棋,围棋对弈,围棋学习,死活题,棋谱,AI对弈">
   <meta name="author" content="围棋对弈复盘">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="经典打谱 - 围棋对弈复盘">
-  <meta property="og:description" content="围棋经典棋谱学习，名家名局打谱">
+  <meta property="og:title" content="棋谱管理 - 围棋对弈复盘">
+  <meta property="og:description" content="管理您的棋谱，查看历史对局">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#C4A35A">
+  <link rel="manifest" href="../manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/common.css">
   <style>
-    .kifu-header {
+    .kifu-page { display: flex; flex-direction: column; min-height: 100vh; }
+    header {
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
     }
-
-    .kifu-title {
-      font-family: 'Noto Serif SC', serif;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .kifu-subtitle {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    .kifu-list {
-      display: grid;
-      gap: 16px;
-    }
-
-    .kifu-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 20px 24px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .kifu-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-medium);
-      border-color: var(--accent-gold);
-    }
-
-    .kifu-info {
-      flex: 1;
-    }
-
-    .kifu-name {
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: var(--text-primary);
-      margin-bottom: 6px;
-    }
-
-    .kifu-players {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-    }
-
-    .kifu-player {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .player-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .player-dot.black {
-      background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%);
-    }
-
-    .player-dot.white {
-      background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%);
-      border: 1px solid rgba(0,0,0,0.1);
-    }
-
-    .kifu-vs {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-    }
-
-    .kifu-desc {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      margin-bottom: 10px;
-    }
-
-    .kifu-tags {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .kifu-tag {
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-    }
-
-    .kifu-meta {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
-      min-width: 100px;
-    }
-
-    .kifu-date {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .kifu-result {
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      background: #E8F5E9;
-      color: #2E7D32;
-    }
-
-    .kifu-moves {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .kifu-arrow {
-      font-size: 1.5rem;
-      color: var(--accent-gold);
-      opacity: 0.6;
-      transition: opacity 0.2s;
-    }
-
-    .kifu-card:hover .kifu-arrow {
-      opacity: 1;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
-    }
-
-    .empty-icon {
-      font-size: 4rem;
-      margin-bottom: 16px;
-      opacity: 0.5;
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    main { flex: 1; padding: 32px 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .page-title { font-family: 'Noto Serif SC', serif; font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+    .page-subtitle { color: var(--text-secondary); margin-bottom: 32px; }
+    .kifu-toolbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .search-box { flex: 1; min-width: 200px; position: relative; }
+    .search-input { width: 100%; padding: 12px 16px 12px 44px; border: 2px solid var(--border-color); border-radius: 12px; font-family: inherit; font-size: 0.95rem; background: var(--bg-primary); color: var(--text-primary); outline: none; transition: border-color 0.2s ease; }
+    .search-input:focus { border-color: var(--accent-gold); }
+    .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+    .filter-group { display: flex; gap: 8px; }
+    .filter-btn { padding: 10px 16px; border: 2px solid var(--border-color); background: var(--bg-secondary); border-radius: 10px; font-family: inherit; font-size: 0.9rem; color: var(--text-primary); cursor: pointer; transition: all 0.2s ease; }
+    .filter-btn:hover { border-color: var(--accent-gold); }
+    .filter-btn.active { background: var(--accent-gold); border-color: var(--accent-gold); color: white; }
+    .kifu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .kifu-card { background: var(--panel-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); transition: all 0.3s ease; cursor: pointer; }
+    .kifu-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-gold); }
+    .kifu-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .kifu-players { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    .kifu-vs { color: var(--text-secondary); font-size: 0.85rem; }
+    .kifu-size { padding: 4px 10px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.8rem; color: var(--text-secondary); }
+    .kifu-board-preview { width: 100%; aspect-ratio: 1; background: linear-gradient(145deg, var(--board-wood-light) 0%, var(--board-wood) 50%, var(--board-dark) 100%); border-radius: 8px; margin-bottom: 16px; position: relative; overflow: hidden; }
+    .kifu-board-preview::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60%; height: 60%; background: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px); background-size: 20px 20px; opacity: 0.5; }
+    .kifu-meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; }
+    .kifu-result { display: inline-block; padding: 4px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; }
+    .kifu-result.win { background: #E8F5E9; color: #2E7D32; }
+    .kifu-result.loss { background: #FFEBEE; color: #C62828; }
+    .kifu-result.draw { background: #FFF3E0; color: #EF6C00; }
+    .kifu-result.ongoing { background: #E3F2FD; color: #1976D2; }
+    .kifu-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .kifu-action-btn { flex: 1; padding: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: 8px; font-family: inherit; font-size: 0.85rem; color: var(--text-primary); cursor: pointer; transition: all 0.2s; }
+    .kifu-action-btn:hover { background: var(--border-color); }
+    .kifu-action-btn.danger { border-color: #EF9A9A; background: #FFEBEE; color: #C62828; }
+    .kifu-action-btn.danger:hover { background: #FFCDD2; }
+    .empty-state { text-align: center; padding: 64px 24px; }
+    .empty-state-icon { font-size: 4rem; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state-title { font-family: 'Noto Serif SC', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; }
+    .empty-state-text { color: var(--text-secondary); margin-bottom: 24px; }
+    .stats-bar { display: flex; gap: 24px; padding: 16px 20px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 24px; }
+    .stats-item { display: flex; align-items: center; gap: 8px; }
+    .stats-value { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 700; color: var(--accent-gold); }
+    .stats-label { font-size: 0.85rem; color: var(--text-secondary); }
+    @media (max-width: 768px) {
+      .kifu-toolbar { flex-direction: column; align-items: stretch; }
+      .filter-group { justify-content: center; }
+      .kifu-grid { grid-template-columns: 1fr; }
+      .stats-bar { flex-wrap: wrap; justify-content: center; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="header-container"></div>
-
-    <div class="kifu-header">
-      <div>
-        <h1 class="kifu-title">经典打谱</h1>
-        <p class="kifu-subtitle">学习名家名局，每一步都有详细讲解</p>
+  <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
+  <div class="kifu-page">
+    <header>
+      <div class="header-left">
+        <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" aria-label="返回首页">← 返回首页</a>
+        <h1 style="font-family: 'Noto Serif SC', serif; font-size: 1.3rem; font-weight: 600;">棋谱管理</h1>
       </div>
-    </div>
+    </header>
 
-    <div class="kifu-list" id="kifuList">
-      <!-- 棋谱列表将在这里渲染 -->
-    </div>
+    <main id="main-content">
+      <h2 class="page-title">我的棋谱</h2>
+      <p class="page-subtitle">查看和管理您的对局记录</p>
 
-    <div class="empty-state" id="emptyState" style="display: none;">
-      <div class="empty-icon">📖</div>
-      <p>暂无棋谱</p>
-    </div>
+      <div class="stats-bar" id="statsBar">
+        <div class="stats-item">
+          <span class="stats-value" id="totalGames">0</span>
+          <span class="stats-label">总对局</span>
+        </div>
+        <div class="stats-item">
+          <span class="stats-value" id="winCount">0</span>
+          <span class="stats-label">胜局</span>
+        </div>
+        <div class="stats-item">
+          <span class="stats-value" id="lossCount">0</span>
+          <span class="stats-label">负局</span>
+        </div>
+        <div class="stats-item">
+          <span class="stats-value" id="winRate">0%</span>
+          <span class="stats-label">胜率</span>
+        </div>
+      </div>
+
+      <div class="kifu-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="搜索棋手、日期..." aria-label="搜索棋谱">
+        </div>
+        <div class="filter-group">
+          <button type="button" class="filter-btn active" data-filter="all" aria-label="显示全部">全部</button>
+          <button type="button" class="filter-btn" data-filter="win" aria-label="显示胜局">胜局</button>
+          <button type="button" class="filter-btn" data-filter="loss" aria-label="显示负局">负局</button>
+          <button type="button" class="filter-btn" data-filter="ongoing" aria-label="显示进行中">进行中</button>
+        </div>
+      </div>
+
+      <div class="kifu-grid" id="kifuGrid">
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <h3 class="empty-state-title">暂无棋谱</h3>
+          <p class="empty-state-text">开始一局对弈，您的棋谱将显示在这里</p>
+          <a href="ai-setup.html" class="btn btn-primary" aria-label="开始对弈">开始对弈</a>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script src="../js/utils.js"></script>
   <script src="../js/error-handler.js"></script>
   <script src="../js/loading.js"></script>
+  <script src="../js/focus-manager.js"></script>
+  <script src="../js/analytics.js"></script>
   <script src="../js/storage.js"></script>
   <script src="../js/board-component.js"></script>
   <script src="../js/ai.js"></script>
   <script src="../js/header.js"></script>
-  <script src="../js/kifu-data.js"></script>
   <script>
-    class KifuListApp {
+    class KifuApp {
       constructor() {
+        this.games = [];
+        this.filteredGames = [];
+        this.currentFilter = 'all';
+        this.searchQuery = '';
         this.init();
       }
 
       init() {
-        Header.mount(document.getElementById('header-container'), {
-          backUrl: 'home.html',
-          backText: '← 返回首页',
-          showSettings: true,
-          showUser: true
-        });
-
-        this.render();
+        Header.init();
+        this.loadGames();
+        this.updateStats();
+        this.renderGames();
+        this.bindEvents();
       }
 
-      render() {
-        const list = document.getElementById('kifuList');
-        const empty = document.getElementById('emptyState');
-        const kifus = KifuData.getAll();
+      loadGames() {
+        this.games = Storage.getSavedGames();
+        this.filteredGames = [...this.games];
+      }
 
-        if (kifus.length === 0) {
-          list.innerHTML = '';
-          empty.style.display = 'block';
+      updateStats() {
+        const myUsername = Storage.getUsername();
+        const total = this.games.length;
+        let wins = 0;
+        let losses = 0;
+
+        this.games.forEach(game => {
+          if (game.result && game.result.winner) {
+            const isBlack = game.blackPlayer === myUsername;
+            if ((isBlack && game.result.winner === 'black') ||
+                (!isBlack && game.result.winner === 'white')) {
+              wins++;
+            } else if (game.result.winner !== 'draw') {
+              losses++;
+            }
+          }
+        });
+
+        document.getElementById('totalGames').textContent = total;
+        document.getElementById('winCount').textContent = wins;
+        document.getElementById('lossCount').textContent = losses;
+        document.getElementById('winRate').textContent = total > 0 ? Math.round((wins / total) * 100) + '%' : '0%';
+      }
+
+      filterGames() {
+        const myUsername = Storage.getUsername();
+
+        this.filteredGames = this.games.filter(game => {
+          // 搜索过滤
+          if (this.searchQuery) {
+            const query = this.searchQuery.toLowerCase();
+            const match = game.blackPlayer.toLowerCase().includes(query) ||
+                         game.whitePlayer.toLowerCase().includes(query) ||
+                         new Date(game.savedAt).toLocaleDateString().includes(query);
+            if (!match) return false;
+          }
+
+          // 结果过滤
+          if (this.currentFilter !== 'all') {
+            const isBlack = game.blackPlayer === myUsername;
+            const winner = game.result ? game.result.winner : null;
+
+            if (this.currentFilter === 'win') {
+              return winner && ((isBlack && winner === 'black') || (!isBlack && winner === 'white'));
+            } else if (this.currentFilter === 'loss') {
+              return winner && ((isBlack && winner === 'white') || (!isBlack && winner === 'black'));
+            } else if (this.currentFilter === 'ongoing') {
+              return !game.isGameOver;
+            }
+          }
+
+          return true;
+        });
+      }
+
+      renderGames() {
+        const grid = document.getElementById('kifuGrid');
+
+        if (this.filteredGames.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+              <div class="empty-state-icon">🔍</div>
+              <h3 class="empty-state-title">未找到棋谱</h3>
+              <p class="empty-state-text">尝试调整搜索条件或过滤器</p>
+            </div>
+          `;
           return;
         }
 
-        empty.style.display = 'none';
-        list.innerHTML = kifus.map(kifu => this.createKifuCard(kifu)).join('');
-
-        // 绑定点击事件
-        list.querySelectorAll('.kifu-card').forEach(card => {
-          card.addEventListener('click', () => {
-            const id = parseInt(card.dataset.id);
-            window.location.href = `kifu-player.html?id=${id}`;
-          });
-        });
+        grid.innerHTML = this.filteredGames.map(game => this.createKifuCard(game)).join('');
       }
 
-      createKifuCard(kifu) {
+      createKifuCard(game) {
+        const date = new Date(game.savedAt);
+        const dateStr = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+        const myUsername = Storage.getUsername();
+        const isBlack = game.blackPlayer === myUsername;
+
+        let resultClass = 'ongoing';
+        let resultText = '进行中';
+        if (game.result) {
+          if (game.result.winner === 'black') {
+            resultClass = isBlack ? 'win' : 'loss';
+            resultText = isBlack ? '胜' : '负';
+          } else if (game.result.winner === 'white') {
+            resultClass = isBlack ? 'loss' : 'win';
+            resultText = isBlack ? '负' : '胜';
+          } else {
+            resultClass = 'draw';
+            resultText = '和棋';
+          }
+        }
+
         return `
-          <div class="kifu-card" data-id="${kifu.id}">
-            <div class="kifu-info">
-              <div class="kifu-name">${kifu.title}</div>
+          <div class="kifu-card" data-id="${game.id}">
+            <div class="kifu-header">
               <div class="kifu-players">
-                <div class="kifu-player">
-                  <span class="player-dot black"></span>
-                  <span>${kifu.players.black}</span>
-                </div>
+                <span>${game.blackPlayer}</span>
                 <span class="kifu-vs">VS</span>
-                <div class="kifu-player">
-                  <span class="player-dot white"></span>
-                  <span>${kifu.players.white}</span>
-                </div>
+                <span>${game.whitePlayer}</span>
               </div>
-              <div class="kifu-desc">${kifu.description}</div>
-              <div class="kifu-tags">
-                ${kifu.tags.map(tag => `<span class="kifu-tag">${tag}</span>`).join('')}
-              </div>
+              <span class="kifu-size">${game.size}×${game.size}</span>
             </div>
+            <div class="kifu-board-preview"></div>
             <div class="kifu-meta">
-              <div class="kifu-date">${kifu.date}</div>
-              <div class="kifu-result">${kifu.result}</div>
-              <div class="kifu-moves">${kifu.moves.length}手</div>
-              <div class="kifu-arrow">→</div>
+              <span>${dateStr}</span>
+              <span>${game.moveHistory ? game.moveHistory.length : 0}手</span>
+            </div>
+            <span class="kifu-result ${resultClass}">${resultText}</span>
+            <div class="kifu-actions">
+              <button type="button" class="kifu-action-btn" onclick="event.stopPropagation(); window.location.href='kifu-player.html?id=${game.id}'" aria-label="复盘">📖 复盘</button>
+              <button type="button" class="kifu-action-btn danger" onclick="event.stopPropagation(); kifuApp.deleteGame('${game.id}')" aria-label="删除">🗑</button>
             </div>
           </div>
         `;
       }
+
+      deleteGame(gameId) {
+        if (!confirm('确定要删除这局棋谱吗？此操作不可恢复。')) return;
+
+        const index = this.games.findIndex(g => g.id === gameId);
+        if (index > -1) {
+          this.games.splice(index, 1);
+          localStorage.setItem('go_games', JSON.stringify(this.games));
+          this.filterGames();
+          this.renderGames();
+          this.updateStats();
+          showToast('棋谱已删除', 'success');
+        }
+      }
+
+      bindEvents() {
+        // 搜索
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+          this.searchQuery = e.target.value;
+          this.filterGames();
+          this.renderGames();
+        });
+
+        // 过滤器
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            this.currentFilter = btn.dataset.filter;
+            this.filterGames();
+            this.renderGames();
+          });
+        });
+
+        // 卡片点击
+        document.getElementById('kifuGrid').addEventListener('click', (e) => {
+          const card = e.target.closest('.kifu-card');
+          if (card && !e.target.closest('.kifu-action-btn')) {
+            window.location.href = `kifu-player.html?id=${card.dataset.id}`;
+          }
+        });
+      }
     }
 
+    let kifuApp;
     document.addEventListener('DOMContentLoaded', () => {
-      new KifuListApp();
+      kifuApp = new KifuApp();
     });
   </script>
 </body>

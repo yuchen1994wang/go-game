@@ -1,0 +1,40 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "serviceworker": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "indent": ["error", 2],
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-console": ["warn", { "allow": ["error", "warn"] }],
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"],
+    "no-var": "error",
+    "prefer-const": "error"
+  },
+  "globals": {
+    "Header": "readonly",
+    "ThemeManager": "readonly",
+    "Storage": "readonly",
+    "TsumegoData": "readonly",
+    "TsumegoStats": "readonly",
+    "KifuData": "readonly",
+    "GoAI": "readonly",
+    "BoardComponent": "readonly",
+    "ErrorHandler": "readonly",
+    "LoadingManager": "readonly",
+    "Analytics": "readonly",
+    "showToast": "readonly"
+  }
+}
