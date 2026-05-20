@@ -113,6 +113,12 @@
           <span>🎯</span>
           <span id="moveCount">0手</span>
         </div>
+        <button type="button" class="btn btn-secondary" id="settingsBtn" title="设置" aria-label="设置" style="padding: 8px 14px; font-size: 0.85rem;">⚙️</button>
+        <div class="user-menu" id="userMenu" title="点击退出登录">
+          <span>👤</span>
+          <span class="user-name" id="userName">棋手</span>
+          <span class="logout-icon">🚪</span>
+        </div>
       </div>
     </header>
 
@@ -163,7 +169,7 @@
           <div class="game-controls">
             <button type="button" class="control-btn" id="undoBtn" title="悔棋" aria-label="悔棋">↩ 悔棋</button>
             <button type="button" class="control-btn" id="passBtn" title="停一手" aria-label="停一手">⏸ 停一手</button>
-            <button type="button" class="control-btn danger" id="resignBtn" title="认输" aria-label="认输">🏳 认输</button>
+            <button type="button" class="control-btn" id="pauseBtn" title="封盘" aria-label="封盘">⏸ 封盘</button>
           </div>
           <div class="game-controls">
             <button type="button" class="control-btn primary" id="saveBtn" title="保存" aria-label="保存对局">💾 保存</button>
@@ -252,7 +258,7 @@
       }
 
       init() {
-        Header.init();
+        Header.init({ showSettings: true });
         this.loadGameConfig();
         this.initGame();
         this.renderBoard();
@@ -712,6 +718,13 @@
         this.endGame(`您认输，${winner}获胜`);
       }
 
+      handlePause() {
+        if (this.isGameOver) return;
+        this.isPaused = !this.isPaused;
+        document.getElementById('pauseBtn').textContent = this.isPaused ? '▶️ 续盘' : '⏸ 封盘';
+        showToast(this.isPaused ? '已封盘' : '已续盘', 'info');
+      }
+
       handleSave() {
         const gameData = {
           id: this.gameId,
@@ -922,7 +935,7 @@
 
         document.getElementById('undoBtn').addEventListener('click', () => this.handleUndo());
         document.getElementById('passBtn').addEventListener('click', () => this.handlePass());
-        document.getElementById('resignBtn').addEventListener('click', () => this.handleResign());
+        document.getElementById('pauseBtn').addEventListener('click', () => this.handlePause());
         document.getElementById('saveBtn').addEventListener('click', () => this.handleSave());
         document.getElementById('scoreBtn').addEventListener('click', () => this.handleScore());
 
