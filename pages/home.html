@@ -32,9 +32,11 @@
     .logo-icon { width: 48px; height: 48px; background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%); border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.3); position: relative; }
     .logo-icon::after { content: ''; position: absolute; width: 18px; height: 18px; background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%); border-radius: 50%; top: 50%; left: 50%; transform: translate(-30%, -30%); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
     .logo-text { font-family: 'Noto Serif SC', serif; font-size: 1.5rem; font-weight: 700; }
-    .header-right { display: flex; align-items: center; gap: 16px; }
-    .user-info { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--text-secondary); }
-    .user-name { font-weight: 600; color: var(--text-primary); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .user-menu { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border-color); }
+    .user-menu:hover { border-color: var(--accent-gold); }
+    .user-name { font-weight: 600; color: var(--text-primary); font-size: 0.9rem; }
+    .logout-icon { font-size: 1rem; opacity: 0.7; }
     main { flex: 1; padding: 32px 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
     .welcome-section { text-align: center; margin-bottom: 48px; }
     .welcome-title { font-family: 'Noto Serif SC', serif; font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
@@ -93,12 +95,12 @@
         </div>
       </div>
       <div class="header-right">
-        <div class="user-info">
+        <button type="button" class="btn btn-secondary" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
+        <div class="user-menu" id="userMenu" title="点击退出登录">
           <span>👤</span>
           <span class="user-name" id="userName">棋手</span>
+          <span class="logout-icon">🚪</span>
         </div>
-        <button type="button" class="btn btn-secondary" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
-        <button type="button" class="btn btn-secondary" id="logoutBtn" title="退出" aria-label="退出登录">🚪</button>
       </div>
     </header>
 
@@ -109,6 +111,12 @@
       </section>
 
       <section class="features-grid">
+        <a href="setup.html" class="feature-card" aria-label="自由对弈">
+          <div class="feature-icon">⚔️</div>
+          <h2 class="feature-title">自由对弈</h2>
+          <p class="feature-desc">本地双人对弈，随时开始</p>
+        </a>
+
         <a href="ai-setup.html" class="feature-card" aria-label="AI 对弈">
           <div class="feature-icon">🤖</div>
           <h2 class="feature-title">AI 对弈</h2>
@@ -137,12 +145,6 @@
           <div class="feature-icon">📊</div>
           <h2 class="feature-title">数据统计</h2>
           <p class="feature-desc">查看学习进度、成长曲线和能力分析</p>
-        </a>
-
-        <a href="setup.html" class="feature-card" aria-label="自由对弈">
-          <div class="feature-icon">⚔️</div>
-          <h2 class="feature-title">自由对弈</h2>
-          <p class="feature-desc">本地双人对弈，随时开始</p>
         </a>
       </section>
 
@@ -187,16 +189,16 @@
     </footer>
   </div>
 
-  <script src="../js/utils.js?v=2"></script>
-  <script src="../js/error-handler.js?v=2"></script>
-  <script src="../js/loading.js?v=2"></script>
-  <script src="../js/focus-manager.js?v=2"></script>
-  <script src="../js/analytics.js?v=2"></script>
-  <script src="../js/storage.js?v=2"></script>
-  <script src="../js/theme.js?v=2"></script>
-  <script src="../js/board-component.js?v=2"></script>
-  <script src="../js/ai.js?v=2"></script>
-  <script src="../js/header.js?v=2"></script>
+  <script src="../js/utils.js?v=3"></script>
+  <script src="../js/error-handler.js?v=3"></script>
+  <script src="../js/loading.js?v=3"></script>
+  <script src="../js/focus-manager.js?v=3"></script>
+  <script src="../js/analytics.js?v=3"></script>
+  <script src="../js/storage.js?v=3"></script>
+  <script src="../js/theme.js?v=3"></script>
+  <script src="../js/board-component.js?v=3"></script>
+  <script src="../js/ai.js?v=3"></script>
+  <script src="../js/header.js?v=3"></script>
   <script>
     class HomeApp {
       constructor() {
@@ -225,7 +227,6 @@
         document.getElementById('totalGames').textContent = games.length;
         document.getElementById('totalTsumego').textContent = Object.keys(tsumego).length;
 
-        // 计算胜率
         if (games.length > 0) {
           const myUsername = Storage.getUsername();
           const wins = games.filter(game => {
@@ -239,7 +240,6 @@
           document.getElementById('winRate').textContent = Math.round((wins / games.length) * 100) + '%';
         }
 
-        // 计算学习天数
         const firstGame = games.length > 0 ? games[games.length - 1] : null;
         if (firstGame) {
           const days = Math.max(1, Math.floor((Date.now() - firstGame.savedAt) / (1000 * 60 * 60 * 24)) + 1);
@@ -306,7 +306,7 @@
           document.getElementById('settingsModal').style.display = 'flex';
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        document.getElementById('userMenu').addEventListener('click', () => {
           if (confirm('确定要退出登录吗？')) {
             Storage.clearUserData();
             window.location.href = 'auth.html';
