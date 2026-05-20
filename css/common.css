@@ -269,22 +269,58 @@ h1 {
 }
 
 /* 头部导航 - 常驻 */
-.header {
+.header,
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 24px;
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--bg-primary);
-  padding: 12px 0;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.user-menu:hover {
+  border-color: var(--accent-gold);
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.logout-icon {
+  font-size: 1rem;
+  opacity: 0.7;
 }
 
 .user-info {

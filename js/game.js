@@ -171,7 +171,7 @@ class GoGame {
     return captured;
   }
 
-  play(x, y, comment = '') {
+  makeMove(x, y, comment = '') {
     if (this.isGameOver || this.isReviewMode) return { success: false, message: '游戏已结束或正在复盘中' };
 
     if (!this.isValidMove(x, y)) {
@@ -200,7 +200,7 @@ class GoGame {
     this.moveHistory.push({
       x, y,
       player: this.currentPlayer,
-      captured: captured.map(([cx, cy]) => ({ x: cx, y: cy })),
+      captures: captured.map(([cx, cy]) => ({ x: cx, y: cy })),
       koPoint: this.koPoint ? { ...this.koPoint } : null,
       comment: comment,
       playerName: this.getCurrentPlayerName()
@@ -226,7 +226,7 @@ class GoGame {
     this.currentPlayer = opponent;
     this.passCount = 0;
 
-    return { success: true, captured, moveIndex: this.moveHistory.length - 1 };
+    return { success: true, captures: captured, moveIndex: this.moveHistory.length - 1 };
   }
 
   addComment(moveIndex, comment) {
@@ -269,7 +269,7 @@ class GoGame {
     } else {
       this.board[lastMove.y][lastMove.x] = 0;
 
-      for (const stone of lastMove.captured) {
+      for (const stone of lastMove.captures) {
         this.board[stone.y][stone.x] = lastMove.player === 1 ? 2 : 1;
       }
 
@@ -281,6 +281,99 @@ class GoGame {
     this.turnStartTime = Date.now();
 
     return true;
+  }
+
+  calculateScore(komi = 6.5) {
+    // 简化的数棋算法：计算双方领地
+    const visited = new Set();
+    let blackTerritory = 0;
+    let whiteTerritory = 0;
+    let blackStones = 0;
+    let whiteStones = 0;
+
+    // 计算棋子数和领地
+    for (let y = 0; y < this.size; y++) {
+      for (let x = 0; x < this.size; x++) {
+        if (this.board[y][x] === 1) {
+          blackStones++;
+        } else if (this.board[y][x] === 2) {
+          whiteStones++;
+        } else {
+          // 空点，判断属于哪方领地
+          const key = `${x},${y}`;
+          if (!visited.has(key)) {
+            const area = this.getEmptyArea(x, y);
+            area.forEach(([ax, ay]) => visited.add(`${ax},${ay}`));
+            
+            const surroundedBy = this.getSurroundingColors(area);
+            if (surroundedBy.has(1) && !surroundedBy.has(2)) {
+              blackTerritory += area.length;
+            } else if (surroundedBy.has(2) && !surroundedBy.has(1)) {
+              whiteTerritory += area.length;
+            }
+          }
+        }
+      }
+    }
+
+    const blackScore = blackStones + blackTerritory;
+    const whiteScore = whiteStones + whiteTerritory + komi;
+
+    let winner, margin;
+    if (blackScore > whiteScore) {
+      winner = 'black';
+      margin = blackScore - whiteScore;
+    } else if (whiteScore > blackScore) {
+      winner = 'white';
+      margin = whiteScore - blackScore;
+    } else {
+      winner = 'draw';
+      margin = 0;
+    }
+
+    return {
+      black: blackScore,
+      white: whiteScore,
+      winner,
+      margin
+    };
+  }
+
+  getEmptyArea(startX, startY) {
+    const area = [];
+    const visited = new Set();
+    const queue = [[startX, startY]];
+
+    while (queue.length > 0) {
+      const [x, y] = queue.shift();
+      const key = `${x},${y}`;
+
+      if (visited.has(key)) continue;
+      if (x < 0 || x >= this.size || y < 0 || y >= this.size) continue;
+      if (this.board[y][x] !== 0) continue;
+
+      visited.add(key);
+      area.push([x, y]);
+
+      queue.push([x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]);
+    }
+
+    return area;
+  }
+
+  getSurroundingColors(area) {
+    const colors = new Set();
+    for (const [x, y] of area) {
+      const neighbors = [[x-1, y], [x+1, y], [x, y-1], [x, y+1]];
+      for (const [nx, ny] of neighbors) {
+        if (nx >= 0 && nx < this.size && ny >= 0 && ny < this.size) {
+          if (this.board[ny][nx] !== 0) {
+            colors.add(this.board[ny][nx]);
+          }
+        }
+      }
+    }
+    return colors;
   }
 
   toSGF() {
@@ -316,8 +409,8 @@ class GoGame {
       if (!move.pass) {
         tempBoard[move.y][move.x] = move.player;
         // 吃子处理：移除被吃掉的棋子
-        if (move.captured && move.captured.length > 0) {
-          for (const stone of move.captured) {
+        if (move.captures && move.captures.length > 0) {
+          for (const stone of move.captures) {
             tempBoard[stone.y][stone.x] = 0;
           }
         }

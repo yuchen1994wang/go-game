@@ -25,13 +25,14 @@ class Header {
     if (showSettings || showUser) {
       rightHtml = '<div style="display: flex; align-items: center; gap: 12px;">';
       if (showSettings) {
-        rightHtml += `<button class="btn btn-secondary" id="settingsBtn" title="设置" style="padding: 8px 14px; font-size: 0.85rem;">⚙️ 设置</button>`;
+        rightHtml += `<button class="btn btn-secondary" id="settingsBtn" title="设置" aria-label="设置" style="padding: 8px 14px; font-size: 0.85rem;">⚙️</button>`;
       }
       if (showUser) {
         rightHtml += `
-          <div class="user-info" id="userInfo">
-            <div class="user-avatar" id="userAvatar">用</div>
-            <span id="userName">用户</span>
+          <div class="user-menu" id="userMenu" title="点击退出登录">
+            <span>👤</span>
+            <span class="user-name" id="userName">棋手</span>
+            <span class="logout-icon">🚪</span>
           </div>
         `;
       }
@@ -91,7 +92,7 @@ class Header {
       <div class="modal-overlay" id="settingsModal" style="display: none;">
         <div class="modal" style="max-width: 500px;">
           <div class="modal-header">
-            <h2>⚙️ 设置</h2>
+            <h2 class="modal-title">⚙️ 设置</h2>
             <button class="modal-close" id="closeSettings">&times;</button>
           </div>
           <div class="modal-body">

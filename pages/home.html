@@ -18,25 +18,10 @@
   <link rel="stylesheet" href="../css/common.css">
   <style>
     .home-page { display: flex; flex-direction: column; min-height: 100vh; }
-    header {
-      background: var(--panel-bg);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border-color);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .header-left { display: flex; align-items: center; gap: 16px; }
     .logo { display: flex; align-items: center; gap: 12px; }
     .logo-icon { width: 48px; height: 48px; background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%); border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.3); position: relative; }
     .logo-icon::after { content: ''; position: absolute; width: 18px; height: 18px; background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%); border-radius: 50%; top: 50%; left: 50%; transform: translate(-30%, -30%); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
     .logo-text { font-family: 'Noto Serif SC', serif; font-size: 1.5rem; font-weight: 700; }
-    .header-right { display: flex; align-items: center; gap: 12px; }
-    .user-menu { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--bg-secondary); border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border-color); }
-    .user-menu:hover { border-color: var(--accent-gold); }
-    .user-name { font-weight: 600; color: var(--text-primary); font-size: 0.9rem; }
-    .logout-icon { font-size: 1rem; opacity: 0.7; }
     main { flex: 1; padding: 32px 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
     .welcome-section { text-align: center; margin-bottom: 48px; }
     .welcome-title { font-family: 'Noto Serif SC', serif; font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
