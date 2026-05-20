@@ -3,41 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>围棋定式库学习</title>
+  <title>定式库学习 - 围棋对弈复盘</title>
+  <meta name="description" content="学习26个经典围棋定式，提升棋力">
+  <meta name="keywords" content="围棋,定式库,围棋学习,星位定式,小目定式">
+  <meta name="author" content="围棋对弈复盘">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="定式库学习 - 围棋对弈复盘">
+  <meta property="og:description" content="学习26个经典围棋定式，提升棋力">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#C4A35A">
+  <link rel="manifest" href="../manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400,600,700&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/pattern-library.css">
+  <style>
+    .pattern-page { display: flex; flex-direction: column; min-height: 100vh; }
+    header {
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    main { flex: 1; padding: 24px; max-width: 1600px; margin: 0 auto; width: 100%; }
+    @media (max-width: 768px) {
+      main { padding: 16px; }
+    }
+  </style>
 </head>
 <body>
-  <header class="page-header">
-    <div class="header-container">
-      <a href="../index.html" class="logo">
-        <div class="logo-icon"></div>
-        <span class="logo-text">围棋定式库</span>
-      </a>
-      <nav class="header-nav">
-        <a href="../index.html" class="nav-link">首页</a>
-        <a href="pattern-study.html" class="nav-link active">定式学习</a>
-      </nav>
-    </div>
-  </header>
+  <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
+  <div class="pattern-page">
+    <header>
+      <div class="header-left">
+        <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" aria-label="返回首页">← 返回首页</a>
+        <h1 style="font-family: 'Noto Serif SC', serif; font-size: 1.3rem; font-weight: 600;">定式库学习</h1>
+      </div>
+    </header>
 
-  <main>
-    <div id="pattern-study-container"></div>
-  </main>
+    <main id="main-content">
+      <div id="pattern-study-container"></div>
+    </main>
+  </div>
 
+  <script src="../js/utils.js"></script>
+  <script src="../js/error-handler.js"></script>
+  <script src="../js/loading.js"></script>
+  <script src="../js/focus-manager.js"></script>
+  <script src="../js/analytics.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/theme.js"></script>
   <script src="../js/pattern-library.js"></script>
+  <script src="../js/header.js"></script>
   <script>
+    class PatternStudyApp {
+      constructor() {
+        this.init();
+      }
+
+      init() {
+        Header.init();
+        this.renderStudyUI();
+      }
+
+      renderStudyUI() {
+        try {
+          const studyUI = new PatternStudyUI('pattern-study-container');
+          window.patternStudyUI = studyUI;
+        } catch (error) {
+          console.error('定式学习页面加载失败:', error);
+          showToast('定式库加载失败，请刷新重试', 'error');
+        }
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      const studyUI = new PatternStudyUI('pattern-study-container');
-      
-      window.patternStudyUI = studyUI;
-      
-      console.log('围棋定式库学习模块已加载');
-      console.log('示例:');
-      console.log('- 获取所有星位定式:', studyUI.library.getByCategory('星位').map(p => p.name));
-      console.log('- 搜索定式:', studyUI.library.search('小飞挂'));
-      console.log('- 获取收藏:', studyUI.library.getFavorites().map(p => p.name));
-      console.log('- 学习进度:', studyUI.library.getProgress());
+      new PatternStudyApp();
     });
   </script>
 </body>
