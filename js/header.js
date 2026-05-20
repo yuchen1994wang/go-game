@@ -11,29 +11,29 @@ class Header {
 
     let leftHtml = '';
     if (showLogo) {
-      leftHtml = \`
+      leftHtml = `
         <a href="home.html" class="logo">
           <div class="logo-icon"></div>
           <h1>围棋对练</h1>
         </a>
-      \`;
+      `;
     } else if (backUrl) {
-      leftHtml = \`<a href="\${backUrl}" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">\${backText}</a>\`;
+      leftHtml = `<a href="${backUrl}" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">${backText}</a>`;
     }
 
     let rightHtml = '';
     if (showSettings || showUser) {
       rightHtml = '<div style="display: flex; align-items: center; gap: 12px;">';
       if (showSettings) {
-        rightHtml += \`<button class="btn btn-secondary" id="settingsBtn" title="设置" style="padding: 8px 14px; font-size: 0.85rem;">⚙️ 设置</button>\`;
+        rightHtml += `<button class="btn btn-secondary" id="settingsBtn" title="设置" style="padding: 8px 14px; font-size: 0.85rem;">⚙️ 设置</button>`;
       }
       if (showUser) {
-        rightHtml += \`
+        rightHtml += `
           <div class="user-info" id="userInfo">
             <div class="user-avatar" id="userAvatar">用</div>
             <span id="userName">用户</span>
           </div>
-        \`;
+        `;
       }
       rightHtml += '</div>';
     }
@@ -41,14 +41,14 @@ class Header {
     const headerClass = showLogo ? 'header' : 'header';
     const headerTag = showLogo ? 'header' : 'div';
 
-    return \`
-      <\${headerTag} class="\${headerClass}">
+    return `
+      <${headerTag} class="${headerClass}">
         <div class="header-left">
-          \${leftHtml}
+          ${leftHtml}
         </div>
-        \${rightHtml}
-      </\${headerTag}>
-    \`;
+        ${rightHtml}
+      </${headerTag}>
+    `;
   }
 
   static mount(container, options = {}) {
@@ -87,7 +87,7 @@ class Header {
     }
 
     // 创建设置模态框 HTML
-    const modalHtml = \`
+    const modalHtml = `
       <div class="modal-overlay" id="settingsModal" style="display: none;">
         <div class="modal" style="max-width: 500px;">
           <div class="modal-header">
@@ -186,7 +186,7 @@ class Header {
           </div>
         </div>
       </div>
-    \`;
+    `;
 
     document.body.insertAdjacentHTML('beforeend', modalHtml);
     this.bindSettingsEvents();
@@ -246,17 +246,17 @@ class Header {
 
         try {
           const response = await fetch('https://openrouter.ai/api/v1/models', {
-            headers: { 'Authorization': \`Bearer \${key}\` }
+            headers: { 'Authorization': `Bearer ${key}` }
           });
           if (response.ok) {
             statusEl.innerHTML = '<span style="color: #2E7D32;">✓ 连接成功！</span>';
             showToast('API Key 验证成功', 'success');
           } else {
             const data = await response.json().catch(() => ({}));
-            throw new Error(data.error?.message || \`HTTP \${response.status}\`);
+            throw new Error(data.error?.message || `HTTP ${response.status}`);
           }
         } catch (error) {
-          statusEl.innerHTML = \`<span style="color: #C62828;">✗ 连接失败: \${error.message}</span>\`;
+          statusEl.innerHTML = `<span style="color: #C62828;">✗ 连接失败: ${error.message}</span>`;
           showToast('API Key 验证失败', 'error');
         } finally {
           testBtn.disabled = false;
@@ -272,7 +272,7 @@ class Header {
         const theme = option.dataset.theme;
         ThemeManager.setTheme(theme);
         this.updateThemeOptionsUI();
-        showToast(\`已切换为\${ThemeManager.THEMES[theme].name}\`, 'info');
+        showToast(`已切换为${ThemeManager.THEMES[theme].name}`, 'info');
       });
     });
 
@@ -283,7 +283,7 @@ class Header {
         const style = option.dataset.style;
         ThemeManager.setStoneStyle(style);
         this.updateStoneOptionsUI();
-        showToast(\`已切换为\${ThemeManager.STONE_STYLES[style].name}棋子\`, 'info');
+        showToast(`已切换为${ThemeManager.STONE_STYLES[style].name}棋子`, 'info');
       });
     });
 
@@ -417,7 +417,7 @@ class Header {
 
 // 添加设置面板样式
 const settingsStyles = document.createElement('style');
-settingsStyles.textContent = \`
+settingsStyles.textContent = `
   .settings-section {
     margin-bottom: 24px;
   }
@@ -634,7 +634,7 @@ settingsStyles.textContent = \`
       font-size: 1.5rem;
     }
   }
-\`;
+`;
 
 if (document.head) {
   document.head.appendChild(settingsStyles);
