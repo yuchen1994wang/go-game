@@ -8,42 +8,26 @@
   <meta name="keywords" content="围棋,围棋对弈,围棋学习,死活题,棋谱,AI对弈,围棋入门">
   <meta name="author" content="围棋对弈复盘">
   <meta name="robots" content="index, follow">
-  
-  <!-- Open Graph -->
   <meta property="og:title" content="围棋对弈复盘 - 在线围棋学习平台">
   <meta property="og:description" content="免费的在线围棋学习平台，提供AI对弈、死活题练习、经典棋谱打谱等功能">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://yuchen1994wang.github.io/go-game/">
-  
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="围棋对弈复盘 - 在线围棋学习平台">
   <meta name="twitter:description" content="免费的在线围棋学习平台，提供AI对弈、死活题练习、经典棋谱打谱等功能">
-  
-  <!-- Theme Color -->
   <meta name="theme-color" content="#C4A35A">
-  
-  <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23333'/><circle cx='50' cy='50' r='15' fill='white'/></svg>">
-  
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
-  
   <script>
-    // 注册 Service Worker
+    // 注销所有Service Worker，避免缓存问题
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then((registration) => {
-            console.log('Service Worker 注册成功:', registration.scope);
-          })
-          .catch((error) => {
-            console.warn('Service Worker 注册失败:', error);
-          });
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
       });
     }
-    
-    // 入口跳转：已登录去首页，未登录去授权页
+    // 入口跳转
     const username = localStorage.getItem('go_username');
     if (username) {
       window.location.href = './pages/home.html';
