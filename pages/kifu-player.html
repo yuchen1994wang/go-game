@@ -234,7 +234,7 @@
           return;
         }
 
-        this.game = new GoGame(this.gameData.size);
+        this.game = new GoGame(this.gameData.size || 19);
       }
 
       renderBoard() {

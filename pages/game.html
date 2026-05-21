@@ -683,7 +683,8 @@
 
         document.getElementById('undoBtn').disabled = this.moveHistory.length === 0 || this.isGameOver;
         document.getElementById('passBtn').disabled = this.isGameOver;
-        document.getElementById('resignBtn').disabled = this.isGameOver;
+        const pauseBtn = document.getElementById('pauseBtn');
+        if (pauseBtn) pauseBtn.disabled = this.isGameOver;
         document.getElementById('scoreBtn').disabled = this.moveHistory.length === 0;
 
         this.updateTimerDisplay();

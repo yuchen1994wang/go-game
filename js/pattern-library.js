@@ -763,19 +763,19 @@ class PatternViewer {
     
     const btnStyle = 'padding: 8px 16px; margin: 0 4px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s;';
     
-    controls.innerHTML = \`
-      <button class="control-btn" data-action="first" style="\${btnStyle} background: var(--primary); color: white;">⏮ 到开始</button>
-      <button class="control-btn" data-action="prev" style="\${btnStyle} background: var(--primary); color: white;">◀ 上一步</button>
-      <button class="control-btn" data-action="next" style="\${btnStyle} background: var(--primary); color: white;">下一步 ▶</button>
-      <button class="control-btn" data-action="last" style="\${btnStyle} background: var(--primary); color: white;">到结束 ⏭</button>
-      <button class="control-btn" data-action="play" style="\${btnStyle} background: var(--success); color: white;">▶ 播放</button>
-    \`;
+    controls.innerHTML = `
+      <button class="control-btn" data-action="first" style="${btnStyle} background: var(--primary); color: white;">⏮ 到开始</button>
+      <button class="control-btn" data-action="prev" style="${btnStyle} background: var(--primary); color: white;">◀ 上一步</button>
+      <button class="control-btn" data-action="next" style="${btnStyle} background: var(--primary); color: white;">下一步 ▶</button>
+      <button class="control-btn" data-action="last" style="${btnStyle} background: var(--primary); color: white;">到结束 ⏭</button>
+      <button class="control-btn" data-action="play" style="${btnStyle} background: var(--success); color: white;">▶ 播放</button>
+    `;
     
     this.container.appendChild(controls);
     
     const info = document.createElement('div');
     info.className = 'move-info';
-    info.textContent = \`第 \${this.currentMove} / \${this.getCurrentMoves().length} 手\`;
+    info.textContent = `第 ${this.currentMove} / ${this.getCurrentMoves().length} 手`;
     this.container.appendChild(info);
     
     controls.addEventListener('click', (e) => {
@@ -799,18 +799,18 @@ class PatternViewer {
     
     const difficultyStars = '★'.repeat(this.pattern.difficulty) + '☆'.repeat(5 - this.pattern.difficulty);
     
-    infoPanel.innerHTML = \`
-      <h3>\${this.pattern.name}</h3>
+    infoPanel.innerHTML = `
+      <h3>${this.pattern.name}</h3>
       <div class="info-meta">
-        <span class="category-tag">\${this.pattern.category}</span>
-        <span class="difficulty">\${difficultyStars}</span>
+        <span class="category-tag">${this.pattern.category}</span>
+        <span class="difficulty">${difficultyStars}</span>
       </div>
-      <p class="description">\${this.pattern.description}</p>
+      <p class="description">${this.pattern.description}</p>
       <div class="key-points">
         <h4>要点：</h4>
-        <ul>\${this.pattern.keyPoints.map(kp => \`<li>\${kp}</li>\`).join('')}</ul>
+        <ul>${this.pattern.keyPoints.map(kp => `<li>${kp}</li>`).join('')}</ul>
       </div>
-    \`;
+    `;
     
     this.container.appendChild(infoPanel);
   }
@@ -822,10 +822,10 @@ class PatternViewer {
     variationsPanel.className = 'variations-panel';
     
     let html = '<h4>变化图</h4><div class="variations-list">';
-    html += \`<button class="variation-btn \${this.currentVariation === 0 ? 'active' : ''}" data-variation="0">基本型</button>\`;
+    html += `<button class="variation-btn ${this.currentVariation === 0 ? 'active' : ''}" data-variation="0">基本型</button>`;
     
     this.pattern.variations.forEach((v, i) => {
-      html += \`<button class="variation-btn \${this.currentVariation === i + 1 ? 'active' : ''}" data-variation="\${i + 1}">\${v.name}</button>\`;
+      html += `<button class="variation-btn ${this.currentVariation === i + 1 ? 'active' : ''}" data-variation="${i + 1}">${v.name}</button>`;
     });
     
     html += '</div>';
@@ -894,7 +894,7 @@ class PatternViewer {
     
     const info = this.container.querySelector('.move-info');
     if (info) {
-      info.textContent = \`第 \${this.currentMove} / \${moves.length} 手\`;
+      info.textContent = `第 ${this.currentMove} / ${moves.length} 手`;
     }
   }
 
@@ -935,7 +935,7 @@ class PatternViewer {
     
     if (this.showMoveNumbers && moveNumber) {
       ctx.fillStyle = color === 'black' ? '#fff' : '#000';
-      ctx.font = \`bold \${cellSize * 0.35}px Arial\`;
+      ctx.font = `bold ${cellSize * 0.35}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(moveNumber.toString(), px, py);
@@ -1005,7 +1005,7 @@ class PatternQuiz {
   constructor(containerId, library) {
     this.container = document.getElementById(containerId);
     if (!this.container) {
-      throw new Error(\`容器 #\${containerId} 不存在\`);
+      throw new Error(`容器 #${containerId} 不存在`);
     }
     
     this.library = library;
@@ -1023,24 +1023,24 @@ class PatternQuiz {
     
     const header = document.createElement('div');
     header.className = 'quiz-header';
-    header.innerHTML = \`
+    header.innerHTML = `
       <h3>定式练习</h3>
       <div class="quiz-stats">
-        <span>正确: <strong class="correct-count">\${this.correctCount}</strong></span>
-        <span>总计: <strong class="total-count">\${this.totalCount}</strong></span>
-        <span>正确率: <strong class="accuracy">\${this.getAccuracy()}%</strong></span>
+        <span>正确: <strong class="correct-count">${this.correctCount}</strong></span>
+        <span>总计: <strong class="total-count">${this.totalCount}</strong></span>
+        <span>正确率: <strong class="accuracy">${this.getAccuracy()}%</strong></span>
       </div>
-    \`;
+    `;
     this.container.appendChild(header);
     
     const boardArea = document.createElement('div');
     boardArea.className = 'quiz-board-area';
-    boardArea.innerHTML = \`
+    boardArea.innerHTML = `
       <canvas id="quiz-canvas" class="quiz-canvas"></canvas>
       <div class="quiz-controls">
         <button class="quiz-btn new-quiz-btn">开始新练习</button>
       </div>
-    \`;
+    `;
     this.container.appendChild(boardArea);
     
     const optionsArea = document.createElement('div');
@@ -1218,7 +1218,7 @@ class PatternQuiz {
     
     if (moveNumber) {
       ctx.fillStyle = color === 'black' ? '#fff' : '#000';
-      ctx.font = \`bold \${cellSize * 0.35}px Arial\`;
+      ctx.font = `bold ${cellSize * 0.35}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(moveNumber.toString(), px, py);
@@ -1237,10 +1237,10 @@ class PatternQuiz {
       btn.className = 'option-btn';
       btn.dataset.x = move.x;
       btn.dataset.y = move.y;
-      btn.innerHTML = \`
-        <div class="option-stone \${move.color}"></div>
-        <span>\${String.fromCharCode(65 + move.x)}\${19 - move.y}</span>
-      \`;
+      btn.innerHTML = `
+        <div class="option-stone ${move.color}"></div>
+        <span>${String.fromCharCode(65 + move.x)}${19 - move.y}</span>
+      `;
       btn.addEventListener('click', () => this.checkAnswer(move, btn));
       grid.appendChild(btn);
     });
@@ -1303,11 +1303,11 @@ class PatternQuiz {
 
   showFeedback(isCorrect, message) {
     const feedback = document.getElementById('quiz-feedback');
-    feedback.innerHTML = \`
-      <div class="feedback \${isCorrect ? 'correct' : 'wrong'}">
-        \${message}
+    feedback.innerHTML = `
+      <div class="feedback ${isCorrect ? 'correct' : 'wrong'}">
+        ${message}
       </div>
-    \`;
+    `;
     
     if (isCorrect) {
       feedback.querySelector('.feedback').style.animation = 'correctPulse 0.5s ease';
@@ -1340,7 +1340,7 @@ class PatternQuiz {
     this.timerInterval = setInterval(() => {
       if (this.currentQuiz) {
         const elapsed = Math.floor((Date.now() - this.currentQuiz.startTime) / 1000);
-        timerEl.textContent = \`用时: \${elapsed}秒\`;
+        timerEl.textContent = `用时: ${elapsed}秒`;
       }
     }, 1000);
   }
@@ -1356,14 +1356,14 @@ class PatternQuiz {
     this.stopTimer();
     
     const feedback = document.getElementById('quiz-feedback');
-    feedback.innerHTML = \`
+    feedback.innerHTML = `
       <div class="final-result">
         <h3>练习完成！</h3>
-        <p>正确率: \${this.getAccuracy()}%</p>
-        <p>正确: \${this.correctCount} / \${this.totalCount}</p>
+        <p>正确率: ${this.getAccuracy()}%</p>
+        <p>正确: ${this.correctCount} / ${this.totalCount}</p>
         <button class="quiz-btn" onclick="location.reload()">再来一次</button>
       </div>
-    \`;
+    `;
   }
 
   destroy() {
@@ -1379,7 +1379,7 @@ class PatternStudyUI {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
     if (!this.container) {
-      throw new Error(\`容器 #\${containerId} 不存在\`);
+      throw new Error(`容器 #${containerId} 不存在`);
     }
     
     this.library = new PatternLibrary();
@@ -1414,21 +1414,21 @@ class PatternStudyUI {
     const sidebar = document.createElement('div');
     sidebar.className = 'study-sidebar';
     
-    sidebar.innerHTML = \`
+    sidebar.innerHTML = `
       <div class="sidebar-header">
         <h2>📚 定式库</h2>
         <div class="progress-overview">
           <div class="progress-item">
             <span class="progress-label">已学习</span>
-            <span class="progress-value">\${this.library.getProgress().studied}</span>
+            <span class="progress-value">${this.library.getProgress().studied}</span>
           </div>
           <div class="progress-item">
             <span class="progress-label">已练习</span>
-            <span class="progress-value">\${this.library.getProgress().practiced}</span>
+            <span class="progress-value">${this.library.getProgress().practiced}</span>
           </div>
           <div class="progress-item">
             <span class="progress-label">正确率</span>
-            <span class="progress-value">\${this.library.getProgress().accuracy}%</span>
+            <span class="progress-value">${this.library.getProgress().accuracy}%</span>
           </div>
         </div>
       </div>
@@ -1459,7 +1459,7 @@ class PatternStudyUI {
       </div>
       
       <div class="pattern-list" id="pattern-list"></div>
-    \`;
+    `;
     
     return sidebar;
   }
@@ -1468,7 +1468,7 @@ class PatternStudyUI {
     const main = document.createElement('div');
     main.className = 'study-main';
     
-    main.innerHTML = \`
+    main.innerHTML = `
       <div class="main-header">
         <h2 id="current-title">选择一个定式开始学习</h2>
       </div>
@@ -1488,7 +1488,7 @@ class PatternStudyUI {
           </div>
         </div>
       </div>
-    \`;
+    `;
     
     return main;
   }
@@ -1543,22 +1543,22 @@ class PatternStudyUI {
     const isFavorite = this.library.isFavorite(pattern.id);
     const isStudied = this.library.progress.studied.includes(pattern.id);
     
-    return \`
-      <div class="pattern-card \${isStudied ? 'studied' : ''}" data-id="\${pattern.id}">
+    return `
+      <div class="pattern-card ${isStudied ? 'studied' : ''}" data-id="${pattern.id}">
         <div class="card-header">
-          <h4>\${pattern.name}</h4>
-          <button class="fav-btn \${isFavorite ? 'active' : ''}">\${isFavorite ? '❤️' : '🤍'}</button>
+          <h4>${pattern.name}</h4>
+          <button class="fav-btn ${isFavorite ? 'active' : ''}">${isFavorite ? '❤️' : '🤍'}</button>
         </div>
         <div class="card-meta">
-          <span class="category-tag">\${pattern.category}</span>
-          <span class="difficulty">\${difficultyStars}</span>
+          <span class="category-tag">${pattern.category}</span>
+          <span class="difficulty">${difficultyStars}</span>
         </div>
         <div class="card-preview">
-          <canvas class="preview-canvas" data-pattern="\${pattern.id}"></canvas>
+          <canvas class="preview-canvas" data-pattern="${pattern.id}"></canvas>
         </div>
-        \${isStudied ? '<div class="studied-badge">已学习</div>' : ''}
+        ${isStudied ? '<div class="studied-badge">已学习</div>' : ''}
       </div>
-    \`;
+    `;
   }
 
   updateFavoriteButton(btn, patternId) {
@@ -1584,7 +1584,7 @@ class PatternStudyUI {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         tabBtn.classList.add('active');
-        document.getElementById(\`\${tab}-content\`).classList.add('active');
+        document.getElementById(`${tab}-content`).classList.add('active');
       }
     });
     
@@ -1617,7 +1617,7 @@ class PatternStudyUI {
     document.getElementById('current-title').textContent = pattern.name;
     
     const viewerContent = document.getElementById('viewer-content');
-    viewerContent.innerHTML = \`<div id="pattern-viewer"></div>\`;
+    viewerContent.innerHTML = `<div id="pattern-viewer"></div>`;
     
     if (this.viewer) {
       this.viewer.destroy();
@@ -1626,7 +1626,7 @@ class PatternStudyUI {
     this.viewer = new PatternViewer('pattern-viewer', pattern);
     
     const quizContent = document.getElementById('quiz-content');
-    quizContent.innerHTML = \`<div id="pattern-quiz"></div>\`;
+    quizContent.innerHTML = `<div id="pattern-quiz"></div>`;
     
     if (this.quiz) {
       this.quiz.destroy();

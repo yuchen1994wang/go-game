@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>死活题列表 - 围棋对弈复盘</title>
+  <meta name="description" content="围棋死活题练习列表，选择题目提升棋力">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .list-page { display: flex; flex-direction: column; min-height: 100vh; }
+    main { flex: 1; padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+    .page-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    .filter-btn.active {
+      background: var(--accent-gold);
+      color: white;
+      border-color: var(--accent-gold);
+    }
+
+    .filter-btn:hover { opacity: 0.9; }
+
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-card .number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-card .label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .problem-card {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .problem-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-medium);
+      border-color: var(--accent-gold);
+    }
+
+    .problem-card .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .problem-card .card-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .problem-card .difficulty {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    .difficulty.easy { background: #E8F5E9; color: #2E7D32; }
+    .difficulty.medium { background: #FFF8E1; color: #F57F17; }
+    .difficulty.hard { background: #FFEBEE; color: #C62828; }
+
+    .problem-card .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .problem-card .card-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .problem-card .card-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .problem-card .status-badge {
+      margin-top: 12px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .status-badge.completed { background: #E8F5E9; color: #2E7D32; }
+    .status-badge.wrong { background: #FFEBEE; color: #C62828; }
+    .status-badge.new { background: var(--bg-secondary); color: var(--text-secondary); }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .problem-grid { grid-template-columns: 1fr; }
+      .stats-summary { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="list-page">
+    <div id="header-container"></div>
+
+    <main>
+      <h1 class="page-title">📚 死活题练习</h1>
+
+      <div class="stats-summary" id="statsSummary">
+        <div class="stat-card">
+          <div class="number" id="totalCount">0</div>
+          <div class="label">总题数</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="completedCount">0</div>
+          <div class="label">已完成</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="wrongCount">0</div>
+          <div class="label">错题本</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="accuracy">0%</div>
+          <div class="label">正确率</div>
+        </div>
+      </div>
+
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="easy">初级</button>
+        <button class="filter-btn" data-filter="medium">中级</button>
+        <button class="filter-btn" data-filter="hard">高级</button>
+        <button class="filter-btn" data-filter="wrong">错题本</button>
+      </div>
+
+      <div class="problem-grid" id="problemGrid"></div>
+    </main>
+  </div>
+
+  <script src="../js/utils.js?v=6"></script>
+  <script src="../js/error-handler.js?v=6"></script>
+  <script src="../js/loading.js?v=6"></script>
+  <script src="../js/storage.js?v=6"></script>
+  <script src="../js/theme.js?v=6"></script>
+  <script src="../js/ai.js?v=6"></script>
+  <script src="../js/tsumego-data.js?v=6"></script>
+  <script src="../js/tsumego-storage.js?v=6"></script>
+  <script src="../js/header.js?v=6"></script>
+  <script>
+    class TsumegoListApp {
+      constructor() {
+        this.currentFilter = 'all';
+        this.init();
+      }
+
+      init() {
+        Header.mount(document.getElementById('header-container'), {
+          backUrl: 'home.html',
+          backText: '← 返回首页',
+          showSettings: true,
+          showUser: true
+        });
+        this.updateStats();
+        this.renderList();
+        this.bindEvents();
+      }
+
+      updateStats() {
+        const all = TsumegoData.getAll();
+        const wrongList = TsumegoStorage.getWrongList();
+        const completed = all.filter(p => TsumegoStorage.getStatus(p.id) === 'completed').length;
+        const totalAttempts = all.reduce((sum, p) => sum + (TsumegoStorage.getAttempts(p.id) || 0), 0);
+        const totalCorrect = all.reduce((sum, p) => sum + (TsumegoStorage.getCorrect(p.id) || 0), 0);
+
+        document.getElementById('totalCount').textContent = all.length;
+        document.getElementById('completedCount').textContent = completed;
+        document.getElementById('wrongCount').textContent = wrongList.length;
+        document.getElementById('accuracy').textContent = totalAttempts > 0
+          ? Math.round((totalCorrect / totalAttempts) * 100) + '%'
+          : '0%';
+      }
+
+      getFilteredProblems() {
+        let problems = TsumegoData.getAll();
+
+        if (this.currentFilter === 'wrong') {
+          const wrongList = TsumegoStorage.getWrongList();
+          problems = problems.filter(p => wrongList.includes(p.id));
+        } else if (this.currentFilter !== 'all') {
+          problems = problems.filter(p => p.difficulty === this.currentFilter);
+        }
+
+        return problems;
+      }
+
+      getStatus(problemId) {
+        const wrongList = TsumegoStorage.getWrongList();
+        if (wrongList.includes(problemId)) return 'wrong';
+        const status = TsumegoStorage.getStatus(problemId);
+        if (status === 'completed') return 'completed';
+        return 'new';
+      }
+
+      renderList() {
+        const grid = document.getElementById('problemGrid');
+        const problems = this.getFilteredProblems();
+
+        if (problems.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+              <div class="icon">📭</div>
+              <div>暂无题目</div>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = problems.map(p => {
+          const status = this.getStatus(p.id);
+          const statusText = { completed: '✅ 已完成', wrong: '❌ 需复习', new: '🆕 未尝试' };
+          const statusClass = { completed: 'completed', wrong: 'wrong', new: 'new' };
+          const diffText = { easy: '初级', medium: '中级', hard: '高级' };
+
+          return `
+            <div class="problem-card" data-id="${p.id}">
+              <div class="card-header">
+                <div class="card-title">${p.title}</div>
+                <span class="difficulty ${p.difficulty}">${diffText[p.difficulty]}</span>
+              </div>
+              <div class="card-desc">${p.description}</div>
+              <div class="card-meta">
+                <span>📍 ${p.location || '通用'}</span>
+                <span>🎯 ${p.steps ? p.steps.length + '步' : '1步'}</span>
+              </div>
+              <div class="status-badge ${statusClass[status]}">${statusText[status]}</div>
+            </div>
+          `;
+        }).join('');
+
+        grid.querySelectorAll('.problem-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const id = card.dataset.id;
+            window.location.href = `tsumego.html?id=${id}`;
+          });
+        });
+      }
+
+      bindEvents() {
+        document.querySelectorAll('#filterBar .filter-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('#filterBar .filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            this.currentFilter = btn.dataset.filter;
+            this.renderList();
+          });
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new TsumegoListApp();
+    });
+  </script>
+</body>
+</html>

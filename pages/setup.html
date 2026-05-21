@@ -20,9 +20,6 @@
   <style>
     .setup-page { display: flex; flex-direction: column; min-height: 100vh; }
 
-
-    .header-left { display: flex; align-items: center; gap: 16px; }
-
     main {
       flex: 1;
       display: flex;
@@ -98,45 +95,98 @@
       color: var(--text-secondary);
     }
 
-    .player-options {
+    .color-options {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
     }
 
-    .player-option {
-      padding: 20px;
+    .color-option {
+      padding: 16px;
       border: 2px solid var(--border-color);
       border-radius: 16px;
       background: var(--bg-secondary);
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
     }
 
-    .player-option:hover {
+    .color-option:hover {
       border-color: var(--accent-gold);
       transform: translateY(-2px);
     }
 
-    .player-option.active {
+    .color-option.active {
       border-color: var(--accent-gold);
       background: var(--accent-gold-light);
     }
 
-    .player-icon {
-      font-size: 2.5rem;
-      margin-bottom: 8px;
+    .color-stone {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
-    .player-name {
-      font-weight: 600;
-      margin-bottom: 4px;
+    .color-stone.black {
+      background: var(--stone-black);
     }
 
-    .player-desc {
+    .color-stone.white {
+      background: var(--stone-white);
+      border: 1px solid var(--border-color);
+    }
+
+    .color-stone.random {
+      background: linear-gradient(45deg, var(--stone-black) 50%, var(--stone-white) 50%);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-label {
       font-size: 0.85rem;
       color: var(--text-secondary);
+    }
+
+    .player-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .player-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .player-input-group label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .player-input-group input {
+      padding: 12px 16px;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      background: var(--bg-secondary);
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text-primary);
+      transition: border-color 0.2s ease;
+    }
+
+    .player-input-group input:focus {
+      outline: none;
+      border-color: var(--accent-gold);
     }
 
     .start-btn {
@@ -160,20 +210,12 @@
     @media (max-width: 480px) {
       .setup-container { padding: 24px; }
       .board-size-options { grid-template-columns: repeat(3, 1fr); }
-      .player-options { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="setup-page">
-    <header>
-      <div class="header-left">
-        <a href="home.html" class="logo">
-          <div class="logo-icon"></div>
-          <h1>围棋对练</h1>
-        </a>
-      </div>
-    </header>
+    <div id="header-container"></div>
 
     <main>
       <div class="setup-container">
@@ -198,18 +240,34 @@
         </div>
 
         <div class="setup-section">
-          <div class="section-label">👥 对局模式</div>
-          <div class="player-options" id="playerOptions">
-            <button type="button" class="player-option active" data-mode="pvp">
-              <div class="player-icon">👤👤</div>
-              <div class="player-name">人人对弈</div>
-              <div class="player-desc">两位玩家对局</div>
+          <div class="section-label">🎲 执棋颜色</div>
+          <div class="color-options" id="colorOptions">
+            <button type="button" class="color-option active" data-color="random">
+              <span class="color-stone random">🎲</span>
+              <span class="color-label">随机</span>
             </button>
-            <button type="button" class="player-option" data-mode="pve">
-              <div class="player-icon">👤🤖</div>
-              <div class="player-name">人机对弈</div>
-              <div class="player-desc">与 AI 对局</div>
+            <button type="button" class="color-option" data-color="black">
+              <span class="color-stone black"></span>
+              <span class="color-label">黑棋</span>
             </button>
+            <button type="button" class="color-option" data-color="white">
+              <span class="color-stone white"></span>
+              <span class="color-label">白棋</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="setup-section">
+          <div class="section-label">👥 玩家信息</div>
+          <div class="player-inputs">
+            <div class="player-input-group">
+              <label for="player1" id="label1">👤 玩家1</label>
+              <input type="text" id="player1" placeholder="输入玩家1姓名" value="玩家1">
+            </div>
+            <div class="player-input-group">
+              <label for="player2" id="label2">👤 玩家2</label>
+              <input type="text" id="player2" placeholder="输入玩家2姓名" value="玩家2">
+            </div>
           </div>
         </div>
 
@@ -224,17 +282,48 @@
   <script src="../js/storage.js?v=6"></script>
   <script src="../js/theme.js?v=6"></script>
   <script src="../js/board-component.js?v=6"></script>
+  <script src="../js/ai.js?v=6"></script>
   <script src="../js/header.js?v=6"></script>
   <script>
     class SetupApp {
       constructor() {
         this.selectedSize = 19;
-        this.selectedMode = 'pvp';
+        this.selectedColor = 'random';
         this.init();
       }
 
       init() {
+        Header.mount(document.getElementById('header-container'), {
+          backUrl: 'home.html',
+          backText: '← 返回首页',
+          showSettings: true,
+          showUser: true
+        });
         this.bindEvents();
+      }
+
+      updatePlayerLabels() {
+        const label1 = document.getElementById('label1');
+        const label2 = document.getElementById('label2');
+        const input1 = document.getElementById('player1');
+        const input2 = document.getElementById('player2');
+
+        if (this.selectedColor === 'random') {
+          label1.textContent = '👤 玩家1';
+          label2.textContent = '👤 玩家2';
+          input1.placeholder = '输入玩家1姓名';
+          input2.placeholder = '输入玩家2姓名';
+        } else if (this.selectedColor === 'black') {
+          label1.textContent = '⚫ 黑棋玩家';
+          label2.textContent = '⚪ 白棋玩家';
+          input1.placeholder = '输入黑棋玩家姓名';
+          input2.placeholder = '输入白棋玩家姓名';
+        } else if (this.selectedColor === 'white') {
+          label1.textContent = '⚪ 白棋玩家';
+          label2.textContent = '⚫ 黑棋玩家';
+          input1.placeholder = '输入白棋玩家姓名';
+          input2.placeholder = '输入黑棋玩家姓名';
+        }
       }
 
       bindEvents() {
@@ -246,20 +335,38 @@
           });
         });
 
-        document.querySelectorAll('#playerOptions .player-option').forEach(btn => {
+        document.querySelectorAll('#colorOptions .color-option').forEach(btn => {
           btn.addEventListener('click', () => {
-            document.querySelectorAll('#playerOptions .player-option').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#colorOptions .color-option').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            this.selectedMode = btn.dataset.mode;
+            this.selectedColor = btn.dataset.color;
+            this.updatePlayerLabels();
           });
         });
 
         document.getElementById('startBtn').addEventListener('click', () => {
-          if (this.selectedMode === 'pve') {
-            window.location.href = `ai-setup.html?size=${this.selectedSize}`;
-          } else {
-            window.location.href = `game.html?size=${this.selectedSize}&black=黑方&white=白方`;
+          const player1 = document.getElementById('player1').value.trim() || '玩家1';
+          const player2 = document.getElementById('player2').value.trim() || '玩家2';
+
+          let blackName, whiteName;
+
+          if (this.selectedColor === 'random') {
+            if (Math.random() < 0.5) {
+              blackName = player1;
+              whiteName = player2;
+            } else {
+              blackName = player2;
+              whiteName = player1;
+            }
+          } else if (this.selectedColor === 'black') {
+            blackName = player1;
+            whiteName = player2;
+          } else if (this.selectedColor === 'white') {
+            blackName = player2;
+            whiteName = player1;
           }
+
+          window.location.href = `game.html?size=${this.selectedSize}&black=${encodeURIComponent(blackName)}&white=${encodeURIComponent(whiteName)}`;
         });
       }
     }

@@ -48,6 +48,7 @@
   <script src="../js/analytics.js?v=6"></script>
   <script src="../js/storage.js?v=6"></script>
   <script src="../js/theme.js?v=6"></script>
+  <script src="../js/ai.js?v=6"></script>
   <script src="../js/pattern-library.js?v=6"></script>
   <script src="../js/header.js?v=6"></script>
   <script>
@@ -57,7 +58,7 @@
       }
 
       init() {
-        Header.init();
+        Header.init({ showSettings: true });
         this.renderStudyUI();
       }
 

@@ -401,6 +401,8 @@ header {
   font-family: 'Noto Serif SC', serif;
   font-size: 1.3rem;
   font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
 }
 
 .modal-close {
