@@ -52,7 +52,10 @@
     "TimeFilter": "readonly",
     "MemoryManager": "readonly",
     "CanvasOptimizer": "readonly",
-    "LocalAI": "readonly"
+    "LocalAI": "readonly",
+    "GoUtils": "writable",
+    "GoEngine": "writable",
+    "GoGame": "writable"
   },
   "ignorePatterns": [
     "node_modules/",

@@ -123,14 +123,7 @@
       color: var(--accent-gold);
       font-size: 0.85rem;
     }
-    .pattern-card .card-preview {
-      width: 100%;
-      height: 80px;
-      background: var(--board-wood);
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
+
     .pattern-card .card-desc {
       font-size: 0.85rem;
       color: var(--text-secondary);
@@ -245,6 +238,7 @@
   <script src="../js/analytics.js?v=6"></script>
   <script src="../js/storage.js?v=6"></script>
   <script src="../js/theme.js?v=6"></script>
+  <script src="../js/ai.js?v=6"></script>
   <script src="../js/pattern-library.js?v=6"></script>
   <script src="../js/header.js?v=6"></script>
   <script>
@@ -261,7 +255,6 @@
         Header.init({ showSettings: true });
         this.renderGrid();
         this.bindEvents();
-        this.drawPreviews();
       }
 
       getFilteredPatterns() {
@@ -317,9 +310,6 @@
               <span class="category-tag">${pattern.category}</span>
               <span class="difficulty">${stars}</span>
             </div>
-            <div class="card-preview">
-              <canvas class="preview-canvas" data-pattern="${pattern.id}"></canvas>
-            </div>
             <div class="card-desc">${pattern.description}</div>
             <div class="card-footer">
               <span class="moves-count">${movesCount}手${variationCount > 0 ? ' · ' + variationCount + '变化' : ''}</span>
@@ -329,64 +319,12 @@
         `;
       }
 
-      drawPreviews() {
-        const canvases = document.querySelectorAll('.preview-canvas');
-        canvases.forEach(canvas => {
-          const patternId = canvas.dataset.pattern;
-          const pattern = this.library.getById(patternId);
-          if (!pattern) return;
-
-          const boardSize = 19;
-          const cellSize = 4;
-          const padding = 3;
-          const canvasSize = cellSize * (boardSize - 1) + padding * 2;
-
-          canvas.width = canvasSize;
-          canvas.height = canvasSize;
-
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#DEB887';
-          ctx.fillRect(0, 0, canvasSize, canvasSize);
-
-          ctx.strokeStyle = '#000';
-          ctx.lineWidth = 0.5;
-          for (let i = 0; i < boardSize; i++) {
-            const pos = padding + i * cellSize;
-            ctx.beginPath();
-            ctx.moveTo(padding, pos);
-            ctx.lineTo(padding + (boardSize - 1) * cellSize, pos);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(pos, padding);
-            ctx.lineTo(pos, padding + (boardSize - 1) * cellSize);
-            ctx.stroke();
-          }
-
-          const previewMoves = pattern.moves.slice(0, Math.min(8, pattern.moves.length));
-          previewMoves.forEach(move => {
-            const px = padding + move.x * cellSize;
-            const py = padding + move.y * cellSize;
-            const radius = cellSize * 0.4;
-            ctx.beginPath();
-            ctx.arc(px, py, radius, 0, Math.PI * 2);
-            ctx.fillStyle = move.color === 'black' ? '#000' : '#fff';
-            ctx.fill();
-            if (move.color === 'white') {
-              ctx.strokeStyle = '#000';
-              ctx.lineWidth = 0.5;
-              ctx.stroke();
-            }
-          });
-        });
-      }
-
       bindEvents() {
         const searchInput = document.getElementById('pattern-search');
         if (searchInput) {
           searchInput.addEventListener('input', (e) => {
             this.searchKeyword = e.target.value;
             this.renderGrid();
-            this.drawPreviews();
           });
         }
 
@@ -397,7 +335,6 @@
             categoryBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             this.renderGrid();
-            this.drawPreviews();
           });
         });
 
@@ -405,7 +342,6 @@
         if (difficultySelect) {
           difficultySelect.addEventListener('change', () => {
             this.renderGrid();
-            this.drawPreviews();
           });
         }
       }

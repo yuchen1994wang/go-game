@@ -1,34 +1,15 @@
 // 围棋游戏引擎
 
 // 加载公共工具模块（浏览器环境和Node.js环境都兼容）
-let GoUtils = {
-  // 默认常量定义，防止未加载的情况
-  BLACK: 1,
-  WHITE: 2,
-  EMPTY: 0,
-  DEFAULT_KOMI: 6.5,
-  getNeighbors(x, y, size) {
-    const neighbors = [];
-    if (x > 0) {neighbors.push([x - 1, y]);}
-    if (x < size - 1) {neighbors.push([x + 1, y]);}
-    if (y > 0) {neighbors.push([x, y - 1]);}
-    if (y < size - 1) {neighbors.push([x, y + 1]);}
-    return neighbors;
-  },
-  isValidPosition(x, y, size) {
-    return x >= 0 && x < size && y >= 0 && y < size;
-  },
-  posKey(x, y) {
-    return `${x},${y}`;
-  }
-};
-
-// 尝试加载模块
-if (typeof require !== 'undefined') {
-  try {
-    GoUtils = require('./go-utils');
-  } catch (e) {
-    // 如果加载失败，使用默认值
+if (typeof GoUtils === 'undefined') {
+  if (typeof require !== 'undefined') {
+    try {
+      GoUtils = require('./go-utils');
+    } catch (e) {
+      GoUtils = {};
+    }
+  } else {
+    GoUtils = {};
   }
 }
 

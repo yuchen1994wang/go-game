@@ -229,23 +229,24 @@ class BoardComponent {
   }
 
   renderCoordinateLabels(position) {
-    const boardSize = this.cellSize * (this.size - 1) + this.padding * 2;
     const container = document.createElement('div');
     container.className = `board-coords coord-${position}`;
-    
+
     for (let i = 0; i < this.size; i++) {
       const label = document.createElement('span');
       label.className = 'coord-label';
-      
+
       if (position === 'top' || position === 'bottom') {
         label.textContent = this.letters[i] || '';
+        label.style.left = `${this.padding + i * this.cellSize - 10}px`;
       } else {
         label.textContent = this.size - i;
+        label.style.top = `${this.padding + i * this.cellSize - 10}px`;
       }
-      
+
       container.appendChild(label);
     }
-    
+
     this.container.appendChild(container);
   }
 

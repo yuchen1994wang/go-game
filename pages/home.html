@@ -50,8 +50,7 @@
 
     <main id="main-content">
       <section class="hero-section">
-        <div class="hero-title">围棋对弈复盘</div>
-        <div class="hero-subtitle">专业的在线围棋学习平台</div>
+        <div class="hero-title">围棋对弈</div>
       </section>
 
       <section class="features-grid">
@@ -139,8 +138,10 @@
       loadUserInfo() {
         const username = Storage.getUsername();
         if (username) {
-          document.getElementById('userName').textContent = username;
-          document.getElementById('welcomeName').textContent = username;
+          const userNameEl = document.getElementById('userName');
+          const welcomeNameEl = document.getElementById('welcomeName');
+          if (userNameEl) userNameEl.textContent = username;
+          if (welcomeNameEl) welcomeNameEl.textContent = username;
         }
       }
 

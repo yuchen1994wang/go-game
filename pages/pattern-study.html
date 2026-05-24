@@ -147,22 +147,22 @@
     }
 
     .controls-row {
-      display: flex;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
       gap: 8px;
-      flex-wrap: wrap;
     }
 
     .control-btn {
-      padding: 10px 18px;
+      padding: 8px 4px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       font-weight: 500;
       transition: all 0.2s;
       background: var(--accent-gold);
       color: white;
+      white-space: nowrap;
     }
 
     .control-btn:hover {
@@ -215,8 +215,8 @@
         grid-template-columns: 1fr;
       }
       .board-section { padding: 16px; }
-      .controls-row { flex-direction: column; align-items: stretch; }
-      .control-btn { width: 100%; }
+      .controls-row { grid-template-columns: repeat(3, 1fr); }
+      .control-btn { font-size: 0.75rem; padding: 8px 2px; }
     }
   </style>
 </head>
@@ -242,6 +242,7 @@
   <script src="../js/analytics.js?v=6"></script>
   <script src="../js/storage.js?v=6"></script>
   <script src="../js/theme.js?v=6"></script>
+  <script src="../js/ai.js?v=6"></script>
   <script src="../js/pattern-library.js?v=6"></script>
   <script src="../js/header.js?v=6"></script>
   <script>
