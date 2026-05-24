@@ -45,7 +45,7 @@ class LearningPathRecommender {
    * @returns {number} 水平分数 (0-100)
    */
   calculateOverallLevel(games, stats) {
-    if (!games || games.length === 0) return 30;
+    if (!games || games.length === 0) {return 30;}
 
     const winRate = games.filter(g => g.result === 'win').length / games.length;
     const avgMoves = games.reduce((sum, g) => sum + (g.moves || 0), 0) / games.length;
@@ -104,7 +104,7 @@ class LearningPathRecommender {
    * 评估布局能力
    */
   evaluateOpening(games) {
-    if (games.length === 0) return 50;
+    if (games.length === 0) {return 50;}
 
     const goodStarts = games.filter(g =>
       (g.phase === 'opening' || g.phase === 'early') && g.result === 'win'
@@ -124,10 +124,10 @@ class LearningPathRecommender {
    * 评估中盘战斗
    */
   evaluateMiddlegame(games) {
-    if (games.length === 0) return 50;
+    if (games.length === 0) {return 50;}
 
     const middleGames = games.filter(g => g.phase === 'middle');
-    if (middleGames.length === 0) return 50;
+    if (middleGames.length === 0) {return 50;}
 
     const goodMiddle = middleGames.filter(g => g.result === 'win').length;
     return Math.round((goodMiddle / middleGames.length) * 100);
@@ -141,7 +141,7 @@ class LearningPathRecommender {
     const total = stats.totalSolved || 0;
     const correct = stats.correctCount || 0;
 
-    if (total === 0) return 50;
+    if (total === 0) {return 50;}
     return Math.round((correct / total) * 100);
   }
 
@@ -149,7 +149,7 @@ class LearningPathRecommender {
    * 评估官子能力
    */
   evaluateEndgame(games) {
-    if (games.length === 0) return 50;
+    if (games.length === 0) {return 50;}
 
     const goodEndgames = games.filter(g =>
       (g.phase === 'endgame') && g.result === 'win'
@@ -158,11 +158,8 @@ class LearningPathRecommender {
     return Math.round((goodEndgames / games.length) * 100);
   }
 
-  /**
-   * 评估大局观
-   */
   evaluateOverall(games) {
-    if (games.length === 0) return 50;
+    if (games.length === 0) {return 50;}
 
     const wins = games.filter(g => g.result === 'win').length;
     const avgMoves = games.reduce((sum, g) => sum + (g.moves || 0), 0) / games.length;

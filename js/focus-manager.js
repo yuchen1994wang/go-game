@@ -250,12 +250,13 @@ class FocusManager {
             newIndex = Math.min(intersections.length - 1, index + 1);
             break;
           case 'Enter':
-          case ' ':
+          case ' ': {
             e.preventDefault();
             const x = parseInt(intersection.dataset.x);
             const y = parseInt(intersection.dataset.y);
             if (onMove) {onMove(x, y);}
             return;
+          }
         }
 
         if (newIndex !== index) {

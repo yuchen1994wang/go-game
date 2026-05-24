@@ -634,6 +634,341 @@ const TsumegoData = {
       solution: "金鸡独立两步杀！先紧气再利用边线特性。",
       wrongMoveHint: "先紧气，再利用边线。",
       hint: "这是两步题！利用金鸡独立的手筋，先紧气再叫吃。一步一步来！"
+    },
+    // ============ 新增题目（扩展到50题） ============
+    // 初级题
+    {
+      id: 34,
+      title: "板六（活型）",
+      difficulty: "初级",
+      location: "角部",
+      type: "live",
+      description: "黑先，活棋",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1], [0,2], [1,0], [2,0], [2,1]],
+        white: [[1,1], [1,2], [2,2]]
+      },
+      correctMoves: [{x: 0, y: 3}],
+      solution: "板六是活型！只要占据要点，黑棋就能做出两只眼。",
+      wrongMoveHint: "板六的活棋要点在边上，找一个扩大眼位的位置。",
+      hint: "板六是典型的活型！请尝试点击 (0,3) 位置，立下来扩大眼位！"
+    },
+    {
+      id: 35,
+      title: "断头板六",
+      difficulty: "初级",
+      location: "边路",
+      type: "kill",
+      description: "黑先，杀白",
+      size: 5,
+      setup: {
+        black: [[0,1], [0,2], [1,0], [2,0], [2,3]],
+        white: [[1,1], [1,2], [2,1], [2,2]]
+      },
+      correctMoves: [{x: 1, y: 3}],
+      solution: "断头板六可以点杀！点在断点附近，白棋无法活棋。",
+      wrongMoveHint: "断头板六的要点在断点一侧，找到那个位置。",
+      hint: "这是断头板六！因为有断点，所以不是活型。请尝试点击 (1,3) 位置！"
+    },
+    {
+      id: 36,
+      title: "六死八活",
+      difficulty: "初级",
+      location: "边路",
+      type: "live",
+      description: "黑先，活棋",
+      size: 6,
+      setup: {
+        black: [[0,1], [0,2], [0,3], [0,4], [1,1], [1,4]],
+        white: [[1,2], [1,3], [2,2], [2,3]]
+      },
+      correctMoves: [{x: 2, y: 1}],
+      solution: "六死八活！在二路爬六个子是死的，但可以通过巧妙手段活棋。",
+      wrongMoveHint: "找到能让黑棋做出两只眼的位置。",
+      hint: "六死八活是经典棋谚！但这里黑棋有办法活棋。请尝试点击 (2,1) 位置！"
+    },
+    // 中级题
+    {
+      id: 37,
+      title: "三子正中",
+      difficulty: "中级",
+      location: "中腹",
+      type: "kill",
+      description: "黑先，杀白",
+      size: 5,
+      setup: {
+        black: [[0,1], [0,3], [4,1], [4,3], [1,0], [3,0]],
+        white: [[1,2], [2,1], [2,2], [2,3], [3,2]]
+      },
+      correctMoves: [{x: 2, y: 2}],
+      solution: "三子正中！在三个并排棋子的中间点入，是杀棋的要点。",
+      wrongMoveHint: "三个并排棋子的中间是要点，找到那个位置。",
+      hint: "三子正中是经典手筋！请尝试点击 (2,2) 位置，点在白棋三个棋子的中间！"
+    },
+    {
+      id: 38,
+      title: "玉柱",
+      difficulty: "中级",
+      location: "角部",
+      type: "live",
+      description: "黑先，活棋",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1], [1,0]],
+        white: [[1,1], [2,0], [2,1]]
+      },
+      correctMoves: [{x: 0, y: 2}],
+      solution: "玉柱是角部活棋的好手！立下来确保做出两只眼。",
+      wrongMoveHint: "玉柱就是立在二一路，找那个位置。",
+      hint: "玉柱是角部活棋的经典手段！请尝试点击 (0,2) 位置，立下来！"
+    },
+    {
+      id: 39,
+      title: "侧飞",
+      difficulty: "中级",
+      location: "角部",
+      type: "kill",
+      description: "黑先，杀白",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1], [1,0], [2,0]],
+        white: [[1,1], [1,2], [2,1], [3,1]]
+      },
+      correctMoves: [{x: 0, y: 2}],
+      solution: "侧飞是杀棋的要点！从侧面飞过去，缩小白棋的眼位。",
+      wrongMoveHint: "侧飞就是从侧面小飞攻击，找到那个位置。",
+      hint: "侧飞是经典的杀棋手筋！请尝试点击 (0,2) 位置，从侧面小飞攻击！"
+    },
+    {
+      id: 40,
+      title: "点",
+      difficulty: "中级",
+      location: "角部",
+      type: "kill",
+      description: "黑先，杀白",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1], [0,2], [1,0], [2,0]],
+        white: [[1,1], [1,2], [2,1]]
+      },
+      correctMoves: [{x: 2, y: 2}],
+      solution: "点是杀棋的关键！点入白棋内部，破坏眼位。",
+      wrongMoveHint: "找到能点入白棋内部的位置。",
+      hint: "点是杀棋的关键！请尝试点击 (2,2) 位置，点入白棋内部！"
+    },
+    // 高级题
+    {
+      id: 41,
+      title: "弃子杀",
+      difficulty: "高级",
+      location: "角部",
+      type: "kill",
+      description: "黑先，杀白",
+      size: 6,
+      setup: {
+        black: [[0,0], [0,1], [0,2], [1,0], [2,0]],
+        white: [[1,1], [1,2], [2,1], [2,2], [3,1]]
+      },
+      correctMoves: [{x: 3, y: 2}],
+      solution: "弃子杀！通过弃掉几子，让白棋气紧，最终杀掉整块。",
+      wrongMoveHint: "弃子杀需要先弃后取，计算清楚变化。",
+      hint: "弃子杀是高级手筋！先弃子，再杀棋。请尝试点击 (3,2) 位置！"
+    },
+    {
+      id: 42,
+      title: "连环劫",
+      difficulty: "高级",
+      location: "角部",
+      type: "live",
+      description: "黑先，活棋",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1], [1,0], [2,1]],
+        white: [[1,1], [1,2], [2,0], [2,2]]
+      },
+      correctMoves: [{x: 0, y: 2}],
+      solution: "连环劫！通过制造两个劫争，黑棋可以确保活棋。",
+      wrongMoveHint: "连环劫需要两个劫，找到能制造双劫的位置。",
+      hint: "连环劫是特殊的活棋方式！请尝试点击 (0,2) 位置！"
+    },
+    {
+      id: 43,
+      title: "紧气劫活",
+      difficulty: "高级",
+      location: "角部",
+      type: "live",
+      description: "黑先，劫活",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1], [1,0], [2,0]],
+        white: [[1,1], [1,2], [2,1], [3,0]]
+      },
+      correctMoves: [{x: 0, y: 2}],
+      solution: "紧气劫活！虽然是劫，但黑棋可以通过打劫活棋。",
+      wrongMoveHint: "劫活需要找到正确的做劫位置。",
+      hint: "这是劫活题！黑棋需要通过打劫来活棋。请尝试点击 (0,2) 位置！"
+    },
+    // 多步题
+    {
+      id: 44,
+      title: "大头鬼三步",
+      difficulty: "高级",
+      location: "角部",
+      type: "kill",
+      description: "黑先，三步杀棋",
+      size: 6,
+      setup: {
+        black: [[0,0], [0,1], [0,2], [1,0]],
+        white: [[1,1], [1,2], [2,0], [2,1], [2,2], [3,1], [3,2]]
+      },
+      steps: [
+        {
+          description: "第一步：冲",
+          correctMoves: [{x: 4, y: 2}],
+          solution: "冲！缩小白棋的空间。",
+          afterMoves: { white: [[1,1], [1,2], [2,1], [2,2], [3,1]] }
+        },
+        {
+          description: "第二步：扑",
+          correctMoves: [{x: 4, y: 1}],
+          solution: "扑！紧气，让白棋气更紧。",
+          afterMoves: { white: [[1,1], [2,1], [2,2], [3,1]] }
+        },
+        {
+          description: "第三步：打",
+          correctMoves: [{x: 4, y: 0}],
+          solution: "打吃！白棋接不归，被杀。",
+          afterMoves: {}
+        }
+      ],
+      correctMoves: [{x: 4, y: 2}],
+      solution: "大头鬼三步杀！冲→扑→打吃。",
+      wrongMoveHint: "大头鬼三步：先冲，再扑，最后打吃。",
+      hint: "这是三步题！经典的大头鬼手筋。请一步步计算！"
+    },
+    {
+      id: 45,
+      title: "老鼠偷油三步",
+      difficulty: "高级",
+      location: "角部",
+      type: "kill",
+      description: "黑先，三步杀棋",
+      size: 5,
+      setup: {
+        black: [[0,0], [1,0], [2,0], [0,1], [3,1]],
+        white: [[1,1], [2,1], [1,2], [2,2]]
+      },
+      steps: [
+        {
+          description: "第一步：点",
+          correctMoves: [{x: 1, y: 3}],
+          solution: "点！老鼠偷油的第一步。",
+          afterMoves: { white: [[1,1], [2,1], [2,2]] }
+        },
+        {
+          description: "第二步：爬",
+          correctMoves: [{x: 2, y: 3}],
+          solution: "爬！继续缩小眼位。",
+          afterMoves: { white: [[2,1], [2,2]] }
+        },
+        {
+          description: "第三步：尖",
+          correctMoves: [{x: 0, y: 3}],
+          solution: "尖！最终杀掉白棋。",
+          afterMoves: {}
+        }
+      ],
+      correctMoves: [{x: 1, y: 3}],
+      solution: "老鼠偷油三步杀！点→爬→尖。",
+      wrongMoveHint: "老鼠偷油需要三步：点、爬、尖。",
+      hint: "这是三步题！经典的老鼠偷油。请按步骤来！"
+    },
+    // 实用题
+    {
+      id: 46,
+      title: "守角",
+      difficulty: "中级",
+      location: "角部",
+      type: "live",
+      description: "黑先，守住角地",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1]],
+        white: [[1,0], [1,1], [2,0]]
+      },
+      correctMoves: [{x: 0, y: 2}],
+      solution: "守住角地！立下来是守角的要点。",
+      wrongMoveHint: "守角的要点在二一路，找到那个位置。",
+      hint: "守角是实战中常用的手段！请尝试点击 (0,2) 位置立下来！"
+    },
+    {
+      id: 47,
+      title: "破眼",
+      difficulty: "中级",
+      location: "角部",
+      type: "kill",
+      description: "黑先，破坏白棋眼位",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1], [0,2], [1,0], [2,0]],
+        white: [[1,1], [1,2], [2,1], [2,2]]
+      },
+      correctMoves: [{x: 1, y: 1}],
+      solution: "破眼！点在白棋内部，破坏眼位。",
+      wrongMoveHint: "找到能破坏白棋眼位的位置。",
+      hint: "破眼是杀棋的关键！请尝试点击 (1,1) 位置，点入白棋内部！"
+    },
+    {
+      id: 48,
+      title: "做眼",
+      difficulty: "中级",
+      location: "角部",
+      type: "live",
+      description: "黑先，做出两只眼",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1], [1,0], [2,0]],
+        white: [[1,1], [2,1], [3,0]]
+      },
+      correctMoves: [{x: 0, y: 2}],
+      solution: "做眼！确保做出两只眼是活棋的关键。",
+      wrongMoveHint: "找到能确保做出两只眼的位置。",
+      hint: "做眼是活棋的关键！请尝试点击 (0,2) 位置，确保做出两只眼！"
+    },
+    {
+      id: 49,
+      title: "扩大眼位",
+      difficulty: "中级",
+      location: "角部",
+      type: "live",
+      description: "黑先，扩大眼位活棋",
+      size: 5,
+      setup: {
+        black: [[0,0], [0,1], [0,2], [1,0]],
+        white: [[1,1], [1,2], [2,0], [2,1]]
+      },
+      correctMoves: [{x: 0, y: 3}],
+      solution: "扩大眼位！立下来扩大空间，确保活棋。",
+      wrongMoveHint: "扩大眼位通常是立或爬，找到那个位置。",
+      hint: "扩大眼位是活棋的常用手段！请尝试点击 (0,3) 位置立下来！"
+    },
+    {
+      id: 50,
+      title: "经典死活综合",
+      difficulty: "高级",
+      location: "角部",
+      type: "kill",
+      description: "黑先，综合运用所学杀白",
+      size: 6,
+      setup: {
+        black: [[0,0], [0,1], [0,2], [0,3], [1,0], [2,0], [3,0]],
+        white: [[1,1], [1,2], [1,3], [2,1], [2,2], [2,3], [3,1]]
+      },
+      correctMoves: [{x: 3, y: 2}],
+      solution: "综合运用！这道题需要结合多种手筋才能杀掉白棋。",
+      wrongMoveHint: "综合运用点、扑、紧气等手筋，找到正确的次序。",
+      hint: "这是综合题！需要结合所学的多种手筋。请仔细计算！"
     }
   ]
 };

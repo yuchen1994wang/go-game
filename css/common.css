@@ -593,8 +593,58 @@ header {
 }
 
 /* 响应式 */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .container { padding: 20px 16px; }
   .board-size-options { flex-direction: column; }
   .card { padding: 20px; }
+  
+  h1 {
+    font-size: 1.3rem;
+  }
+  
+  .btn {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+  
+  .header,
+  header {
+    padding: 12px 16px;
+  }
+  
+  .user-menu {
+    padding: 4px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 16px 12px; }
+  
+  .toast-container {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    width: calc(100% - 24px);
+  }
+  
+  .modal {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    padding: 20px;
+  }
+  
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  
+  .logo-text {
+    font-size: 1.2rem;
+  }
+  
+  .btn {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
 }

@@ -46,18 +46,35 @@
     </header>
 
     <main id="main-content">
-      <h2 class="page-title">📊 学习数据统计</h2>
-
-      <div id="statistics-panel" class="stats-section"></div>
-
-      <div class="stats-grid">
-        <div id="game-stats" class="stats-section"></div>
-        <div id="practice-stats" class="stats-section"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+        <h2 class="page-title" style="margin-bottom:0;">📊 学习数据统计</h2>
+        <button id="exportStatsBtn" class="btn btn-secondary" style="padding:8px 16px;font-size:0.9rem;" title="导出统计数据">📤 导出统计</button>
       </div>
 
-      <div class="stats-grid">
-        <div id="growth-chart" class="stats-section"></div>
-        <div id="radar-chart" class="stats-section"></div>
+      <div id="loadingState" class="stats-section" style="text-align:center;padding:60px 20px;">
+        <div style="font-size:2rem;margin-bottom:16px;">⏳</div>
+        <div style="color:var(--text-secondary);">正在加载统计数据...</div>
+      </div>
+
+      <div id="emptyState" class="stats-section" style="text-align:center;padding:60px 20px;display:none;">
+        <div style="font-size:2rem;margin-bottom:16px;">📊</div>
+        <div style="font-size:1.2rem;font-weight:600;margin-bottom:8px;">暂无统计数据</div>
+        <div style="color:var(--text-secondary);margin-bottom:20px;">开始对弈或练习后，这里会显示您的学习数据</div>
+        <a href="home.html" class="btn btn-primary">开始对弈</a>
+      </div>
+
+      <div id="statsContent" style="display:none;">
+        <div id="statistics-panel" class="stats-section"></div>
+
+        <div class="stats-grid">
+          <div id="game-stats" class="stats-section"></div>
+          <div id="practice-stats" class="stats-section"></div>
+        </div>
+
+        <div class="stats-grid">
+          <div id="growth-chart" class="stats-section"></div>
+          <div id="radar-chart" class="stats-section"></div>
+        </div>
       </div>
     </main>
   </div>
@@ -74,33 +91,89 @@
   <script>
     class StatsApp {
       constructor() {
+        this.statsData = {};
         this.init();
       }
 
       init() {
         Header.init();
-        this.renderStats();
+        this.loadAndRenderStats();
+        this.bindEvents();
+      }
+
+      async loadAndRenderStats() {
+        const loadingState = document.getElementById('loadingState');
+        const emptyState = document.getElementById('emptyState');
+        const statsContent = document.getElementById('statsContent');
+
+        setTimeout(() => {
+          this.statsData = {
+            games: Storage.getSavedGames(),
+            tsumego: Storage.getTsumegoProgress(),
+            username: Storage.getUsername()
+          };
+
+          const hasData = this.statsData.games.length > 0 || Object.keys(this.statsData.tsumego).length > 0;
+
+          loadingState.style.display = 'none';
+
+          if (!hasData) {
+            emptyState.style.display = 'block';
+          } else {
+            statsContent.style.display = 'block';
+            this.renderStats();
+          }
+        }, 300);
+      }
+
+      bindEvents() {
+        document.getElementById('exportStatsBtn').addEventListener('click', () => {
+          this.exportStats();
+        });
+      }
+
+      exportStats() {
+        const exportData = {
+          exportedAt: new Date().toISOString(),
+          username: this.statsData.username,
+          summary: {
+            totalGames: this.statsData.games.length,
+            wins: this.statsData.games.filter(g => g.result === 'win').length,
+            losses: this.statsData.games.filter(g => g.result === 'loss').length,
+            totalTsumego: Object.values(this.statsData.tsumego).reduce((sum, s) => sum + (s.attempts || 0), 0),
+            correctTsumego: Object.values(this.statsData.tsumego).reduce((sum, s) => sum + (s.correct || 0), 0)
+          },
+          games: this.statsData.games,
+          tsumego: this.statsData.tsumego
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `go-stats-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        if (typeof showToast === 'function') {
+          showToast('统计数据已导出', 'success');
+        }
       }
 
       renderStats() {
-        // 渲染统计面板
         const statsPanel = new StatisticsPanel('statistics-panel');
         statsPanel.render();
 
-        // 渲染对局统计
         const gameStats = new GameStats('game-stats');
         gameStats.render();
 
-        // 渲染练习统计
         const practiceStats = new PracticeStats('practice-stats');
         practiceStats.render();
 
-        // 渲染成长曲线
         const growthChart = new GrowthChart('growth-chart');
         growthChart.setData();
         growthChart.render();
 
-        // 渲染能力雷达图
         const radarChart = new RadarChart('radar-chart');
         radarChart.render();
       }

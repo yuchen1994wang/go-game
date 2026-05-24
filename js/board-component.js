@@ -10,6 +10,7 @@ class BoardComponent {
     }
 
     this.size = options.size || 19;
+    this.autoSize = options.autoSize !== false;
     this.cellSize = options.cellSize || 40;
     this.padding = options.padding || 30;
     this.showCoordinates = options.showCoordinates !== false;
@@ -23,7 +24,11 @@ class BoardComponent {
     this.lastMove = null;
     this.cacheCanvas = null;
     this.isDirty = true;
-
+    
+    if (this.autoSize) {
+      this.calculateResponsiveSize();
+    }
+    
     this.init();
   }
 
@@ -39,6 +44,57 @@ class BoardComponent {
     }
     this.renderIntersections();
     this.bindEvents();
+    
+    if (this.autoSize) {
+      this.setupResizeListener();
+    }
+  }
+
+  setupResizeListener() {
+    let resizeTimeout;
+    this.resizeHandler = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        this.handleResize();
+      }, 200);
+    };
+    window.addEventListener('resize', this.resizeHandler);
+  }
+
+  handleResize() {
+    const oldCellSize = this.cellSize;
+    this.calculateResponsiveSize();
+    
+    if (Math.abs(this.cellSize - oldCellSize) > 2) {
+      const savedStones = new Map(this.stones);
+      const savedLastMove = this.lastMove ? {...this.lastMove} : null;
+      
+      this.container.innerHTML = '';
+      this.stones.clear();
+      this.lastMove = null;
+      this.cacheCanvas = null;
+      this.isDirty = true;
+      
+      this.renderBoard();
+      if (this.enableCache) {
+        this.renderCacheCanvas();
+      }
+      this.renderGrid();
+      this.renderStarPoints();
+      if (this.showCoordinates) {
+        this.renderCoordinates();
+      }
+      this.renderIntersections();
+      
+      savedStones.forEach((stone, key) => {
+        const [x, y] = key.split(',').map(Number);
+        this.placeStone(x, y, stone.player, stone.moveNumber);
+      });
+      
+      if (savedLastMove) {
+        this.updateLastMove(savedLastMove.x, savedLastMove.y);
+      }
+    }
   }
 
   renderCacheCanvas() {
@@ -387,9 +443,34 @@ class BoardComponent {
 
   destroy() {
     this.stopTimer();
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+    }
     this.container.innerHTML = '';
     this.stones.clear();
     this.lastMove = null;
+  }
+
+  calculateResponsiveSize() {
+    const maxWidth = Math.min(window.innerWidth - 32, 800);
+    const maxHeight = Math.min(window.innerHeight - 200, 800);
+    const maxSize = Math.min(maxWidth, maxHeight);
+    
+    const minCellSize = 15;
+    const maxCellSize = 40;
+    
+    let calculatedCellSize = (maxSize - this.padding * 2) / (this.size - 1);
+    calculatedCellSize = Math.max(minCellSize, Math.min(maxCellSize, calculatedCellSize));
+    
+    this.cellSize = Math.floor(calculatedCellSize);
+    
+    if (this.cellSize < 25) {
+      this.padding = 15;
+    } else if (this.cellSize < 30) {
+      this.padding = 20;
+    } else {
+      this.padding = 30;
+    }
   }
 
   stopTimer() {

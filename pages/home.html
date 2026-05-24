@@ -155,6 +155,19 @@
         </div>
       </section>
 
+      <section class="recent-games" id="learningPathSection">
+        <div class="recent-games-header">
+          <h2 class="recent-games-title">🎯 学习路径推荐</h2>
+          <button class="btn btn-secondary view-all-btn" id="refreshPathBtn" aria-label="刷新学习路径">刷新</button>
+        </div>
+        <div id="learningPathList" class="game-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">📈</div>
+            <p>加载学习路径中...</p>
+          </div>
+        </div>
+      </section>
+
       <section class="recent-games">
         <div class="recent-games-header">
           <h2 class="recent-games-title">🎮 最近对局</h2>
@@ -174,16 +187,18 @@
     </footer>
   </div>
 
-  <script src="../js/utils.js?v=5"></script>
-  <script src="../js/error-handler.js?v=5"></script>
-  <script src="../js/loading.js?v=5"></script>
-  <script src="../js/focus-manager.js?v=5"></script>
-  <script src="../js/analytics.js?v=5"></script>
-  <script src="../js/storage.js?v=5"></script>
-  <script src="../js/theme.js?v=5"></script>
-  <script src="../js/board-component.js?v=5"></script>
-  <script src="../js/ai.js?v=5"></script>
-  <script src="../js/header.js?v=5"></script>
+  <script src="../js/utils.js?v=6"></script>
+  <script src="../js/error-handler.js?v=6"></script>
+  <script src="../js/loading.js?v=6"></script>
+  <script src="../js/focus-manager.js?v=6"></script>
+  <script src="../js/analytics.js?v=6"></script>
+  <script src="../js/storage.js?v=6"></script>
+  <script src="../js/storage-enhanced.js?v=6"></script>
+  <script src="../js/learning-path.js?v=6"></script>
+  <script src="../js/theme.js?v=6"></script>
+  <script src="../js/board-component.js?v=6"></script>
+  <script src="../js/ai.js?v=6"></script>
+  <script src="../js/header.js?v=6"></script>
   <script>
     class HomeApp {
       constructor() {
@@ -194,7 +209,55 @@
         this.loadUserInfo();
         this.loadStats();
         this.loadRecentGames();
+        this.loadLearningPath();
         this.bindEvents();
+      }
+
+      async loadLearningPath() {
+        try {
+          const container = document.getElementById('learningPathList');
+          const games = Storage.getSavedGames();
+          const tsumegoProgress = Storage.getTsumegoProgress();
+          
+          const recommendations = LearningPath.generateRecommendations(
+            games, 
+            tsumegoProgress
+          );
+          
+          if (recommendations.length === 0) {
+            container.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-state-icon">💡</div>
+                <p>开始几局对弈或做几道死活题，我们会为您推荐更合适的学习路径！</p>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = recommendations.map((item, index) => `
+            <div class="game-item" onclick="window.location.href='${item.url}'" role="button" tabindex="0" aria-label="${item.title}">
+              <div class="game-info">
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:1.2rem;">${item.icon}</span>
+                    <span style="font-weight:600;">${item.title}</span>
+                    <span style="background:${item.priority === 'high' ? '#FFEBEE' : item.priority === 'medium' ? '#FFF3E0' : '#E8F5E9'};color:${item.priority === 'high' ? '#C62828' : item.priority === 'medium' ? '#EF6C00' : '#2E7D32'};padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;">${item.priority === 'high' ? '高优先' : item.priority === 'medium' ? '中优先' : '低优先'}</span>
+                  </div>
+                  <div style="font-size:0.85rem;color:var(--text-secondary);">${item.description}</div>
+                </div>
+              </div>
+              <div style="font-size:0.8rem;color:var(--text-secondary);">${item.estimatedTime}分钟</div>
+            </div>
+          `).join('');
+        } catch (error) {
+          console.error('Failed to load learning path:', error);
+          document.getElementById('learningPathList').innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">⚠️</div>
+              <p>加载学习路径失败</p>
+            </div>
+          `;
+        }
       }
 
       loadUserInfo() {
@@ -296,6 +359,10 @@
             Storage.clearUserData();
             window.location.href = 'auth.html';
           }
+        });
+
+        document.getElementById('refreshPathBtn').addEventListener('click', () => {
+          this.loadLearningPath();
         });
       }
     }

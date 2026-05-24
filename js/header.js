@@ -1,3 +1,4 @@
+/* global ThemeManager, SoundManager */
 // 通用顶栏组件
 class Header {
   static render(options = {}) {
@@ -171,6 +172,17 @@ class Header {
               </div>
             </div>
             <div class="settings-section">
+              <h3>💾 数据管理</h3>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-secondary" id="exportDataBtn" style="flex: 1;">📤 导出数据</button>
+                  <button class="btn btn-secondary" id="importDataBtn" style="flex: 1;">📥 导入数据</button>
+                </div>
+                <input type="file" id="importFileInput" accept=".json" style="display: none;">
+              </div>
+            </div>
+
+            <div class="settings-section">
               <h3>🗑️ 清除缓存</h3>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; gap: 8px;">
@@ -325,6 +337,100 @@ class Header {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {hideModal();}
     });
+
+    // 数据导出/导入
+    const exportDataBtn = document.getElementById('exportDataBtn');
+    if (exportDataBtn) {
+      exportDataBtn.addEventListener('click', () => {
+        try {
+          const data = {
+            version: '1.0',
+            exportedAt: new Date().toISOString(),
+            games: Storage.getSavedGames(),
+            tsumego: Storage.getTsumegoProgress(),
+            username: Storage.getUsername(),
+            apiKey: AIAnalyzer.getApiKey(),
+            settings: {
+              theme: ThemeManager.getTheme(),
+              stoneStyle: ThemeManager.getStoneStyle(),
+              sound: ThemeManager.isSoundEnabled(),
+              animation: ThemeManager.isAnimationEnabled()
+            }
+          };
+          
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `go-game-backup-${new Date().toISOString().split('T')[0]}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast('数据导出成功', 'success');
+        } catch (error) {
+          console.error('Export failed:', error);
+          showToast('数据导出失败', 'error');
+        }
+      });
+    }
+
+    const importDataBtn = document.getElementById('importDataBtn');
+    const importFileInput = document.getElementById('importFileInput');
+    if (importDataBtn && importFileInput) {
+      importDataBtn.addEventListener('click', () => {
+        importFileInput.click();
+      });
+
+      importFileInput.addEventListener('change', async (e) => {
+        try {
+          const file = e.target.files[0];
+          if (!file) return;
+          
+          const text = await file.text();
+          const data = JSON.parse(text);
+          
+          if (!data || !data.version) {
+            throw new Error('无效的数据文件');
+          }
+          
+          if (!confirm('确定要导入数据吗？这将覆盖现有数据。')) {
+            importFileInput.value = '';
+            return;
+          }
+          
+          if (data.games) {
+            data.games.forEach(game => Storage.saveGame(game));
+          }
+          if (data.tsumego) {
+            Object.entries(data.tsumego).forEach(([key, value]) => {
+              Storage.setTsumegoProgress(key, value);
+            });
+          }
+          if (data.username) {
+            Storage.setUsername(data.username);
+          }
+          if (data.apiKey) {
+            AIAnalyzer.setApiKey(data.apiKey);
+          }
+          if (data.settings) {
+            if (data.settings.theme) ThemeManager.setTheme(data.settings.theme);
+            if (data.settings.stoneStyle) ThemeManager.setStoneStyle(data.settings.stoneStyle);
+            if (data.settings.sound !== undefined) ThemeManager.setSoundEnabled(data.settings.sound);
+            if (data.settings.animation !== undefined) ThemeManager.setAnimationEnabled(data.settings.animation);
+          }
+          
+          importFileInput.value = '';
+          showToast('数据导入成功', 'success');
+          
+          if (confirm('需要刷新页面以应用新数据吗？')) {
+            window.location.reload();
+          }
+        } catch (error) {
+          console.error('Import failed:', error);
+          showToast('数据导入失败: ' + error.message, 'error');
+          importFileInput.value = '';
+        }
+      });
+    }
 
     // 清除缓存
     const clearGamesBtn = document.getElementById('clearGamesBtn');
