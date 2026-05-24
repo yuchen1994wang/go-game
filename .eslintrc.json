@@ -48,7 +48,8 @@
     "PatternStudyUI": "readonly",
     "TimeFilter": "readonly",
     "MemoryManager": "readonly",
-    "CanvasOptimizer": "readonly"
+    "CanvasOptimizer": "readonly",
+    "LocalAI": "readonly"
   },
   "ignorePatterns": [
     "node_modules/",
