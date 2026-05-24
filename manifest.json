@@ -1,24 +1,22 @@
 {
-  "name": "围棋对弈复盘",
-  "short_name": "围棋复盘",
-  "description": "在线围棋学习平台，提供AI对弈、死活题练习、经典棋谱打谱",
-  "start_url": "/go-game/",
+  "name": "围棋对弈",
+  "short_name": "围棋",
+  "description": "一个优雅的围棋对弈应用，支持死活题练习、AI 对弈、数据统计等功能",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F0E8",
-  "theme_color": "#C4A35A",
-  "orientation": "portrait",
-  "scope": "/go-game/",
-  "lang": "zh-CN",
+  "background_color": "#f5f0e8",
+  "theme_color": "#C4A574",
+  "orientation": "any",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%23F5F0E8' width='192' height='192'/%3E%3Ccircle cx='96' cy='96' r='70' fill='%23333'/%3E%3Ccircle cx='96' cy='96' r='25' fill='white'/%3E%3C/svg%3E",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%23F5F0E8' width='512' height='512'/%3E%3Ccircle cx='256' cy='256' r='180' fill='%23333'/%3E%3Ccircle cx='256' cy='256' r='65' fill='white'/%3E%3C/svg%3E",
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
   ]
 }

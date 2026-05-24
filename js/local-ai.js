@@ -1,426 +1,267 @@
-/**
- * 本地围棋AI引擎
- * 基于规则的简单AI，支持多难度级别
+/*
+ * 本地 AI 引擎
+ * 基于简单策略的围棋 AI，支持不同难度等级
  */
 
 class LocalAI {
-  /**
-   * 创建本地AI实例
-   * @param {string} level - 难度级别：'easy', 'medium', 'hard', 'expert'
-   */
-  constructor(level = 'medium') {
-    this.level = level;
-    this.name = this.getLevelName();
+  static DIFFICULTY_EASY = 1;
+  static DIFFICULTY_MEDIUM = 2;
+  static DIFFICULTY_HARD = 3;
+
+  constructor(difficulty = LocalAI.DIFFICULTY_MEDIUM) {
+    this.difficulty = difficulty;
+    this.patterns = this.loadPatterns();
   }
 
-  /**
-   * 获取难度级别名称
-   * @returns {string} 难度名称
-   */
-  getLevelName() {
-    const names = {
-      'easy': '入门',
-      'medium': '业余',
-      'hard': '有段',
-      'expert': '高手'
+  loadPatterns() {
+    return {
+      eyeSpace: [
+        { pattern: ['_x_', 'xxx', '_x_'], type: 'eye' },
+      ],
+      capture: [
+        { pattern: ['xo', 'xx'], type: 'capture' },
+      ]
     };
-    return names[this.level] || '业余';
   }
 
-  /**
-   * 设置难度级别
-   * @param {string} level - 难度级别
-   */
-  setLevel(level) {
-    this.level = level;
-    this.name = this.getLevelName();
-  }
-
-  /**
-   * 获取AI推荐落子
-   * @param {GoGame} game - 游戏实例
-   * @returns {Object} 落子位置 {x, y}
-   */
-  getMove(game) {
-    const validMoves = game.getValidMoves();
-    if (validMoves.length === 0) {return null;}
-
-    // 根据难度级别选择策略
-    switch (this.level) {
-      case 'easy':
-        return this.getEasyMove(game, validMoves);
-      case 'medium':
-        return this.getMediumMove(game, validMoves);
-      case 'hard':
-        return this.getHardMove(game, validMoves);
-      case 'expert':
-        return this.getExpertMove(game, validMoves);
+  getMove(board, boardSize, player, gameEngine) {
+    switch (this.difficulty) {
+      case LocalAI.DIFFICULTY_EASY:
+        return this.getEasyMove(board, boardSize, player, gameEngine);
+      case LocalAI.DIFFICULTY_MEDIUM:
+        return this.getMediumMove(board, boardSize, player, gameEngine);
+      case LocalAI.DIFFICULTY_HARD:
+        return this.getHardMove(board, boardSize, player, gameEngine);
       default:
-        return this.getMediumMove(game, validMoves);
+        return this.getEasyMove(board, boardSize, player, gameEngine);
     }
   }
 
-  /**
-   * 入门级AI：随机落子，偶尔选择星位
-   */
-  getEasyMove(game, validMoves) {
-    // 30%概率选择星位
-    if (Math.random() < 0.3) {
-      const starPoints = this.getStarPoints(game.size);
-      const validStars = starPoints.filter(p => 
-        validMoves.some(m => m.x === p.x && m.y === p.y)
-      );
-      if (validStars.length > 0) {
-        return validStars[Math.floor(Math.random() * validStars.length)];
+  getEasyMove(board, boardSize, player, gameEngine) {
+    const moves = this.getValidMoves(board, boardSize, player, gameEngine);
+    if (moves.length === 0) return { pass: true };
+
+    const randomMoves = [];
+    const center = Math.floor(boardSize / 2);
+
+    for (const move of moves) {
+      const dist = Math.abs(move.x - center) + Math.abs(move.y - center);
+      if (dist <= Math.floor(boardSize / 2) + 1) {
+        randomMoves.push(move);
       }
     }
 
-    // 随机选择一个合法位置
-    return validMoves[Math.floor(Math.random() * validMoves.length)];
+    const candidates = randomMoves.length > 0 ? randomMoves : moves;
+    return candidates[Math.floor(Math.random() * candidates.length)];
   }
 
-  /**
-   * 业余级AI：会吃子，会逃跑
-   */
-  getMediumMove(game, validMoves) {
-    // 1. 检查能否吃子
-    const captureMoves = this.getCaptureMoves(game, validMoves);
-    if (captureMoves.length > 0) {
-      return this.randomSelect(captureMoves);
+  getMediumMove(board, boardSize, player, gameEngine) {
+    const moves = this.getValidMoves(board, boardSize, player, gameEngine);
+    if (moves.length === 0) return { pass: true };
+
+    const scoredMoves = [];
+    const opponent = player === 1 ? 2 : 1;
+
+    for (const move of moves) {
+      let score = 0;
+
+      if (this.wouldCapture(board, boardSize, move.x, move.y, opponent, gameEngine)) {
+        score += 100;
+      }
+
+      if (this.isAtari(board, boardSize, player, move.x, move.y, gameEngine)) {
+        score += 80;
+      }
+
+      score += this.getTerritoryScore(move.x, move.y, boardSize, player);
+
+      if (this.isOnThirdLine(move.x, move.y, boardSize)) {
+        score += 15;
+      }
+      if (this.isOnFourthLine(move.x, move.y, boardSize)) {
+        score += 10;
+      }
+
+      if (this.isNearGroup(board, boardSize, move.x, move.y, player)) {
+        score += 20;
+      }
+
+      scoredMoves.push({ move, score });
     }
 
-    // 2. 检查是否需要逃跑
-    const escapeMoves = this.getEscapeMoves(game, validMoves);
-    if (escapeMoves.length > 0) {
-      return this.randomSelect(escapeMoves);
-    }
-
-    // 3. 检查能否连接己方棋子
-    const connectMoves = this.getConnectMoves(game, validMoves);
-    if (connectMoves.length > 0 && Math.random() < 0.4) {
-      return this.randomSelect(connectMoves);
-    }
-
-    // 4. 选择星位或边位
-    const strategicMoves = this.getStrategicMoves(game, validMoves);
-    if (strategicMoves.length > 0) {
-      return this.randomSelect(strategicMoves);
-    }
-
-    // 5. 随机
-    return this.randomSelect(validMoves);
-  }
-
-  /**
-   * 有段级AI：会做眼，会攻击
-   */
-  getHardMove(game, validMoves) {
-    // 1. 检查能否吃大龙
-    const bigCaptureMoves = this.getBigCaptureMoves(game, validMoves);
-    if (bigCaptureMoves.length > 0) {
-      return this.randomSelect(bigCaptureMoves);
-    }
-
-    // 2. 检查能否做活
-    const lifeMoves = this.getLifeMoves(game, validMoves);
-    if (lifeMoves.length > 0) {
-      return this.randomSelect(lifeMoves);
-    }
-
-    // 3. 检查能否攻击对方
-    const attackMoves = this.getAttackMoves(game, validMoves);
-    if (attackMoves.length > 0) {
-      return this.randomSelect(attackMoves);
-    }
-
-    // 4. 中级策略
-    return this.getMediumMove(game, validMoves);
-  }
-
-  /**
-   * 高手级AI：会全局思考
-   */
-  getExpertMove(game, validMoves) {
-    // 1. 检查关键点（征子、扑吃等）
-    const criticalMoves = this.getCriticalMoves(game, validMoves);
-    if (criticalMoves.length > 0) {
-      return this.randomSelect(criticalMoves);
-    }
-
-    // 2. 评估所有落子
-    const scoredMoves = validMoves.map(move => ({
-      ...move,
-      score: this.evaluateMove(game, move)
-    }));
-
-    // 3. 选择最高分（带一点随机性）
     scoredMoves.sort((a, b) => b.score - a.score);
-    const topMoves = scoredMoves.filter(m => 
-      m.score >= scoredMoves[0].score - 0.5
-    );
-    return this.randomSelect(topMoves);
+    const topCandidates = scoredMoves.slice(0, Math.max(3, Math.floor(scoredMoves.length * 0.3)));
+    return topCandidates[Math.floor(Math.random() * topCandidates.length)].move;
   }
 
-  /**
-   * 评估落子的分数
-   */
-  evaluateMove(game, move) {
-    let score = 0;
-    const tempGame = this.cloneGame(game);
-    tempGame.makeMove(move.x, move.y);
+  getHardMove(board, boardSize, player, gameEngine) {
+    const moves = this.getValidMoves(board, boardSize, player, gameEngine);
+    if (moves.length === 0) return { pass: true };
 
-    // 1. 提子得分
-    const lastMove = tempGame.moveHistory[tempGame.moveHistory.length - 1];
-    if (lastMove.captures) {
-      score += lastMove.captures.length * 10;
+    const scoredMoves = [];
+    const opponent = player === 1 ? 2 : 1;
+
+    for (const move of moves) {
+      let score = 0;
+
+      if (this.wouldCapture(board, boardSize, move.x, move.y, opponent, gameEngine)) {
+        score += 200;
+      }
+
+      if (this.isAtari(board, boardSize, player, move.x, move.y, gameEngine)) {
+        score += 150;
+      }
+
+      const copyBoard = this.copyBoard(board);
+      copyBoard[move.y][move.x] = player;
+      const libertiesAfter = this.countLiberties(copyBoard, boardSize, move.x, move.y);
+      if (libertiesAfter === 1) score -= 50;
+      if (libertiesAfter >= 3) score += 40;
+
+      score += this.getTerritoryScore(move.x, move.y, boardSize, player) * 1.5;
+
+      if (this.isCorner(move.x, move.y, boardSize)) score += 30;
+      if (this.isOnThirdLine(move.x, move.y, boardSize)) score += 25;
+      if (this.isOnFourthLine(move.x, move.y, boardSize)) score += 20;
+
+      if (this.isNearGroup(board, boardSize, move.x, move.y, player)) {
+        score += 30;
+      }
+
+      if (this.preventsEyeShape(board, boardSize, move.x, move.y, opponent)) {
+        score += 60;
+      }
+
+      scoredMoves.push({ move, score });
     }
 
-    // 2. 增加己方气数
-    const myGroup = tempGame.getGroup(move.x, move.y);
-    score += myGroup.length * 2;
-    score += myGroup.liberties * 1.5;
+    scoredMoves.sort((a, b) => b.score - a.score);
+    const topCandidates = scoredMoves.slice(0, Math.max(2, Math.floor(scoredMoves.length * 0.15)));
+    return topCandidates[Math.floor(Math.random() * topCandidates.length)].move;
+  }
 
-    // 3. 减少对方气数
-    const opponent = game.currentPlayer === 1 ? 2 : 1;
-    const neighbors = this.getNeighbors(move.x, move.y, tempGame.size);
-    neighbors.forEach(([nx, ny]) => {
-      if (tempGame.board[ny][nx] === opponent) {
-        const oppGroup = tempGame.getGroup(nx, ny);
-        if (oppGroup.liberties === 1) {
-          score += oppGroup.stones.length * 5; // 威胁吃子
-        } else if (oppGroup.liberties === 2) {
-          score += oppGroup.stones.length * 2;
+  getValidMoves(board, boardSize, player, gameEngine) {
+    const moves = [];
+    for (let y = 0; y < boardSize; y++) {
+      for (let x = 0; x < boardSize; x++) {
+        if (board[y][x] === 0 && gameEngine.isValidMove(x, y, player)) {
+          moves.push({ x, y });
         }
       }
-    });
-
-    // 4. 位置得分
-    score += this.getPositionScore(move.x, move.y, tempGame.size);
-
-    return score;
-  }
-
-  /**
-   * 获取位置得分
-   */
-  getPositionScore(x, y, size) {
-    let score = 0;
-    const center = (size - 1) / 2;
-
-    // 距离中心的距离（越近越好）
-    const distFromCenter = Math.abs(x - center) + Math.abs(y - center);
-    score += (size - distFromCenter) * 0.5;
-
-    // 星位加分
-    const starPoints = this.getStarPoints(size);
-    if (starPoints.some(p => p.x === x && p.y === y)) {
-      score += 5;
     }
-
-    return score;
+    return moves;
   }
 
-  /**
-   * 获取星位坐标
-   */
-  getStarPoints(size) {
-    const points = [];
-    if (size === 9) {
-      points.push({x: 2, y: 2}, {x: 6, y: 2}, {x: 4, y: 4}, {x: 2, y: 6}, {x: 6, y: 6});
-    } else if (size === 13) {
-      points.push({x: 3, y: 3}, {x: 9, y: 3}, {x: 6, y: 6}, {x: 3, y: 9}, {x: 9, y: 9});
-    } else if (size === 19) {
-      points.push({x: 3, y: 3}, {x: 9, y: 3}, {x: 15, y: 3}, 
-                 {x: 3, y: 9}, {x: 9, y: 9}, {x: 15, y: 9},
-                 {x: 3, y: 15}, {x: 9, y: 15}, {x: 15, y: 15});
+  wouldCapture(board, boardSize, x, y, opponent, gameEngine) {
+    const testBoard = this.copyBoard(board);
+    testBoard[y][x] = opponent === 1 ? 2 : 1;
+
+    const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+    for (const [dx, dy] of directions) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardSize && board[ny][nx] === opponent) {
+        const group = this.getGroup(testBoard, boardSize, nx, ny);
+        if (group.liberties === 0) {
+          return true;
+        }
+      }
     }
-    return points;
+    return false;
   }
 
-  /**
-   * 获取能吃子的落子
-   */
-  getCaptureMoves(game, validMoves) {
-    return validMoves.filter(move => {
-      const tempGame = this.cloneGame(game);
-      const result = tempGame.makeMove(move.x, move.y);
-      return result.success && result.captures && result.captures.length >= 1;
-    });
+  isAtari(board, boardSize, player, x, y, gameEngine) {
+    const testBoard = this.copyBoard(board);
+    testBoard[y][x] = player;
+    const group = this.getGroup(testBoard, boardSize, x, y);
+    return group.liberties === 1;
   }
 
-  /**
-   * 获取能吃大龙的落子
-   */
-  getBigCaptureMoves(game, validMoves) {
-    return validMoves.filter(move => {
-      const tempGame = this.cloneGame(game);
-      const result = tempGame.makeMove(move.x, move.y);
-      return result.success && result.captures && result.captures.length >= 3;
-    });
+  countLiberties(board, boardSize, x, y) {
+    const group = this.getGroup(board, boardSize, x, y);
+    return group.liberties;
   }
 
-  /**
-   * 获取逃跑的落子
-   */
-  getEscapeMoves(game, validMoves) {
-    const myColor = game.currentPlayer;
-    const myStones = [];
+  getTerritoryScore(x, y, boardSize, player) {
+    const center = Math.floor(boardSize / 2);
+    const maxDist = center;
+    const dist = Math.abs(x - center) + Math.abs(y - center);
+    const centerBonus = Math.max(0, (maxDist - dist) / maxDist * 20);
+    return centerBonus;
+  }
 
-    // 找到己方需要逃跑的棋子
-    for (let y = 0; y < game.size; y++) {
-      for (let x = 0; x < game.size; x++) {
-        if (game.board[y][x] === myColor) {
-          const group = game.getGroup(x, y);
-          if (group.liberties === 1) {
-            myStones.push({x, y, group});
+  isCorner(x, y, boardSize) {
+    return (x < 4 && y < 4) ||
+           (x < 4 && y >= boardSize - 4) ||
+           (x >= boardSize - 4 && y < 4) ||
+           (x >= boardSize - 4 && y >= boardSize - 4);
+  }
+
+  isOnThirdLine(x, y, boardSize) {
+    return x === 2 || y === 2 || x === boardSize - 3 || y === boardSize - 3;
+  }
+
+  isOnFourthLine(x, y, boardSize) {
+    return x === 3 || y === 3 || x === boardSize - 4 || y === boardSize - 4;
+  }
+
+  isNearGroup(board, boardSize, x, y, player) {
+    const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+    for (const [dx, dy] of directions) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardSize && board[ny][nx] === player) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  preventsEyeShape(board, boardSize, x, y, opponent) {
+    return false;
+  }
+
+  getGroup(board, boardSize, x, y) {
+    const color = board[y][x];
+    if (!color) return { stones: [], liberties: 0 };
+
+    const visited = Array(boardSize).fill(null).map(() => Array(boardSize).fill(false));
+    const group = [];
+    const liberties = new Set();
+
+    const stack = [[x, y]];
+    visited[y][x] = true;
+
+    while (stack.length > 0) {
+      const [cx, cy] = stack.pop();
+      group.push({ x: cx, y: cy });
+
+      const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+      for (const [dx, dy] of directions) {
+        const nx = cx + dx;
+        const ny = cy + dy;
+
+        if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardSize) {
+          if (!visited[ny][nx]) {
+            if (board[ny][nx] === color) {
+              visited[ny][nx] = true;
+              stack.push([nx, ny]);
+            } else if (board[ny][nx] === 0) {
+              liberties.add(`${nx},${ny}`);
+            }
           }
         }
       }
     }
 
-    if (myStones.length === 0) {return [];}
-
-    // 找到能让己方棋子逃跑的落子
-    return validMoves.filter(move => {
-      return myStones.some(stone => {
-        const neighbors = this.getNeighbors(stone.x, stone.y, game.size);
-        return neighbors.some(([nx, ny]) => nx === move.x && ny === move.y);
-      });
-    });
+    return { stones: group, liberties: liberties.size };
   }
 
-  /**
-   * 获取连接己方棋子的落子
-   */
-  getConnectMoves(game, validMoves) {
-    const myColor = game.currentPlayer;
-    return validMoves.filter(move => {
-      const neighbors = this.getNeighbors(move.x, move.y, game.size);
-      return neighbors.some(([nx, ny]) => game.board[ny][nx] === myColor);
-    });
-  }
-
-  /**
-   * 获取战略性落子
-   */
-  getStrategicMoves(game, validMoves) {
-    // 星位优先
-    const starPoints = this.getStarPoints(game.size);
-    const validStars = validMoves.filter(m => 
-      starPoints.some(p => p.x === m.x && p.y === m.y)
-    );
-    if (validStars.length > 0) {
-      return validStars;
-    }
-
-    // 边位优先
-    const edgeMoves = validMoves.filter(m => 
-      m.x === 0 || m.x === game.size - 1 || m.y === 0 || m.y === game.size - 1
-    );
-    if (edgeMoves.length > 0) {
-      return edgeMoves;
-    }
-
-    return [];
-  }
-
-  /**
-   * 获取做活的落子
-   */
-  getLifeMoves(game, validMoves) {
-    return validMoves.filter(move => {
-      const tempGame = this.cloneGame(game);
-      tempGame.makeMove(move.x, move.y);
-      const group = tempGame.getGroup(move.x, move.y);
-      return group.liberties >= 3;
-    });
-  }
-
-  /**
-   * 获取攻击对方的落子
-   */
-  getAttackMoves(game, validMoves) {
-    const opponent = game.currentPlayer === 1 ? 2 : 1;
-    const attackMoves = [];
-
-    validMoves.forEach(move => {
-      const neighbors = this.getNeighbors(move.x, move.y, game.size);
-      neighbors.forEach(([nx, ny]) => {
-        if (game.board[ny][nx] === opponent) {
-          const group = game.getGroup(nx, ny);
-          if (group.liberties <= 2) {
-            attackMoves.push(move);
-          }
-        }
-      });
-    });
-
-    return attackMoves;
-  }
-
-  /**
-   * 获取关键点（征子、扑吃等）
-   */
-  getCriticalMoves(game, validMoves) {
-    const criticalMoves = [];
-
-    validMoves.forEach(move => {
-      const tempGame = this.cloneGame(game);
-      tempGame.makeMove(move.x, move.y);
-
-      // 检查是否提掉了关键棋子
-      const lastMove = tempGame.moveHistory[tempGame.moveHistory.length - 1];
-      if (lastMove.captures && lastMove.captures.length >= 1) {
-        // 检查是否能形成征子或扑吃
-        const tempGame2 = this.cloneGame(tempGame);
-        const opponent = tempGame.currentPlayer;
-        const escaped = tempGame2.simulateEscape();
-        if (!escaped) {
-          criticalMoves.push(move);
-        }
-      }
-    });
-
-    return criticalMoves;
-  }
-
-  /**
-   * 获取邻居坐标
-   */
-  getNeighbors(x, y, size) {
-    const neighbors = [];
-    if (x > 0) {neighbors.push([x - 1, y]);}
-    if (x < size - 1) {neighbors.push([x + 1, y]);}
-    if (y > 0) {neighbors.push([x, y - 1]);}
-    if (y < size - 1) {neighbors.push([x, y + 1]);}
-    return neighbors;
-  }
-
-  /**
-   * 随机选择
-   */
-  randomSelect(arr) {
-    if (arr.length === 0) {return null;}
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  /**
-   * 克隆游戏（用于模拟落子）
-   */
-  cloneGame(game) {
-    const cloned = new game.constructor(game.size);
-    game.moveHistory.forEach(move => {
-      if (move.pass) {
-        cloned.pass();
-      } else {
-        cloned.makeMove(move.x, move.y);
-      }
-    });
-    return cloned;
+  copyBoard(board) {
+    return board.map(row => [...row]);
   }
 }
 
-// 兼容性导出
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = LocalAI;
 }
