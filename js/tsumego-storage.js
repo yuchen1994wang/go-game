@@ -142,6 +142,24 @@ const TsumegoStorage = {
     return `${secs}秒`;
   },
 
+  // 获取题目状态
+  getStatus(problemId) {
+    const progress = this.getProgress();
+    return progress[problemId]?.status || null;
+  },
+
+  // 获取尝试次数
+  getAttempts(problemId) {
+    const progress = this.getProgress();
+    return progress[problemId]?.attempts || 0;
+  },
+
+  // 获取正确次数
+  getCorrect(problemId) {
+    const progress = this.getProgress();
+    return progress[problemId]?.correct || 0;
+  },
+
   // 清空所有数据（重置）
   clearAll() {
     localStorage.removeItem(this.PROGRESS_KEY);
