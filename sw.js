@@ -9,7 +9,6 @@ const urlsToCache = [
   '/index.html',
   '/pages/home.html',
   '/pages/game.html',
-  '/pages/practice.html',
   '/pages/statistics.html',
   '/css/common.css',
   '/css/index.css',
@@ -18,8 +17,6 @@ const urlsToCache = [
   '/js/go-engine.js',
   '/js/go-ai.js',
   '/js/game.js',
-  '/js/tsumego-data.js',
-  '/js/tsumego-storage.js',
   '/js/statistics.js',
   '/js/board-component.js',
   '/js/local-ai.js'

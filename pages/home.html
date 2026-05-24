@@ -3,79 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>围棋对弈复盘 - 在线围棋平台</title>
-  <meta name="description" content="围棋对弈复盘 - 专业的在线围棋平台，支持AI对弈、死活题练习、棋谱管理和复盘分析">
-  <meta name="keywords" content="围棋,围棋对弈,围棋学习,死活题,棋谱,AI对弈">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>围棋对弈复盘 - 在线围棋学习平台</title>
+  <meta name="description" content="围棋对弈复盘 - 专业的在线围棋平台，支持AI对弈、棋谱管理和复盘分析">
+  <meta name="keywords" content="围棋,围棋对弈,围棋学习,棋谱,AI对弈">
   <meta name="author" content="围棋对弈复盘">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="围棋对弈复盘 - 在线围棋平台">
-  <meta property="og:description" content="专业的在线围棋平台，支持AI对弈、死活题练习、棋谱管理和复盘分析">
+  <meta property="og:title" content="围棋对弈复盘 - 在线围棋学习平台">
+  <meta property="og:description" content="专业的在线围棋平台，支持AI对弈、棋谱管理和复盘分析">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#C4A35A">
   <link rel="manifest" href="../manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script>
-    // 注册 Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('../sw.js', { scope: '../' }).then(function(registration) {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, function(err) {
-          console.log('ServiceWorker registration failed: ', err);
-        });
-      });
-    }
-  </script>
   <link rel="stylesheet" href="../css/common.css">
   <style>
     .home-page { display: flex; flex-direction: column; min-height: 100vh; }
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo-icon { width: 48px; height: 48px; background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%); border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.3); position: relative; }
-    .logo-icon::after { content: ''; position: absolute; width: 18px; height: 18px; background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%); border-radius: 50%; top: 50%; left: 50%; transform: translate(-30%, -30%); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-    .logo-text { font-family: 'Noto Serif SC', serif; font-size: 1.5rem; font-weight: 700; }
-    main { flex: 1; padding: 32px 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
-    .welcome-section { text-align: center; margin-bottom: 48px; }
-    .welcome-title { font-family: 'Noto Serif SC', serif; font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
-    .welcome-subtitle { color: var(--text-secondary); font-size: 1.1rem; }
-    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 48px; }
-    .feature-card { background: var(--panel-bg); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); transition: all 0.3s ease; cursor: pointer; text-decoration: none; color: inherit; display: block; }
-    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-gold); }
-    .feature-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 16px; background: var(--bg-secondary); }
-    .feature-card:nth-child(1) .feature-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .feature-card:nth-child(2) .feature-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-    .feature-card:nth-child(3) .feature-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-    .feature-card:nth-child(4) .feature-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-    .feature-card:nth-child(5) .feature-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-    .feature-card:nth-child(6) .feature-icon { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
-    .feature-title { font-family: 'Noto Serif SC', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
-    .feature-desc { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
-    .stats-section { background: var(--panel-bg); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); margin-bottom: 24px; }
-    .stats-title { font-family: 'Noto Serif SC', serif; font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; }
-    .stat-item { text-align: center; padding: 16px; background: var(--bg-secondary); border-radius: 12px; }
-    .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 4px; }
-    .stat-label { font-size: 0.85rem; color: var(--text-secondary); }
-    .recent-games { background: var(--panel-bg); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); }
-    .recent-games-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .recent-games-title { font-family: 'Noto Serif SC', serif; font-size: 1.1rem; font-weight: 600; }
-    .view-all-btn { padding: 8px 16px; font-size: 0.85rem; }
-    .game-list { display: flex; flex-direction: column; gap: 12px; }
-    .game-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-secondary); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
-    .game-item:hover { background: var(--border-color); }
-    .game-info { display: flex; align-items: center; gap: 12px; }
-    .game-players { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-    .game-vs { color: var(--text-secondary); font-size: 0.8rem; }
-    .game-meta { display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--text-secondary); }
-    .game-result { padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
-    .game-result.win { background: #E8F5E9; color: #2E7D32; }
-    .game-result.loss { background: #FFEBEE; color: #C62828; }
-    .game-result.draw { background: #FFF3E0; color: #EF6C00; }
-    .empty-state { text-align: center; padding: 32px; color: var(--text-secondary); }
-    .empty-state-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.5; }
-    footer { background: var(--panel-bg); border-top: 1px solid var(--border-color); padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.85rem; }
+    .hero-section { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, var(--board-wood-light) 0%, var(--board-wood) 100%); }
+    .hero-title { font-family: 'Noto Serif SC', serif; font-size: 2.5rem; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); }
+    .hero-subtitle { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 32px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 32px 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .feature-card { background: var(--panel-bg); border-radius: 16px; padding: 24px; text-decoration: none; color: inherit; transition: all 0.3s ease; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); }
+    .feature-icon { font-size: 2.5rem; }
+    .feature-title { font-family: 'Noto Serif SC', serif; font-size: 1.2rem; font-weight: 600; }
+    .feature-desc { font-size: 0.9rem; color: var(--text-secondary); }
+    .stats-section { padding: 24px 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat-item { background: var(--panel-bg); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid var(--border-color); }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
+    .stat-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+    .learning-path-section { padding: 24px 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .section-title { font-family: 'Noto Serif SC', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 16px; }
     @media (max-width: 768px) {
-      .welcome-title { font-size: 1.5rem; }
+      .hero-title { font-size: 1.8rem; }
       .features-grid { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -84,34 +47,19 @@
 <body>
   <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
   <div class="home-page">
-    <header>
-      <div class="header-left">
-        <div class="logo">
-          <div class="logo-icon"></div>
-          <span class="logo-text">围棋对弈复盘</span>
-        </div>
-      </div>
-      <div class="header-right">
-        <button type="button" class="btn btn-secondary" id="settingsBtn" title="设置" aria-label="设置">⚙️</button>
-        <div class="user-menu" id="userMenu" title="点击退出登录">
-          <span>👤</span>
-          <span class="user-name" id="userName">棋手</span>
-          <span class="logout-icon">🚪</span>
-        </div>
-      </div>
-    </header>
+    <div id="header-container"></div>
 
     <main id="main-content">
-      <section class="welcome-section">
-        <h1 class="welcome-title">欢迎回来，<span id="welcomeName">棋手</span>！</h1>
-        <p class="welcome-subtitle">今天想要进行什么练习呢？</p>
+      <section class="hero-section">
+        <div class="hero-title">围棋对弈复盘</div>
+        <div class="hero-subtitle">专业的在线围棋学习平台</div>
       </section>
 
       <section class="features-grid">
-        <a href="setup.html" class="feature-card" aria-label="自由对弈">
-          <div class="feature-icon">⚔️</div>
-          <h2 class="feature-title">自由对弈</h2>
-          <p class="feature-desc">本地双人对弈，随时开始</p>
+        <a href="game.html" class="feature-card" aria-label="本地对弈">
+          <div class="feature-icon">👥</div>
+          <h2 class="feature-title">本地对弈</h2>
+          <p class="feature-desc">与朋友在同一设备上进行对弈</p>
         </a>
 
         <a href="ai-setup.html" class="feature-card" aria-label="AI 对弈">
@@ -120,22 +68,16 @@
           <p class="feature-desc">与不同难度的AI进行对弈，提升棋力</p>
         </a>
 
-        <a href="tsumego-list.html" class="feature-card" aria-label="死活题练习">
-          <div class="feature-icon">🎯</div>
-          <h2 class="feature-title">死活题练习</h2>
-          <p class="feature-desc">海量死活题库，从入门到高级</p>
-        </a>
-
         <a href="kifu.html" class="feature-card" aria-label="棋谱管理">
           <div class="feature-icon">📚</div>
           <h2 class="feature-title">棋谱管理</h2>
           <p class="feature-desc">查看、管理和复盘您的棋谱</p>
         </a>
 
-        <a href="pattern-study.html" class="feature-card" aria-label="定式库学习">
+        <a href="pattern-list.html" class="feature-card" aria-label="定式库学习">
           <div class="feature-icon">📐</div>
           <h2 class="feature-title">定式库学习</h2>
-          <p class="feature-desc">26个经典定式，包含练习和测试</p>
+          <p class="feature-desc">经典定式，包含练习和测试</p>
         </a>
 
         <a href="statistics.html" class="feature-card" aria-label="数据统计">
@@ -146,15 +88,10 @@
       </section>
 
       <section class="stats-section">
-        <h2 class="stats-title">📊 学习统计</h2>
         <div class="stats-grid">
           <div class="stat-item">
             <div class="stat-value" id="totalGames">0</div>
             <div class="stat-label">对局数</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" id="totalTsumego">0</div>
-            <div class="stat-label">死活题</div>
           </div>
           <div class="stat-item">
             <div class="stat-value" id="winRate">0%</div>
@@ -164,39 +101,18 @@
             <div class="stat-value" id="studyDays">1</div>
             <div class="stat-label">学习天数</div>
           </div>
-        </div>
-      </section>
-
-      <section class="recent-games" id="learningPathSection">
-        <div class="recent-games-header">
-          <h2 class="recent-games-title">🎯 学习路径推荐</h2>
-          <button class="btn btn-secondary view-all-btn" id="refreshPathBtn" aria-label="刷新学习路径">刷新</button>
-        </div>
-        <div id="learningPathList" class="game-list">
-          <div class="empty-state">
-            <div class="empty-state-icon">📈</div>
-            <p>加载学习路径中...</p>
+          <div class="stat-item">
+            <div class="stat-value" id="totalPatterns">0</div>
+            <div class="stat-label">定式学习</div>
           </div>
         </div>
       </section>
 
-      <section class="recent-games">
-        <div class="recent-games-header">
-          <h2 class="recent-games-title">🎮 最近对局</h2>
-          <a href="kifu.html" class="btn btn-secondary view-all-btn" aria-label="查看全部对局">查看全部</a>
-        </div>
-        <div class="game-list" id="recentGamesList">
-          <div class="empty-state">
-            <div class="empty-state-icon">📭</div>
-            <p>暂无对局记录</p>
-          </div>
-        </div>
+      <section class="learning-path-section">
+        <h2 class="section-title">📈 学习路径推荐</h2>
+        <div id="learningPathList"></div>
       </section>
     </main>
-
-    <footer>
-      <p>围棋对弈复盘 - 传承千年智慧，探索黑白奥秘</p>
-    </footer>
   </div>
 
   <script src="../js/utils.js?v=6"></script>
@@ -206,7 +122,6 @@
   <script src="../js/analytics.js?v=6"></script>
   <script src="../js/storage.js?v=6"></script>
   <script src="../js/storage-enhanced.js?v=6"></script>
-  <script src="../js/learning-path.js?v=6"></script>
   <script src="../js/theme.js?v=6"></script>
   <script src="../js/board-component.js?v=6"></script>
   <script src="../js/ai.js?v=6"></script>
@@ -218,9 +133,12 @@
       }
 
       init() {
+        Header.mount(document.getElementById('header-container'), {
+          showSettings: true,
+          showUser: true
+        });
         this.loadUserInfo();
         this.loadStats();
-        this.loadRecentGames();
         this.loadLearningPath();
         this.bindEvents();
       }
@@ -229,18 +147,14 @@
         try {
           const container = document.getElementById('learningPathList');
           const games = Storage.getSavedGames();
-          const tsumegoProgress = Storage.getTsumegoProgress();
           
-          const recommendations = LearningPath.generateRecommendations(
-            games, 
-            tsumegoProgress
-          );
+          const recommendations = this.generateRecommendations(games);
           
           if (recommendations.length === 0) {
             container.innerHTML = `
               <div class="empty-state">
                 <div class="empty-state-icon">💡</div>
-                <p>开始几局对弈或做几道死活题，我们会为您推荐更合适的学习路径！</p>
+                <p>开始几局对弈，我们会为您推荐更合适的学习路径！</p>
               </div>
             `;
             return;
@@ -272,6 +186,43 @@
         }
       }
 
+      generateRecommendations(games) {
+        const recommendations = [];
+        
+        if (games.length < 3) {
+          recommendations.push({
+            icon: '🤖',
+            title: '开始 AI 对弈',
+            description: '通过与 AI 对弈熟悉围棋规则和基本操作',
+            url: 'ai-setup.html',
+            priority: 'high',
+            estimatedTime: 15
+          });
+        }
+        
+        if (games.length >= 3) {
+          recommendations.push({
+            icon: '📐',
+            title: '学习定式',
+            description: '掌握常见定式，提升布局能力',
+            url: 'pattern-list.html',
+            priority: 'medium',
+            estimatedTime: 20
+          });
+        }
+        
+        recommendations.push({
+          icon: '📚',
+          title: '查看棋谱',
+          description: '复盘历史对局，总结经验教训',
+          url: 'kifu.html',
+          priority: 'low',
+          estimatedTime: 10
+        });
+        
+        return recommendations;
+      }
+
       loadUserInfo() {
         const username = Storage.getUsername();
         if (username) {
@@ -282,10 +233,9 @@
 
       loadStats() {
         const games = Storage.getSavedGames();
-        const tsumego = Storage.getTsumegoProgress();
 
         document.getElementById('totalGames').textContent = games.length;
-        document.getElementById('totalTsumego').textContent = Object.keys(tsumego).length;
+        document.getElementById('totalPatterns').textContent = '0';
 
         if (games.length > 0) {
           const myUsername = Storage.getUsername();
@@ -300,82 +250,17 @@
           document.getElementById('winRate').textContent = Math.round((wins / games.length) * 100) + '%';
         }
 
-        const firstGame = games.length > 0 ? games[games.length - 1] : null;
-        if (firstGame) {
-          const days = Math.max(1, Math.floor((Date.now() - firstGame.savedAt) / (1000 * 60 * 60 * 24)) + 1);
+        const firstVisit = localStorage.getItem('go_first_visit');
+        if (firstVisit) {
+          const days = Math.floor((Date.now() - parseInt(firstVisit)) / (1000 * 60 * 60 * 24)) + 1;
           document.getElementById('studyDays').textContent = days;
+        } else {
+          localStorage.setItem('go_first_visit', Date.now().toString());
         }
-      }
-
-      loadRecentGames() {
-        const games = Storage.getSavedGames().slice(0, 5);
-        const list = document.getElementById('recentGamesList');
-
-        if (games.length === 0) {
-          list.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon">📭</div>
-              <p>暂无对局记录</p>
-            </div>
-          `;
-          return;
-        }
-
-        list.innerHTML = games.map(game => {
-          const date = new Date(game.savedAt);
-          const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-
-          let resultClass = 'draw';
-          let resultText = '进行中';
-          if (game.result) {
-            const myUsername = Storage.getUsername();
-            const isBlack = game.blackPlayer === myUsername;
-            if (game.result.winner === 'black') {
-              resultClass = isBlack ? 'win' : 'loss';
-              resultText = isBlack ? '胜' : '负';
-            } else if (game.result.winner === 'white') {
-              resultClass = isBlack ? 'loss' : 'win';
-              resultText = isBlack ? '负' : '胜';
-            } else {
-              resultText = '和棋';
-            }
-          }
-
-          return `
-            <div class="game-item" onclick="window.location.href='kifu-player.html?id=${game.id}'" role="button" tabindex="0" aria-label="查看对局：${game.blackPlayer} vs ${game.whitePlayer}">
-              <div class="game-info">
-                <div class="game-players">
-                  <span>${game.blackPlayer}</span>
-                  <span class="game-vs">VS</span>
-                  <span>${game.whitePlayer}</span>
-                </div>
-              </div>
-              <div class="game-meta">
-                <span>${game.size}×${game.size}</span>
-                <span>${dateStr}</span>
-                <span class="game-result ${resultClass}">${resultText}</span>
-              </div>
-            </div>
-          `;
-        }).join('');
       }
 
       bindEvents() {
-        document.getElementById('settingsBtn').addEventListener('click', () => {
-          Header.initSettingsModal();
-          document.getElementById('settingsModal').style.display = 'flex';
-        });
-
-        document.getElementById('userMenu').addEventListener('click', () => {
-          if (confirm('确定要退出登录吗？')) {
-            Storage.clearUserData();
-            window.location.href = 'auth.html';
-          }
-        });
-
-        document.getElementById('refreshPathBtn').addEventListener('click', () => {
-          this.loadLearningPath();
-        });
+        // 绑定事件
       }
     }
 

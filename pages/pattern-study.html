@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>定式库学习 - 围棋对弈复盘</title>
-  <meta name="description" content="学习26个经典围棋定式，提升棋力">
+  <title>定式学习 - 围棋对弈复盘</title>
+  <meta name="description" content="学习围棋定式，掌握经典棋形变化">
   <meta name="keywords" content="围棋,定式库,围棋学习,星位定式,小目定式">
   <meta name="author" content="围棋对弈复盘">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="定式库学习 - 围棋对弈复盘">
-  <meta property="og:description" content="学习26个经典围棋定式，提升棋力">
+  <meta property="og:title" content="定式学习 - 围棋对弈复盘">
+  <meta property="og:description" content="学习围棋定式，掌握经典棋形变化">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#C4A35A">
@@ -20,9 +20,203 @@
   <style>
     .pattern-page { display: flex; flex-direction: column; min-height: 100vh; }
     .header-left { display: flex; align-items: center; gap: 16px; }
-    main { flex: 1; padding: 24px; max-width: 1600px; margin: 0 auto; width: 100%; }
+    main { flex: 1; padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+    .study-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .board-section {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-medium);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .board-section canvas {
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-medium);
+    }
+
+    .info-card h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+    }
+
+    .info-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .category-tag {
+      background: var(--accent-gold);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .difficulty-stars {
+      color: var(--accent-gold);
+      font-size: 0.9rem;
+    }
+
+    .description {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .key-points h3 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .key-points ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .key-points li {
+      padding: 10px 14px;
+      background: var(--bg-secondary);
+      margin-bottom: 8px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      border-left: 3px solid var(--accent-gold);
+    }
+
+    .variations-card h3 {
+      font-size: 1rem;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .variation-btn {
+      display: block;
+      width: 100%;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .variation-btn:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+
+    .variation-btn.active {
+      background: var(--accent-gold);
+      color: white;
+      border-color: var(--accent-gold);
+    }
+
+    .controls-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .control-btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      background: var(--accent-gold);
+      color: white;
+    }
+
+    .control-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .move-info {
+      text-align: center;
+      padding: 10px 16px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .nav-links a {
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .error-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-secondary);
+    }
+
+    .error-state h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
     @media (max-width: 768px) {
       main { padding: 16px; }
+      .study-layout {
+        grid-template-columns: 1fr;
+      }
+      .board-section { padding: 16px; }
+      .controls-row { flex-direction: column; align-items: stretch; }
+      .control-btn { width: 100%; }
     }
   </style>
 </head>
@@ -31,13 +225,13 @@
   <div class="pattern-page">
     <header>
       <div class="header-left">
-        <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" aria-label="返回首页">← 返回首页</a>
-        <h1 style="font-family: 'Noto Serif SC', serif; font-size: 1.3rem; font-weight: 600;">定式库学习</h1>
+        <a href="pattern-list.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" aria-label="返回列表">← 返回列表</a>
+        <h1 style="font-family: 'Noto Serif SC', serif; font-size: 1.3rem; font-weight: 600;">定式学习</h1>
       </div>
     </header>
 
     <main id="main-content">
-      <div id="pattern-study-container"></div>
+      <div id="study-container"></div>
     </main>
   </div>
 
@@ -48,33 +242,308 @@
   <script src="../js/analytics.js?v=6"></script>
   <script src="../js/storage.js?v=6"></script>
   <script src="../js/theme.js?v=6"></script>
-  <script src="../js/ai.js?v=6"></script>
   <script src="../js/pattern-library.js?v=6"></script>
   <script src="../js/header.js?v=6"></script>
   <script>
-    class PatternStudyApp {
+    class SinglePatternStudyApp {
       constructor() {
         this.init();
       }
 
       init() {
         Header.init({ showSettings: true });
-        this.renderStudyUI();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const patternId = urlParams.get('id');
+
+        if (!patternId) {
+          this.renderError('未指定定式', '请从定式列表中选择一个定式进行学习。');
+          return;
+        }
+
+        this.library = new PatternLibrary();
+        this.library.loadPatterns();
+        this.pattern = this.library.getById(patternId);
+
+        if (!this.pattern) {
+          this.renderError('定式未找到', '该定式不存在或已被删除。');
+          return;
+        }
+
+        this.library.markAsStudied(patternId);
+        this.renderStudy();
       }
 
-      renderStudyUI() {
-        try {
-          const studyUI = new PatternStudyUI('pattern-study-container');
-          window.patternStudyUI = studyUI;
-        } catch (error) {
-          console.error('定式学习页面加载失败:', error);
-          showToast('定式库加载失败，请刷新重试', 'error');
+      renderError(title, message) {
+        const container = document.getElementById('study-container');
+        container.innerHTML = `
+          <div class="error-state">
+            <h2>${title}</h2>
+            <p>${message}</p>
+            <div class="nav-links" style="justify-content: center; margin-top: 24px;">
+              <a href="pattern-list.html">← 返回定式列表</a>
+              <a href="home.html">返回首页</a>
+            </div>
+          </div>
+        `;
+      }
+
+      renderStudy() {
+        const container = document.getElementById('study-container');
+        const p = this.pattern;
+        const stars = '★'.repeat(p.difficulty) + '☆'.repeat(5 - p.difficulty);
+        const variations = p.variations || [];
+
+        container.innerHTML = `
+          <div class="study-layout">
+            <div class="board-section">
+              <canvas id="study-canvas"></canvas>
+              <div class="controls-row">
+                <button class="control-btn" data-action="first">⏮ 到开始</button>
+                <button class="control-btn" data-action="prev">◀ 上一步</button>
+                <button class="control-btn" data-action="next">下一步 ▶</button>
+                <button class="control-btn" data-action="last">到结束 ⏭</button>
+                <button class="control-btn" data-action="play" style="background: var(--success);">▶ 播放</button>
+              </div>
+              <div class="move-info" id="move-info">第 0 / ${p.moves.length} 手</div>
+            </div>
+
+            <div class="info-section">
+              <div class="info-card">
+                <h2>${p.name}</h2>
+                <div class="info-meta">
+                  <span class="category-tag">${p.category}</span>
+                  <span class="difficulty-stars">${stars}</span>
+                </div>
+                <p class="description">${p.description}</p>
+                <div class="key-points">
+                  <h3>要点</h3>
+                  <ul>${p.keyPoints.map(kp => `<li>${kp}</li>`).join('')}</ul>
+                </div>
+                <div class="nav-links">
+                  <a href="pattern-list.html">← 返回列表</a>
+                </div>
+              </div>
+
+              ${variations.length > 0 ? `
+                <div class="info-card variations-card">
+                  <h3>变化图</h3>
+                  <button class="variation-btn active" data-variation="0">基本型</button>
+                  ${variations.map((v, i) => `<button class="variation-btn" data-variation="${i + 1}">${v.name}</button>`).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+
+        this.setupBoard();
+        this.bindControls();
+      }
+
+      setupBoard() {
+        this.canvas = document.getElementById('study-canvas');
+        this.currentMove = 0;
+        this.currentVariation = 0;
+        this.autoPlay = false;
+        this.autoPlayInterval = null;
+
+        const boardSize = 19;
+        const cellSize = Math.min(28, Math.floor((Math.min(window.innerWidth - 80, 520)) / boardSize));
+        const padding = 20;
+        const canvasSize = cellSize * (boardSize - 1) + padding * 2;
+
+        this.canvas.width = canvasSize;
+        this.canvas.height = canvasSize;
+        this.canvas.style.width = `${canvasSize}px`;
+        this.canvas.style.height = `${canvasSize}px`;
+
+        this.boardSize = boardSize;
+        this.cellSize = cellSize;
+        this.padding = padding;
+        this.ctx = this.canvas.getContext('2d');
+
+        this.drawBoard();
+      }
+
+      getCurrentMoves() {
+        if (this.currentVariation === 0) {
+          return this.pattern.moves;
+        }
+        const variations = this.pattern.variations || [];
+        return variations[this.currentVariation - 1]?.moves || this.pattern.moves;
+      }
+
+      drawBoard() {
+        const ctx = this.ctx;
+        const { cellSize, padding, boardSize } = this;
+
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        ctx.fillStyle = '#DEB887';
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+
+        for (let i = 0; i < boardSize; i++) {
+          const pos = padding + i * cellSize;
+          ctx.beginPath();
+          ctx.moveTo(padding, pos);
+          ctx.lineTo(padding + (boardSize - 1) * cellSize, pos);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(pos, padding);
+          ctx.lineTo(pos, padding + (boardSize - 1) * cellSize);
+          ctx.stroke();
+        }
+
+        const starPoints = [[3, 3], [9, 3], [15, 3], [3, 9], [9, 9], [15, 9], [3, 15], [9, 15], [15, 15]];
+        ctx.fillStyle = '#000';
+        starPoints.forEach(([x, y]) => {
+          ctx.beginPath();
+          ctx.arc(padding + x * cellSize, padding + y * cellSize, 3, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        const moves = this.getCurrentMoves();
+        for (let i = 0; i < Math.min(this.currentMove, moves.length); i++) {
+          const move = moves[i];
+          this.drawStone(move.x, move.y, move.color, i + 1, i === this.currentMove - 1);
+        }
+
+        const info = document.getElementById('move-info');
+        if (info) {
+          info.textContent = `第 ${this.currentMove} / ${moves.length} 手`;
+        }
+      }
+
+      drawStone(x, y, color, moveNumber = null, isLast = false) {
+        const ctx = this.ctx;
+        const { cellSize, padding } = this;
+        const px = padding + x * cellSize;
+        const py = padding + y * cellSize;
+        const radius = cellSize * 0.4;
+
+        ctx.beginPath();
+        ctx.arc(px, py, radius, 0, Math.PI * 2);
+
+        if (color === 'black') {
+          const gradient = ctx.createRadialGradient(px - radius * 0.3, py - radius * 0.3, 0, px, py, radius);
+          gradient.addColorStop(0, '#666');
+          gradient.addColorStop(1, '#000');
+          ctx.fillStyle = gradient;
+        } else {
+          const gradient = ctx.createRadialGradient(px - radius * 0.3, py - radius * 0.3, 0, px, py, radius);
+          gradient.addColorStop(0, '#fff');
+          gradient.addColorStop(0.7, '#ddd');
+          gradient.addColorStop(1, '#aaa');
+          ctx.fillStyle = gradient;
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 1;
+        }
+
+        ctx.fill();
+        if (color === 'white') { ctx.stroke(); }
+
+        if (isLast) {
+          ctx.beginPath();
+          ctx.arc(px, py, radius * 0.2, 0, Math.PI * 2);
+          ctx.fillStyle = '#c41e3a';
+          ctx.fill();
+        }
+
+        if (moveNumber) {
+          ctx.fillStyle = color === 'black' ? '#fff' : '#000';
+          ctx.font = `bold ${cellSize * 0.35}px Arial`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(moveNumber.toString(), px, py);
+        }
+      }
+
+      bindControls() {
+        const container = document.getElementById('study-container');
+
+        container.addEventListener('click', (e) => {
+          const btn = e.target.closest('.control-btn');
+          if (!btn) return;
+
+          const action = btn.dataset.action;
+          switch (action) {
+            case 'first': this.goToStart(); break;
+            case 'prev': this.prevMove(); break;
+            case 'next': this.nextMove(); break;
+            case 'last': this.goToEnd(); break;
+            case 'play': this.toggleAutoPlay(btn); break;
+          }
+        });
+
+        container.addEventListener('click', (e) => {
+          const btn = e.target.closest('.variation-btn');
+          if (!btn) return;
+
+          this.currentVariation = parseInt(btn.dataset.variation);
+          this.currentMove = 0;
+          this.drawBoard();
+
+          container.querySelectorAll('.variation-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      }
+
+      goToStart() {
+        this.currentMove = 0;
+        this.drawBoard();
+      }
+
+      goToEnd() {
+        this.currentMove = this.getCurrentMoves().length;
+        this.drawBoard();
+      }
+
+      nextMove() {
+        const moves = this.getCurrentMoves();
+        if (this.currentMove < moves.length) {
+          this.currentMove++;
+          this.drawBoard();
+        }
+      }
+
+      prevMove() {
+        if (this.currentMove > 0) {
+          this.currentMove--;
+          this.drawBoard();
+        }
+      }
+
+      toggleAutoPlay(btn) {
+        this.autoPlay = !this.autoPlay;
+        btn.textContent = this.autoPlay ? '⏸ 暂停' : '▶ 播放';
+
+        if (this.autoPlay) {
+          this.autoPlayInterval = setInterval(() => {
+            const moves = this.getCurrentMoves();
+            if (this.currentMove < moves.length) {
+              this.nextMove();
+            } else {
+              this.toggleAutoPlay(btn);
+            }
+          }, 1000);
+        } else {
+          clearInterval(this.autoPlayInterval);
+          this.autoPlayInterval = null;
         }
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      new PatternStudyApp();
+      try {
+        new SinglePatternStudyApp();
+      } catch (error) {
+        console.error('定式学习页面加载失败:', error);
+        showToast('定式学习页面加载失败，请刷新重试', 'error');
+      }
     });
   </script>
 </body>

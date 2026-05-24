@@ -109,11 +109,10 @@
         setTimeout(() => {
           this.statsData = {
             games: Storage.getSavedGames(),
-            tsumego: Storage.getTsumegoProgress(),
             username: Storage.getUsername()
           };
 
-          const hasData = this.statsData.games.length > 0 || Object.keys(this.statsData.tsumego).length > 0;
+          const hasData = this.statsData.games.length > 0;
 
           loadingState.style.display = 'none';
 
@@ -139,12 +138,9 @@
           summary: {
             totalGames: this.statsData.games.length,
             wins: this.statsData.games.filter(g => g.result === 'win').length,
-            losses: this.statsData.games.filter(g => g.result === 'loss').length,
-            totalTsumego: Object.values(this.statsData.tsumego).reduce((sum, s) => sum + (s.attempts || 0), 0),
-            correctTsumego: Object.values(this.statsData.tsumego).reduce((sum, s) => sum + (s.correct || 0), 0)
+            losses: this.statsData.games.filter(g => g.result === 'loss').length
           },
-          games: this.statsData.games,
-          tsumego: this.statsData.tsumego
+          games: this.statsData.games
         };
 
         const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });

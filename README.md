@@ -10,8 +10,8 @@
 - ⏱️ **计时器**：双方独立计时，支持暂停、封盘
 - 📝 **棋谱记录**：完整记录对局过程，支持悔棋
 - 🤖 **AI 复盘**：使用 OpenRouter API 提供全局复盘和单步评分
-- 🎓 **死活题练习**：包含 50 道经典死活题，支持提示、答案、错题本
 - 📖 **经典打谱**：收录名家名局，每步都有详细讲解，支持自动播放回放
+- 📐 **定式库学习**：经典定式列表选择，进入棋盘练习和测试
 
 ### 进阶功能
 - 📊 **数据统计**：成长曲线、能力雷达图，支持时间维度筛选和数据导出
@@ -127,16 +127,6 @@ npm run lint
 4. 点击棋盘上的手数查看单步评分
 5. 点击 **评价这手** 获取详细分析
 
-### 死活题练习
-
-1. 在首页点击 **死活题练习**
-2. 选择题目难度和位置筛选
-3. 点击棋盘空位落子答题
-4. 使用 **提示** 获取提示
-5. 使用 **查看答案** 查看完整答案
-6. 使用 **重置** 重新开始
-7. 错题会自动加入 **错题本**，方便复习
-
 ### 经典打谱
 
 1. 在首页点击 **经典打谱**
@@ -164,8 +154,6 @@ go-game-project/
 │   ├── board-component.js # 棋盘组件
 │   ├── theme.js           # 主题管理
 │   ├── statistics.js      # 数据统计
-│   ├── tsumego-data.js    # 死活题题库
-│   ├── tsumego-storage.js # 死活题进度存储
 │   ├── kifu-data.js       # 经典棋谱数据
 │   ├── kifu-editor.js     # 棋谱编辑器
 │   ├── pattern-library.js # 定式库
@@ -192,13 +180,11 @@ go-game-project/
 │   ├── ai-setup.html       # AI对弈设置
 │   ├── game.html           # 对弈页
 │   ├── review.html         # 复盘页
-│   ├── tsumego-list.html   # 死活题列表
-│   ├── tsumego.html        # 死活题练习
 │   ├── pattern-study.html  # 定式学习
 │   ├── kifu.html           # 经典打谱列表
 │   ├── kifu-player.html    # 打谱回放页
 │   ├── statistics.html     # 数据统计
-│   └── practice.html       # 练习页
+│   ├── pattern-list.html   # 定式列表页
 ├── tests/
 │   ├── unit/               # 单元测试（Jest）
 │   │   ├── setup.js
@@ -263,6 +249,7 @@ go-game-project/
 ## 📝 更新日志
 
 ### 2024-05-24 (最新)
+- 🗑️ **移除死活题模块**：删除 tsumego-data.js、tsumego-storage.js、tsumego.html、tsumego-list.html、practice.html 及相关引用
 - 👆 **手势操作**：移动端支持双指缩放棋盘（1x-3x）、单指平移浏览、双击还原，已集成到 game.html 和 ai-match.html
 - 🎨 **更多棋盘主题**：新增 6 种主题（樱花粉红、深海蓝调、翠竹青韵、岩石灰调、落日余晖、水墨丹青），共 10 种主题可选
 - ⚛️ **React 版本完善**：重写为完整 React 应用，包含首页、对局设置、游戏界面、主题设置页面

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>定式库 - 围棋对弈复盘</title>
+  <meta name="description" content="浏览和选择围棋定式进行学习">
+  <meta name="keywords" content="围棋,定式库,围棋学习,星位定式,小目定式">
+  <meta name="author" content="围棋对弈复盘">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="定式库 - 围棋对弈复盘">
+  <meta property="og:description" content="浏览和选择围棋定式进行学习">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#C4A35A">
+  <link rel="manifest" href="../manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400,600,700&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/pattern-library.css">
+  <style>
+    .pattern-list-page { display: flex; flex-direction: column; min-height: 100vh; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    main { flex: 1; padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+    .list-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .list-header h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .list-header p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .list-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+      align-items: center;
+      justify-content: center;
+    }
+    .list-filters .search-box {
+      flex: 1;
+      min-width: 200px;
+      max-width: 400px;
+      padding: 0;
+      border: none;
+    }
+    .list-filters .search-box input {
+      width: 100%;
+    }
+    .list-filters .category-filters {
+      padding: 0;
+      border: none;
+    }
+    .list-filters .difficulty-filter {
+      padding: 0;
+      border: none;
+    }
+    .list-filters .difficulty-filter select {
+      width: auto;
+      min-width: 120px;
+    }
+
+    .patterns-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .pattern-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: 2px solid transparent;
+      position: relative;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .pattern-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+      border-color: var(--accent-gold);
+    }
+    .pattern-card .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+    .pattern-card .card-header h4 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      font-weight: 600;
+      flex: 1;
+      margin: 0;
+    }
+    .pattern-card .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .pattern-card .category-tag {
+      background: var(--accent-gold);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .pattern-card .difficulty {
+      color: var(--accent-gold);
+      font-size: 0.85rem;
+    }
+    .pattern-card .card-preview {
+      width: 100%;
+      height: 80px;
+      background: var(--board-wood);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .pattern-card .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .pattern-card .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+    .pattern-card .moves-count {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .pattern-card .study-btn {
+      font-size: 0.8rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+    .pattern-card.studied {
+      background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+    }
+    .studied-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--success);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+      grid-column: 1 / -1;
+    }
+    .empty-state p {
+      font-size: 1.1rem;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 768px) {
+      main { padding: 16px; }
+      .list-header h1 { font-size: 1.4rem; }
+      .patterns-grid { grid-template-columns: 1fr; }
+      .list-filters { flex-direction: column; align-items: stretch; }
+      .list-filters .search-box { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
+  <div class="pattern-list-page">
+    <header>
+      <div class="header-left">
+        <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" aria-label="返回首页">← 返回首页</a>
+        <h1 style="font-family: 'Noto Serif SC', serif; font-size: 1.3rem; font-weight: 600;">定式库</h1>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <div class="list-header">
+        <h1>📐 定式库</h1>
+        <p>选择定式开始学习，掌握经典棋形变化</p>
+      </div>
+
+      <div class="list-filters">
+        <div class="search-box">
+          <input type="text" id="pattern-search" placeholder="搜索定式名称或描述..." />
+        </div>
+        <div class="category-filters">
+          <button class="category-btn active" data-category="all">全部</button>
+          <button class="category-btn" data-category="星位">星位</button>
+          <button class="category-btn" data-category="小目">小目</button>
+          <button class="category-btn" data-category="目外">目外</button>
+          <button class="category-btn" data-category="三三">三三</button>
+          <button class="category-btn" data-category="布局">布局</button>
+          <button class="category-btn" data-category="高目">高目</button>
+        </div>
+        <div class="difficulty-filter">
+          <select id="difficulty-select">
+            <option value="all">全部难度</option>
+            <option value="1">入门</option>
+            <option value="2">基础</option>
+            <option value="3">进阶</option>
+            <option value="4">高手</option>
+            <option value="5">大师</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="patterns-grid" id="patterns-grid"></div>
+    </main>
+  </div>
+
+  <script src="../js/utils.js?v=6"></script>
+  <script src="../js/error-handler.js?v=6"></script>
+  <script src="../js/loading.js?v=6"></script>
+  <script src="../js/focus-manager.js?v=6"></script>
+  <script src="../js/analytics.js?v=6"></script>
+  <script src="../js/storage.js?v=6"></script>
+  <script src="../js/theme.js?v=6"></script>
+  <script src="../js/pattern-library.js?v=6"></script>
+  <script src="../js/header.js?v=6"></script>
+  <script>
+    class PatternListApp {
+      constructor() {
+        this.library = new PatternLibrary();
+        this.library.loadPatterns();
+        this.currentCategory = 'all';
+        this.searchKeyword = '';
+        this.init();
+      }
+
+      init() {
+        Header.init({ showSettings: true });
+        this.renderGrid();
+        this.bindEvents();
+        this.drawPreviews();
+      }
+
+      getFilteredPatterns() {
+        let patterns = this.library.getAll();
+        if (this.currentCategory !== 'all') {
+          patterns = patterns.filter(p => p.category === this.currentCategory);
+        }
+        if (this.searchKeyword) {
+          const kw = this.searchKeyword.toLowerCase();
+          patterns = patterns.filter(p =>
+            p.name.toLowerCase().includes(kw) ||
+            p.description.toLowerCase().includes(kw) ||
+            p.keyPoints.some(k => k.toLowerCase().includes(kw))
+          );
+        }
+        const difficulty = document.getElementById('difficulty-select')?.value;
+        if (difficulty && difficulty !== 'all') {
+          patterns = patterns.filter(p => p.difficulty === parseInt(difficulty));
+        }
+        return patterns;
+      }
+
+      renderGrid() {
+        const grid = document.getElementById('patterns-grid');
+        const patterns = this.getFilteredPatterns();
+
+        if (patterns.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state">
+              <p>没有找到匹配的定式</p>
+              <p style="font-size: 0.9rem; margin-top: 8px;">尝试更换筛选条件</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = patterns.map(p => this.createCard(p)).join('');
+      }
+
+      createCard(pattern) {
+        const stars = '★'.repeat(pattern.difficulty) + '☆'.repeat(5 - pattern.difficulty);
+        const isStudied = this.library.progress.studied.includes(pattern.id);
+        const movesCount = pattern.moves.length;
+        const variationCount = (pattern.variations || []).length;
+
+        return `
+          <a href="pattern-study.html?id=${pattern.id}" class="pattern-card ${isStudied ? 'studied' : ''}" data-id="${pattern.id}">
+            ${isStudied ? '<div class="studied-badge">已学习</div>' : ''}
+            <div class="card-header">
+              <h4>${pattern.name}</h4>
+            </div>
+            <div class="card-meta">
+              <span class="category-tag">${pattern.category}</span>
+              <span class="difficulty">${stars}</span>
+            </div>
+            <div class="card-preview">
+              <canvas class="preview-canvas" data-pattern="${pattern.id}"></canvas>
+            </div>
+            <div class="card-desc">${pattern.description}</div>
+            <div class="card-footer">
+              <span class="moves-count">${movesCount}手${variationCount > 0 ? ' · ' + variationCount + '变化' : ''}</span>
+              <span class="study-btn">开始学习 →</span>
+            </div>
+          </a>
+        `;
+      }
+
+      drawPreviews() {
+        const canvases = document.querySelectorAll('.preview-canvas');
+        canvases.forEach(canvas => {
+          const patternId = canvas.dataset.pattern;
+          const pattern = this.library.getById(patternId);
+          if (!pattern) return;
+
+          const boardSize = 19;
+          const cellSize = 4;
+          const padding = 3;
+          const canvasSize = cellSize * (boardSize - 1) + padding * 2;
+
+          canvas.width = canvasSize;
+          canvas.height = canvasSize;
+
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#DEB887';
+          ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 0.5;
+          for (let i = 0; i < boardSize; i++) {
+            const pos = padding + i * cellSize;
+            ctx.beginPath();
+            ctx.moveTo(padding, pos);
+            ctx.lineTo(padding + (boardSize - 1) * cellSize, pos);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos, padding);
+            ctx.lineTo(pos, padding + (boardSize - 1) * cellSize);
+            ctx.stroke();
+          }
+
+          const previewMoves = pattern.moves.slice(0, Math.min(8, pattern.moves.length));
+          previewMoves.forEach(move => {
+            const px = padding + move.x * cellSize;
+            const py = padding + move.y * cellSize;
+            const radius = cellSize * 0.4;
+            ctx.beginPath();
+            ctx.arc(px, py, radius, 0, Math.PI * 2);
+            ctx.fillStyle = move.color === 'black' ? '#000' : '#fff';
+            ctx.fill();
+            if (move.color === 'white') {
+              ctx.strokeStyle = '#000';
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          });
+        });
+      }
+
+      bindEvents() {
+        const searchInput = document.getElementById('pattern-search');
+        if (searchInput) {
+          searchInput.addEventListener('input', (e) => {
+            this.searchKeyword = e.target.value;
+            this.renderGrid();
+            this.drawPreviews();
+          });
+        }
+
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        categoryBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            this.currentCategory = btn.dataset.category;
+            categoryBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            this.renderGrid();
+            this.drawPreviews();
+          });
+        });
+
+        const difficultySelect = document.getElementById('difficulty-select');
+        if (difficultySelect) {
+          difficultySelect.addEventListener('change', () => {
+            this.renderGrid();
+            this.drawPreviews();
+          });
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        new PatternListApp();
+      } catch (error) {
+        console.error('定式列表页面加载失败:', error);
+        showToast('定式列表加载失败，请刷新重试', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
