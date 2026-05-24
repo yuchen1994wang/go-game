@@ -328,7 +328,7 @@
           const y = parseInt(intersection.dataset.y);
           const stone = intersection.querySelector('.stone');
 
-          if (stone) stone.remove();
+          if (stone) {stone.remove();}
 
           const cellValue = this.game.board[y][x];
           if (cellValue !== 0) {
@@ -367,7 +367,7 @@
       }
 
       goToMove(index) {
-        if (index < -1 || index >= this.gameData.moveHistory.length) return;
+        if (index < -1 || index >= this.gameData.moveHistory.length) {return;}
 
         this.game = new GoGame(this.gameData.size);
         this.currentMove = index;
@@ -554,7 +554,7 @@
       }
 
       deleteGame() {
-        if (!confirm('确定要删除这局棋谱吗？此操作不可恢复。')) return;
+        if (!confirm('确定要删除这局棋谱吗？此操作不可恢复。')) {return;}
 
         const games = Storage.getSavedGames();
         const index = games.findIndex(g => g.id === this.gameData.id);
@@ -596,7 +596,7 @@
 
         // 键盘快捷键
         document.addEventListener('keydown', (e) => {
-          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {return;}
 
           switch (e.key) {
             case 'ArrowLeft':

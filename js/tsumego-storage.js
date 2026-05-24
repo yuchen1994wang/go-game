@@ -132,7 +132,7 @@ const TsumegoStorage = {
 
   // 格式化时间显示
   formatTime(ms) {
-    if (!ms) return '--';
+    if (!ms) {return '--';}
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;

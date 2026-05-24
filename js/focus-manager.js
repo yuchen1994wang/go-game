@@ -47,17 +47,17 @@ class FocusManager {
       settingsModal.classList.remove('show');
       // 恢复焦点到设置按钮
       const settingsBtn = document.querySelector('[data-action="settings"]');
-      if (settingsBtn) settingsBtn.focus();
+      if (settingsBtn) {settingsBtn.focus();}
     }
   }
 
   // Tab 键处理
   handleTab(e) {
     const trap = this.trapStack[this.trapStack.length - 1];
-    if (!trap) return;
+    if (!trap) {return;}
 
     const focusableElements = this.getFocusableElements(trap.container);
-    if (focusableElements.length === 0) return;
+    if (focusableElements.length === 0) {return;}
 
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -200,7 +200,7 @@ class FocusManager {
   // 添加跳过链接
   addSkipLink(targetId, text = '跳过导航，直接进入主内容') {
     const existingSkipLink = document.querySelector('.skip-link');
-    if (existingSkipLink) return;
+    if (existingSkipLink) {return;}
 
     const skipLink = document.createElement('a');
     skipLink.href = `#${targetId}`;
@@ -221,7 +221,7 @@ class FocusManager {
   // 为棋盘交叉点添加键盘支持
   enableBoardKeyboardNavigation(boardContainer, onMove) {
     const intersections = boardContainer.querySelectorAll('.intersection');
-    let currentIndex = 0;
+    const currentIndex = 0;
 
     intersections.forEach((intersection, index) => {
       intersection.setAttribute('tabindex', index === 0 ? '0' : '-1');
@@ -254,7 +254,7 @@ class FocusManager {
             e.preventDefault();
             const x = parseInt(intersection.dataset.x);
             const y = parseInt(intersection.dataset.y);
-            if (onMove) onMove(x, y);
+            if (onMove) {onMove(x, y);}
             return;
         }
 

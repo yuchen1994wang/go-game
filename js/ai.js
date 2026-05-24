@@ -16,10 +16,11 @@ class AIAnalyzer {
     const blackMoves = game.moveHistory.filter(m => m.player === 1).length;
     const whiteMoves = game.moveHistory.filter(m => m.player === 2).length;
     const captures = game.moveHistory.reduce((sum, m) => sum + (m.captured ? m.captured.length : 0), 0);
+    const currentScore = game.calculateScore ? game.calculateScore() : { blackScore: 0, whiteScore: 6.5 };
 
-    const prompt = `你是一位专业的围棋教练。请对以下围棋对局进行全局复盘分析：
+    const prompt = `你是一位拥有职业棋手水平的围棋教练，精通现代围棋理念和AI时代的先进下法。请对以下围棋对局进行深度复盘分析：
 
-对局信息：
+【对局基本信息】
 - 棋盘大小：${game.size}路
 - 黑方：${game.blackPlayer}
 - 白方：${game.whitePlayer}
@@ -27,6 +28,7 @@ class AIAnalyzer {
 - 黑方手数：${blackMoves}
 - 白方手数：${whiteMoves}
 - 总提子数：${captures}
+- 当前局面分差：黑 ${currentScore.blackScore} 目 vs 白 ${currentScore.whiteScore} 目（含贴目）
 
 SGF棋谱：${sgf}
 
@@ -34,26 +36,62 @@ SGF棋谱：${sgf}
 - 请使用棋盘显示的坐标系统：横向使用大写字母A-J（不含I），纵向使用数字1-${game.size}（从下往上）
 - 例如：棋盘左下角是A1，右下角是J1，左上角是A${game.size}，右上角是J${game.size}
 
-请从以下几个方面进行分析（用中文回答）：
+【分析要求】
+请从以下几个方面进行专业且有深度的分析（全部用中文回答）：
 
-### 1. 全局评价
-- 开局评价（布局是否合理）
-- 中盘要点（关键战斗和转换）
-- 双方优劣判断
-- 改进建议
+---
 
-### 2. 本局最佳手（1-5手）
-请明确列出本局中最好的1-5手棋，每手包含：
-- 手数序号和坐标
-- 为什么这手棋好（简明扼要）
+### 📊 1. 全局综合评价（300-500字）
+**【开局阶段】**（前20-30手）
+- 布局构思评估（大场选择、棋子配合、棋形效率）
+- 关键得失判断
+- 与现代AI布局的对比（如有明显差异）
 
-### 3. 本局最差手（1-5手）
-请明确列出本局中最差的1-5手棋，每手包含：
-- 手数序号和坐标
-- 为什么这手棋差（简明扼要）
-- 更好的下法建议
+**【中盘战斗】**
+- 关键战役和转换分析
+- 得失判断和形势转折点
+- 死活和手筋的运用
 
-请给出专业但易懂的分析。`;
+**【收官阶段】**
+- 收官次序是否正确
+- 目数计算精度
+- 官子技术评价
+
+---
+
+### 🏆 2. 本局最佳手（TOP 3）
+请列出本局最精彩的3手棋，每手包含：
+- **第X手 | 坐标**
+- **类型**：妙手/好手/手筋/治孤/攻击等
+- **精彩之处**：2-3句话说明这手棋的战略价值、计算深度、或巧妙之处
+- **带来的收益**：实地/外势/厚薄/胜率等方面的提升
+
+---
+
+### 💡 3. 本局值得改进的地方（3-5处）
+请指出本局中最需要改进的地方，包含：
+- **第X手 | 坐标**
+- **问题分析**：简明说明这手棋的问题（棋形、方向、时机、厚薄判断等）
+- **改进建议**：推荐更好的下法及理由
+
+---
+
+### 📈 4. 形势走势判断
+请用简明的语言描述本局的形势走向：
+- 哪几手是关键转折点
+- 双方各自的优势期
+- 最终胜负的关键因素
+
+---
+
+### 🎯 5. 学习要点
+针对本局特点，提出3-5个可以着重学习和练习的方向。
+
+【语言风格要求】
+- 专业但易懂，避免过于晦涩
+- 重点突出，条理清晰
+- 多用比喻帮助理解
+- 控制在2000字以内`;
 
     try {
       console.log('AI分析开始，请求OpenRouter API...');
@@ -117,52 +155,58 @@ SGF棋谱：${sgf}
     
     // 构建前面所有棋步的信息
     const previousMoves = game.moveHistory.slice(0, moveIndex).map((m, i) => {
-      if (m.pass) return `${i + 1}. ${m.playerName} Pass`;
+      if (m.pass) {return `${i + 1}. ${m.playerName} Pass`;}
       const pos = `${letters[m.x]}${game.size - m.y}`;
       const cap = m.captured && m.captured.length > 0 ? ` (提${m.captured.length}子)` : '';
       return `${i + 1}. ${m.playerName} ${pos}${cap}`;
     }).join('\n');
     
-    const prompt = `你是一位专业的围棋教练。请评价以下围棋对局中的特定一步棋。
+    const prompt = `你是一位拥有职业水平的围棋教练，精通形势判断和棋步分析。请评价以下围棋对局中的特定一步棋。
 
-【重要：必须结合前面所有已下棋步造成的当前形势来综合评价这一步棋】
+【重要要求】
+- 必须**结合前面所有已下棋步形成的完整形势**来综合评价，不要孤立看这一手
+- 分析要考虑：厚薄、实地、外势、棋形、配合、死活、时机等多个维度
+- 用教练的视角，既要指出问题，也要给出明确的改进方向
 
-棋局信息：
+【对局信息】
 - 棋盘大小：${game.size}路
 - 黑方：${game.blackPlayer}
 - 白方：${game.whitePlayer}
+- 当前手数：${moveIndex + 1}手
 
-前面已下的所有棋步（请仔细分析这些棋步形成的当前形势）：
+【前面已下棋步】（用于形势判断）
 ${previousMoves}
 
-需要评价的第${moveIndex + 1}手棋：
+【需要评价的棋步】
+- 手数：第${moveIndex + 1}手
 - 棋手：${currentMove.playerName}
 - 落子位置：${currentPos}
+- 是否提子：${currentMove.captured && currentMove.captured.length > 0 ? `提了${currentMove.captured.length}子` : '无提子'}
 
-【重要：坐标说明】
+【坐标说明】
 - 请使用棋盘显示的坐标系统：横向使用大写字母A-J（不含I），纵向使用数字1-${game.size}（从下往上）
 - 例如：棋盘左下角是A1，右下角是J1，左上角是A${game.size}，右上角是J${game.size}
 
-【评价要求】
-1. 先分析前面所有棋步形成的当前形势（厚薄、实地、外势、死活等）
-2. 在此基础上评价这手棋：是否顺应了当前形势？是否改善了局面？
-3. 考虑全局配合，不要孤立评价这一手
+【评分标准（-100到+100）】
+- +90~+100: 【妙手】神之一手，兼具创意和实战价值
+- +70~+89: 【好棋】准确高效，明显改善局面
+- +40~+69: 【可以】合理应对，没有明显问题
+- +10~+39: 【普通】一般选择，虽非最佳但可接受
+- -10~+9: 【略有不足】有小问题，但不致命
+- -40~-11: 【需要改进】有明显问题，需要调整
+- -70~-41: 【严重失误】判断错误，损失较大
+- -100~-71: 【败着】战略性错误，直接影响胜负
 
-评分标准（-100到+100）：
-- +80到+100：妙手！神之一手，非常精彩
-- +50到+79：好棋，正确且高效的选择
-- +20到+49：可以，合理的应对
-- +1到+19：略有不足，但可以接受
-- -1到-19：有问题，需要改进
-- -20到-49：不好，有明显失误
-- -50到-79：很差，明显的错误
-- -80到-100：败着，严重失误
-
-请用以下JSON格式返回：
+【输出格式】
+请严格用以下JSON格式返回，不要有其他文本：
 {
-  "score": 分数(-100到+100),
-  "analysis": "详细评价理由（必须包含对当前形势的分析，再评价这手棋）",
-  "suggestion": "如有更好的建议则提供，否则为空"
+  "score": 分数,
+  "current_situation": "当前形势分析（2-3句话，简明扼要）",
+  "move_analysis": "这手棋的具体评价（3-4句话，详细说明）",
+  "strengths": "这手棋的可取之处（如果有）",
+  "weaknesses": "这手棋的不足之处",
+  "suggestion": "更好的下法建议（坐标+理由）",
+  "learning_point": "通过这手棋可以学到什么"
 }`;
 
     try {
@@ -216,9 +260,19 @@ ${previousMoves}
         if (jsonMatch) {
           console.log('解析到JSON:', jsonMatch[0]);
           const result = JSON.parse(jsonMatch[0]);
+          
+          // 构建格式化的分析内容
+          const formattedAnalysis = `## AI 专业评价\n\n` +
+            `### 📊 当前形势\n${result.current_situation || '暂无形势分析'}\n\n` +
+            `### 🎯 棋步分析\n${result.move_analysis || '暂无详细分析'}\n\n` +
+            (result.strengths ? `### ✅ 可取之处\n${result.strengths}\n\n` : '') +
+            (result.weaknesses ? `### ⚠️ 不足之处\n${result.weaknesses}\n\n` : '') +
+            (result.suggestion ? `### 💡 改进建议\n${result.suggestion}\n\n` : '') +
+            (result.learning_point ? `### 📚 学习要点\n${result.learning_point}\n\n` : '');
+          
           return {
             score: Math.max(-100, Math.min(100, result.score || 0)),
-            analysis: result.analysis || content,
+            analysis: formattedAnalysis,
             suggestion: result.suggestion || ''
           };
         }

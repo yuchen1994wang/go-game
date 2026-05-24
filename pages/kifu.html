@@ -191,7 +191,7 @@
             const match = game.blackPlayer.toLowerCase().includes(query) ||
                          game.whitePlayer.toLowerCase().includes(query) ||
                          new Date(game.savedAt).toLocaleDateString().includes(query);
-            if (!match) return false;
+            if (!match) {return false;}
           }
 
           // 结果过滤
@@ -275,7 +275,7 @@
       }
 
       deleteGame(gameId) {
-        if (!confirm('确定要删除这局棋谱吗？此操作不可恢复。')) return;
+        if (!confirm('确定要删除这局棋谱吗？此操作不可恢复。')) {return;}
 
         const index = this.games.findIndex(g => g.id === gameId);
         if (index > -1) {

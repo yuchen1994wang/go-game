@@ -9,7 +9,7 @@ const TsumegoData = {
   },
 
   getByLocation(location) {
-    if (location === '全部') return this.problems;
+    if (location === '全部') {return this.problems;}
     return this.problems.filter(p => p.location === location);
   },
 
@@ -671,7 +671,7 @@ const TsumegoStats = {
 
   getAccuracy(id) {
     const stat = this.get(id);
-    if (stat.attempts === 0) return 0;
+    if (stat.attempts === 0) {return 0;}
     return Math.round((stat.correct / stat.attempts) * 100);
   },
 

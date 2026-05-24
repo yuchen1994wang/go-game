@@ -71,7 +71,7 @@ class ErrorHandler {
   showUserFeedback(errorInfo) {
     // 根据错误类型显示不同的提示
     let message = '操作失败，请重试';
-    let type = 'error';
+    const type = 'error';
 
     if (errorInfo.type === 'network') {
       message = '网络连接失败，请检查网络后重试';

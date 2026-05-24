@@ -136,7 +136,7 @@ class LoadingManager {
       overlay.style.opacity = '1';
       
       setTimeout(() => {
-        if (callback) callback();
+        if (callback) {callback();}
         
         // 淡入
         overlay.style.opacity = '0';

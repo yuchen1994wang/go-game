@@ -183,7 +183,7 @@
       }
       
       playStone() {
-        if (!this.enabled) return;
+        if (!this.enabled) {return;}
         this.init();
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -198,7 +198,7 @@
       }
       
       playCorrect() {
-        if (!this.enabled) return;
+        if (!this.enabled) {return;}
         this.init();
         const notes = [523.25, 659.25, 783.99];
         notes.forEach((freq, i) => {
@@ -218,7 +218,7 @@
       }
       
       playWrong() {
-        if (!this.enabled) return;
+        if (!this.enabled) {return;}
         this.init();
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -362,8 +362,8 @@
           let dots = '';
           for (let i = 0; i < this.totalSteps; i++) {
             let cls = 'step-dot';
-            if (i < this.completedSteps) cls += ' done';
-            else if (i === this.currentStep) cls += ' current';
+            if (i < this.completedSteps) {cls += ' done';}
+            else if (i === this.currentStep) {cls += ' current';}
             dots += `<div class="${cls}"></div>`;
           }
           indicator.innerHTML = dots;
@@ -452,8 +452,8 @@
       getStarPoints(size) {
         const points = [];
         if (size === 9) { points.push([2, 2], [2, 6], [4, 4], [6, 2], [6, 6]); }
-        else if (size === 13) { for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) points.push([3 + i * 3, 3 + j * 3]); }
-        else { for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) points.push([3 + i * 6, 3 + j * 6]); }
+        else if (size === 13) { for (let i = 0; i < 3; i++) {for (let j = 0; j < 3; j++) {points.push([3 + i * 3, 3 + j * 3]);}} }
+        else { for (let i = 0; i < 3; i++) {for (let j = 0; j < 3; j++) {points.push([3 + i * 6, 3 + j * 6]);}} }
         return points;
       }
 
@@ -475,7 +475,7 @@
         }
 
         const existingStone = intersection.querySelector('.stone');
-        if (existingStone) existingStone.remove();
+        if (existingStone) {existingStone.remove();}
 
         const stone = document.createElement('div');
         stone.className = 'stone ' + color + (className ? ' ' + className : '');
@@ -490,14 +490,14 @@
 
       removeStone(x, y) {
         const intersection = document.querySelector('.intersection[data-x="' + x + '"][data-y="' + y + '"]');
-        if (!intersection) return;
+        if (!intersection) {return;}
         const stone = intersection.querySelector('.stone');
-        if (stone) stone.remove();
+        if (stone) {stone.remove();}
       }
 
       removeStoneWithAnimation(x, y) {
         const intersection = document.querySelector('.intersection[data-x="' + x + '"][data-y="' + y + '"]');
-        if (!intersection) return;
+        if (!intersection) {return;}
         const stone = intersection.querySelector('.stone');
         if (stone) {
           stone.classList.remove('visible');
@@ -506,17 +506,17 @@
       }
 
       showPreview(x, y) {
-        if (this.isFinished || this.showedAnswer) return;
+        if (this.isFinished || this.showedAnswer) {return;}
         const intersection = document.querySelector('.intersection[data-x="' + x + '"][data-y="' + y + '"]');
-        if (!intersection || intersection.querySelector('.stone')) return;
+        if (!intersection || intersection.querySelector('.stone')) {return;}
         this.placeStone(x, y, 'black', false, 'preview');
       }
 
       hidePreview(x, y) {
         const intersection = document.querySelector('.intersection[data-x="' + x + '"][data-y="' + y + '"]');
-        if (!intersection) return;
+        if (!intersection) {return;}
         const stone = intersection.querySelector('.stone.preview');
-        if (stone) stone.remove();
+        if (stone) {stone.remove();}
       }
 
       getCurrentCorrectMoves() {
@@ -541,7 +541,7 @@
         
         // 先移除预览棋子
         const previewStone = intersection.querySelector('.stone.preview');
-        if (previewStone) previewStone.remove();
+        if (previewStone) {previewStone.remove();}
         
         if (intersection.querySelector('.stone')) {
           console.log('Rejected: stone already exists');
@@ -800,12 +800,12 @@
         document.getElementById('prevBtn').addEventListener('click', () => {
           const filtered = this.getFilteredProblems();
           const idx = filtered.findIndex(p => p.id === this.problemId);
-          if (idx > 0) this.loadProblem(filtered[idx - 1].id);
+          if (idx > 0) {this.loadProblem(filtered[idx - 1].id);}
         });
         document.getElementById('nextBtn').addEventListener('click', () => {
           const filtered = this.getFilteredProblems();
           const idx = filtered.findIndex(p => p.id === this.problemId);
-          if (idx < filtered.length - 1) this.loadProblem(filtered[idx + 1].id);
+          if (idx < filtered.length - 1) {this.loadProblem(filtered[idx + 1].id);}
         });
       }
     }

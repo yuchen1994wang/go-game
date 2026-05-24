@@ -1,0 +1,73 @@
+{
+  "name": "go-game-project",
+  "version": "1.0.0",
+  "description": "围棋对弈复盘 - 自动化测试",
+  "scripts": {
+    "dev": "vite",
+    "dev:game": "vite --open pages/game.html",
+    "build": "vite build",
+    "preview": "vite preview",
+    "ts:check": "tsc --noEmit",
+    "ts:build": "tsc",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "npm run test && npm run test:e2e",
+    "lint": "eslint js/ pages/ --ext .js,.html",
+    "lint:fix": "eslint js/ pages/ --ext .js,.html --fix",
+    "format": "prettier --write \"js/**/*.js\" \"pages/**/*.html\" \"css/**/*.css\"",
+    "format:check": "prettier --check \"js/**/*.js\" \"pages/**/*.html\" \"css/**/*.css\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.html": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.css": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^25.9.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-html": "^7.1.0",
+    "fake-indexeddb": "^6.2.5",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "lint-staged": "^17.0.5",
+    "typescript": "^6.0.3",
+    "vite": "^5.4.21"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/unit/setup.js"
+    ],
+    "testMatch": [
+      "<rootDir>/tests/unit/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "js/*.js",
+      "!js/header*.js",
+      "!js/analytics.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 15,
+        "functions": 15,
+        "lines": 15,
+        "statements": 15
+      }
+    }
+  }
+}

@@ -267,9 +267,9 @@
 
       getStatus(problemId) {
         const wrongList = TsumegoStorage.getWrongList();
-        if (wrongList.includes(problemId)) return 'wrong';
+        if (wrongList.includes(problemId)) {return 'wrong';}
         const status = TsumegoStorage.getStatus(problemId);
-        if (status === 'completed') return 'completed';
+        if (status === 'completed') {return 'completed';}
         return 'new';
       }
 

@@ -3,9 +3,9 @@
  * 提供定式浏览、学习、练习的完整功能
  */
 
-// 定式数据库
+// 定式数据库（扩展到50+）
 const PATTERNS_DATA = [
-  // 星位定式
+  // ============ 星位定式 ============
   {
     id: 'star-1',
     name: '小飞挂一间高夹',
@@ -558,6 +558,568 @@ const PATTERNS_DATA = [
     variations: [],
     keyPoints: ['小目配合', '角部交换', '双方发展'],
     relatedPatterns: ['komoku-1', 'komoku-4', 'komoku-5']
+  },
+
+  // ============ 高目定式 ============
+  {
+    id: 'takamusu-1',
+    name: '高目小飞挂',
+    category: '高目',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 2, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 2, y: 3, color: 'black' },
+      { x: 3, y: 2, color: 'white' }
+    ],
+    description: '高目位置特殊，配合小飞挂形成独特棋形。',
+    variations: [],
+    keyPoints: ['高目取势', '小飞挂常见', '配合独特'],
+    relatedPatterns: ['star-2', 'komoku-1']
+  },
+  {
+    id: 'takamusu-2',
+    name: '高目一间高挂',
+    category: '高目',
+    difficulty: 3,
+    moves: [
+      { x: 3, y: 2, color: 'black' },
+      { x: 2, y: 6, color: 'white' },
+      { x: 2, y: 5, color: 'black' },
+      { x: 4, y: 4, color: 'white' },
+      { x: 2, y: 4, color: 'black' }
+    ],
+    description: '高目一间高挂是积极的下法，追求主动。',
+    variations: [],
+    keyPoints: ['一间高挂积极', '黑棋可压长', '战斗性强'],
+    relatedPatterns: ['takamusu-1', 'komoku-3']
+  },
+
+  // ============ 定式变化图 ============
+  {
+    id: 'variation-1',
+    name: '星位-托退定式',
+    category: '星位',
+    difficulty: 1,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 4, y: 4, color: 'white' },
+      { x: 2, y: 4, color: 'black' },
+      { x: 3, y: 5, color: 'white' },
+      { x: 3, y: 4, color: 'black' }
+    ],
+    description: '托退是星位定式中常见的变化，简单实用。',
+    variations: [
+      {
+        name: '连扳',
+        moves: [
+          { x: 3, y: 3, color: 'black' },
+          { x: 4, y: 4, color: 'white' },
+          { x: 2, y: 4, color: 'black' },
+          { x: 3, y: 5, color: 'white' },
+          { x: 3, y: 4, color: 'black' },
+          { x: 4, y: 5, color: 'white' }
+        ]
+      }
+    ],
+    keyPoints: ['托退取地', '简单实用', '变化多样'],
+    relatedPatterns: ['star-2', 'komoku-1']
+  },
+  {
+    id: 'variation-2',
+    name: '星位-靠压定式',
+    category: '星位',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 3, y: 5, color: 'black' },
+      { x: 3, y: 6, color: 'white' },
+      { x: 4, y: 5, color: 'black' }
+    ],
+    description: '靠压是星位定式中取势的常见手法。',
+    variations: [],
+    keyPoints: ['靠压取势', '黑棋外势', '白棋实地'],
+    relatedPatterns: ['star-1', 'star-4']
+  },
+  {
+    id: 'variation-3',
+    name: '星位-肩冲三三',
+    category: '星位',
+    difficulty: 3,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 5, y: 2, color: 'black' },
+      { x: 3, y: 2, color: 'white' },
+      { x: 4, y: 2, color: 'black' },
+      { x: 2, y: 2, color: 'white' }
+    ],
+    description: '肩冲三三是积极压缩对方的方法。',
+    variations: [
+      {
+        name: '点角转换',
+        moves: [
+          { x: 3, y: 3, color: 'black' },
+          { x: 2, y: 5, color: 'white' },
+          { x: 5, y: 2, color: 'black' },
+          { x: 3, y: 2, color: 'white' },
+          { x: 2, y: 2, color: 'black' },
+          { x: 4, y: 3, color: 'white' },
+          { x: 3, y: 4, color: 'black' }
+        ]
+      }
+    ],
+    keyPoints: ['肩冲击空', '压缩空间', '白棋需转身'],
+    relatedPatterns: ['star-3', '33-1']
+  },
+
+  // ============ 小目复杂定式 ============
+  {
+    id: 'komoku-advanced-1',
+    name: '小目-一间高挂-靠出',
+    category: '小目',
+    difficulty: 3,
+    moves: [
+      { x: 3, y: 4, color: 'black' },
+      { x: 2, y: 6, color: 'white' },
+      { x: 2, y: 5, color: 'black' },
+      { x: 1, y: 3, color: 'white' },
+      { x: 2, y: 3, color: 'black' },
+      { x: 3, y: 3, color: 'white' }
+    ],
+    description: '靠出变化激烈，双方短兵相接。',
+    variations: [],
+    keyPoints: ['靠出战斗', '短兵相接', '变化复杂'],
+    relatedPatterns: ['komoku-3', 'advanced-1']
+  },
+  {
+    id: 'komoku-advanced-2',
+    name: '小目-一间高挂-压长',
+    category: '小目',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 4, color: 'black' },
+      { x: 2, y: 6, color: 'white' },
+      { x: 2, y: 5, color: 'black' },
+      { x: 3, y: 7, color: 'white' },
+      { x: 4, y: 5, color: 'black' },
+      { x: 2, y: 4, color: 'white' }
+    ],
+    description: '压长取势是小目的经典变化。',
+    variations: [],
+    keyPoints: ['压长取势', '外势明显', '棋形正派'],
+    relatedPatterns: ['komoku-1', 'komoku-2']
+  },
+  {
+    id: 'komoku-advanced-3',
+    name: '小目-一间高挂-飞压',
+    category: '小目',
+    difficulty: 3,
+    moves: [
+      { x: 3, y: 4, color: 'black' },
+      { x: 2, y: 6, color: 'white' },
+      { x: 2, y: 5, color: 'black' },
+      { x: 1, y: 3, color: 'white' },
+      { x: 3, y: 5, color: 'black' },
+      { x: 4, y: 4, color: 'white' },
+      { x: 2, y: 4, color: 'black' }
+    ],
+    description: '飞压是积极追求外势的下法。',
+    variations: [],
+    keyPoints: ['飞压取势', '追求外势', '战斗性强'],
+    relatedPatterns: ['komoku-3', 'komoku-advanced-1']
+  },
+
+  // ============ 更多星位定式 ============
+  {
+    id: 'star-7',
+    name: '星位-一间低夹-靠出',
+    category: '星位',
+    difficulty: 3,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 3, y: 5, color: 'black' },
+      { x: 4, y: 3, color: 'white' },
+      { x: 4, y: 4, color: 'black' },
+      { x: 3, y: 3, color: 'white' }
+    ],
+    description: '一间低夹后靠出是复杂变化。',
+    variations: [],
+    keyPoints: ['靠出复杂', '双方战斗', '变化丰富'],
+    relatedPatterns: ['star-4', 'advanced-1']
+  },
+  {
+    id: 'star-8',
+    name: '星位-一间低夹-跳出',
+    category: '星位',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 3, y: 5, color: 'black' },
+      { x: 4, y: 3, color: 'white' },
+      { x: 2, y: 3, color: 'black' }
+    ],
+    description: '跳出是稳健的选择。',
+    variations: [],
+    keyPoints: ['跳出稳健', '保持连接', '棋形正派'],
+    relatedPatterns: ['star-4', 'star-2']
+  },
+  {
+    id: 'star-9',
+    name: '星位-压长定式',
+    category: '星位',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 3, y: 5, color: 'black' },
+      { x: 3, y: 6, color: 'white' },
+      { x: 4, y: 5, color: 'black' }
+    ],
+    description: '压长是取势的经典手法。',
+    variations: [],
+    keyPoints: ['压长取势', '外势明显', '常见下法'],
+    relatedPatterns: ['star-1', 'star-4']
+  },
+  {
+    id: 'star-10',
+    name: '星位-拆上',
+    category: '星位',
+    difficulty: 1,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 5, y: 5, color: 'black' }
+    ],
+    description: '拆上是快速的布局手法。',
+    variations: [],
+    keyPoints: ['拆上快速', '追求效率', '可脱先'],
+    relatedPatterns: ['star-2', 'star-5']
+  },
+
+  // ============ 更多三三定式 ============
+  {
+    id: '33-5',
+    name: '三三-托退',
+    category: '三三',
+    difficulty: 1,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 3, y: 2, color: 'white' },
+      { x: 4, y: 2, color: 'black' },
+      { x: 4, y: 3, color: 'white' },
+      { x: 3, y: 4, color: 'black' }
+    ],
+    description: '三三托退是简单的取地变化。',
+    variations: [],
+    keyPoints: ['托退取地', '简单明了', '实地优先'],
+    relatedPatterns: ['33-1', 'komoku-1']
+  },
+  {
+    id: '33-6',
+    name: '三三-飞压',
+    category: '三三',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 5, y: 2, color: 'white' },
+      { x: 5, y: 1, color: 'black' },
+      { x: 3, y: 2, color: 'white' },
+      { x: 4, y: 2, color: 'black' }
+    ],
+    description: '飞压是积极压缩三三的方法。',
+    variations: [],
+    keyPoints: ['飞压缩地', '积极下法', '白棋需应对'],
+    relatedPatterns: ['33-3', 'star-3']
+  },
+
+  // ============ 布局定式 ============
+  {
+    id: 'layout-1',
+    name: '二连星布局',
+    category: '布局',
+    difficulty: 1,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 9, y: 3, color: 'black' }
+    ],
+    description: '二连星是常见的布局方式，追求外势。',
+    variations: [],
+    keyPoints: ['二连星取势', '布局快速', '常见下法'],
+    relatedPatterns: ['star-1', 'layout-2']
+  },
+  {
+    id: 'layout-2',
+    name: '三连星布局',
+    category: '布局',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 9, y: 3, color: 'black' },
+      { x: 15, y: 3, color: 'black' }
+    ],
+    description: '三连星是激进的布局，追求外势和势力。',
+    variations: [],
+    keyPoints: ['三连星激进', '追求外势', '布局效率'],
+    relatedPatterns: ['layout-1', 'star-1']
+  },
+  {
+    id: 'layout-3',
+    name: '中国流布局',
+    category: '布局',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 9, y: 6, color: 'black' },
+      { x: 3, y: 6, color: 'black' }
+    ],
+    description: '中国流是注重全局配合的布局。',
+    variations: [],
+    keyPoints: ['中国流配合', '全局观念', '厚势优先'],
+    relatedPatterns: ['layout-1', 'layout-2']
+  },
+
+  // ============ 更多复杂定式 ============
+  {
+    id: 'complex-1',
+    name: '星位-大斜定式',
+    category: '星位',
+    difficulty: 4,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 1, y: 4, color: 'white' },
+      { x: 4, y: 1, color: 'black' },
+      { x: 2, y: 2, color: 'white' },
+      { x: 1, y: 3, color: 'black' },
+      { x: 3, y: 2, color: 'white' }
+    ],
+    description: '大斜是围棋中最复杂的变化之一，有"大斜百变"之称。',
+    variations: [
+      {
+        name: '大雪崩',
+        moves: [
+          { x: 3, y: 3, color: 'black' },
+          { x: 1, y: 4, color: 'white' },
+          { x: 4, y: 1, color: 'black' },
+          { x: 2, y: 2, color: 'white' },
+          { x: 1, y: 2, color: 'black' },
+          { x: 3, y: 1, color: 'white' }
+        ]
+      }
+    ],
+    keyPoints: ['大斜百变', '极其复杂', '高手研究'],
+    relatedPatterns: ['advanced-1', 'advanced-2']
+  },
+  {
+    id: 'complex-2',
+    name: '小目-目外定式',
+    category: '小目',
+    difficulty: 3,
+    moves: [
+      { x: 3, y: 4, color: 'black' },
+      { x: 1, y: 5, color: 'white' },
+      { x: 4, y: 3, color: 'black' },
+      { x: 5, y: 3, color: 'white' },
+      { x: 2, y: 3, color: 'black' }
+    ],
+    description: '小目配合目外是独特的布局配合。',
+    variations: [],
+    keyPoints: ['目外特殊', '配合独特', '全局配合'],
+    relatedPatterns: ['moku-1', 'komoku-1']
+  },
+  {
+    id: 'complex-3',
+    name: '星位-小目配合',
+    category: '星位',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 3, y: 6, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 2, y: 3, color: 'black' }
+    ],
+    description: '星位和小目的配合是常见的布局。',
+    variations: [],
+    keyPoints: ['星小配合', '常见布局', '效率高'],
+    relatedPatterns: ['star-2', 'komoku-1']
+  },
+
+  // ============ 定式精解 ============
+  {
+    id: 'classic-1',
+    name: '小目托退定式-基本型',
+    category: '小目',
+    difficulty: 1,
+    moves: [
+      { x: 3, y: 4, color: 'black' },
+      { x: 2, y: 6, color: 'white' },
+      { x: 2, y: 5, color: 'black' },
+      { x: 3, y: 6, color: 'white' },
+      { x: 3, y: 5, color: 'black' },
+      { x: 2, y: 4, color: 'white' }
+    ],
+    description: '小目托退是围棋中最基础最重要的定式之一。',
+    variations: [
+      {
+        name: '拆一',
+        moves: [
+          { x: 3, y: 4, color: 'black' },
+          { x: 2, y: 6, color: 'white' },
+          { x: 2, y: 5, color: 'black' },
+          { x: 3, y: 6, color: 'white' },
+          { x: 3, y: 5, color: 'black' },
+          { x: 2, y: 4, color: 'white' },
+          { x: 2, y: 3, color: 'black' }
+        ]
+      }
+    ],
+    keyPoints: ['最基础定式', '双方各得', '变化丰富'],
+    relatedPatterns: ['komoku-1', 'komoku-advanced-2']
+  },
+  {
+    id: 'classic-2',
+    name: '星位小飞挂-一间低夹',
+    category: '星位',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 3, y: 5, color: 'black' },
+      { x: 4, y: 3, color: 'white' },
+      { x: 2, y: 3, color: 'black' }
+    ],
+    description: '一间低夹是星位小飞挂的经典应对。',
+    variations: [
+      {
+        name: '压长',
+        moves: [
+          { x: 3, y: 3, color: 'black' },
+          { x: 2, y: 5, color: 'white' },
+          { x: 3, y: 5, color: 'black' },
+          { x: 4, y: 3, color: 'white' },
+          { x: 2, y: 3, color: 'black' },
+          { x: 3, y: 2, color: 'white' }
+        ]
+      }
+    ],
+    keyPoints: ['低夹经典', '可压可跳', '变化多端'],
+    relatedPatterns: ['star-1', 'star-4']
+  },
+  {
+    id: 'classic-3',
+    name: '三三点角-基本型',
+    category: '三三',
+    difficulty: 1,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 2, y: 2, color: 'white' },
+      { x: 2, y: 3, color: 'black' },
+      { x: 2, y: 4, color: 'white' },
+      { x: 3, y: 4, color: 'black' },
+      { x: 4, y: 3, color: 'white' }
+    ],
+    description: '三三点角是最直接的变化，简单明了。',
+    variations: [
+      {
+        name: '挡下',
+        moves: [
+          { x: 3, y: 3, color: 'black' },
+          { x: 2, y: 2, color: 'white' },
+          { x: 2, y: 3, color: 'black' },
+          { x: 1, y: 3, color: 'white' },
+          { x: 3, y: 4, color: 'black' },
+          { x: 2, y: 4, color: 'white' }
+        ]
+      }
+    ],
+    keyPoints: ['点角直接', '简单明了', '取地实惠'],
+    relatedPatterns: ['33-1', 'star-3']
+  },
+
+  // ============ 最新流行定式 ============
+  {
+    id: 'modern-1',
+    name: 'AI布局-迷你中国流',
+    category: '布局',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 9, y: 6, color: 'black' },
+      { x: 4, y: 6, color: 'black' }
+    ],
+    description: '迷你中国流是现代AI布局的代表。',
+    variations: [],
+    keyPoints: ['AI布局', '效率高', '全局配合'],
+    relatedPatterns: ['layout-3', 'star-2']
+  },
+  {
+    id: 'modern-2',
+    name: '星位-肩冲小目',
+    category: '星位',
+    difficulty: 3,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 3, y: 6, color: 'black' },
+      { x: 5, y: 4, color: 'white' },
+      { x: 4, y: 4, color: 'black' },
+      { x: 2, y: 4, color: 'white' }
+    ],
+    description: '现代流行的肩冲小目变化。',
+    variations: [],
+    keyPoints: ['现代流行', '压缩空间', '效率高'],
+    relatedPatterns: ['star-3', 'komoku-1']
+  },
+  {
+    id: 'modern-3',
+    name: '三三-托上定式',
+    category: '三三',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 3, y: 2, color: 'white' },
+      { x: 4, y: 1, color: 'black' },
+      { x: 3, y: 1, color: 'white' },
+      { x: 2, y: 2, color: 'black' }
+    ],
+    description: '托上是现代流行的三三变化。',
+    variations: [],
+    keyPoints: ['托上现代', '取地实惠', '效率高'],
+    relatedPatterns: ['33-5', '33-1']
+  },
+
+  // ============ 攻防定式 ============
+  {
+    id: 'attack-1',
+    name: '星位被挂-攻击方法',
+    category: '星位',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 3, color: 'black' },
+      { x: 2, y: 5, color: 'white' },
+      { x: 3, y: 5, color: 'black' }
+    ],
+    description: '星位被小飞挂后的攻击方法。',
+    variations: [],
+    keyPoints: ['攻击星位', '一间低夹', '积极应对'],
+    relatedPatterns: ['star-1', 'star-4']
+  },
+  {
+    id: 'attack-2',
+    name: '小目被挂-防守方法',
+    category: '小目',
+    difficulty: 2,
+    moves: [
+      { x: 3, y: 4, color: 'black' },
+      { x: 2, y: 6, color: 'white' },
+      { x: 2, y: 5, color: 'black' }
+    ],
+    description: '小目被一间高挂后的防守方法。',
+    variations: [],
+    keyPoints: ['小目防守', '托退稳健', '常见应对'],
+    relatedPatterns: ['komoku-1', 'komoku-2']
   }
 ];
 
@@ -603,7 +1165,7 @@ class PatternLibrary {
 
   getRelated(patternId) {
     const pattern = this.getById(patternId);
-    if (!pattern) return [];
+    if (!pattern) {return [];}
     return pattern.relatedPatterns.map(id => this.getById(id)).filter(Boolean);
   }
 
@@ -664,7 +1226,7 @@ class PatternLibrary {
   calculateAccuracy() {
     try {
       const records = JSON.parse(localStorage.getItem('go-pattern-records') || '[]');
-      if (records.length === 0) return 0;
+      if (records.length === 0) {return 0;}
       const correct = records.filter(r => r.correct).length;
       return Math.round((correct / records.length) * 100);
     } catch {
@@ -676,7 +1238,7 @@ class PatternLibrary {
     try {
       const records = JSON.parse(localStorage.getItem('go-pattern-records') || '[]');
       records.push({ patternId, correct, time, date: new Date().toISOString() });
-      if (records.length > 100) records.shift();
+      if (records.length > 100) {records.shift();}
       localStorage.setItem('go-pattern-records', JSON.stringify(records));
     } catch (e) {
       console.error('保存练习记录失败:', e);
@@ -780,7 +1342,7 @@ class PatternViewer {
     
     controls.addEventListener('click', (e) => {
       const btn = e.target.closest('.control-btn');
-      if (!btn) return;
+      if (!btn) {return;}
       
       const action = btn.dataset.action;
       switch (action) {
@@ -816,7 +1378,7 @@ class PatternViewer {
   }
 
   renderVariations() {
-    if (!this.pattern.variations || this.pattern.variations.length === 0) return;
+    if (!this.pattern.variations || this.pattern.variations.length === 0) {return;}
     
     const variationsPanel = document.createElement('div');
     variationsPanel.className = 'variations-panel';
@@ -834,7 +1396,7 @@ class PatternViewer {
     
     variationsPanel.addEventListener('click', (e) => {
       const btn = e.target.closest('.variation-btn');
-      if (!btn) return;
+      if (!btn) {return;}
       
       this.currentVariation = parseInt(btn.dataset.variation);
       this.currentMove = 0;
@@ -924,7 +1486,7 @@ class PatternViewer {
     }
     
     ctx.fill();
-    if (color === 'white') ctx.stroke();
+    if (color === 'white') {ctx.stroke();}
     
     if (isLast) {
       ctx.beginPath();
@@ -1065,7 +1627,7 @@ class PatternQuiz {
 
   setupCanvas() {
     this.canvas = document.getElementById('quiz-canvas');
-    if (!this.canvas) return;
+    if (!this.canvas) {return;}
     
     const boardSize = 19;
     const cellSize = 18;
@@ -1137,7 +1699,7 @@ class PatternQuiz {
   }
 
   drawQuizBoard() {
-    if (!this.ctx) return;
+    if (!this.ctx) {return;}
     
     const ctx = this.ctx;
     const { cellSize, padding, boardSize } = this;
@@ -1207,7 +1769,7 @@ class PatternQuiz {
     }
     
     ctx.fill();
-    if (color === 'white') ctx.stroke();
+    if (color === 'white') {ctx.stroke();}
     
     if (isLast) {
       ctx.beginPath();
@@ -1227,7 +1789,7 @@ class PatternQuiz {
 
   renderOptions() {
     const optionsContainer = document.getElementById('quiz-options');
-    if (!optionsContainer) return;
+    if (!optionsContainer) {return;}
     
     optionsContainer.innerHTML = '<h4>选择下一步：</h4><div class="options-grid"></div>';
     const grid = optionsContainer.querySelector('.options-grid');
@@ -1321,19 +1883,19 @@ class PatternQuiz {
     const totalEl = this.container.querySelector('.total-count');
     const accuracyEl = this.container.querySelector('.accuracy');
     
-    if (correctEl) correctEl.textContent = this.correctCount;
-    if (totalEl) totalEl.textContent = this.totalCount;
-    if (accuracyEl) accuracyEl.textContent = this.getAccuracy();
+    if (correctEl) {correctEl.textContent = this.correctCount;}
+    if (totalEl) {totalEl.textContent = this.totalCount;}
+    if (accuracyEl) {accuracyEl.textContent = this.getAccuracy();}
   }
 
   getAccuracy() {
-    if (this.totalCount === 0) return 0;
+    if (this.totalCount === 0) {return 0;}
     return Math.round((this.correctCount / this.totalCount) * 100);
   }
 
   startTimer() {
     const timerEl = document.getElementById('quiz-timer');
-    if (!timerEl) return;
+    if (!timerEl) {return;}
     
     timerEl.textContent = '用时: 0秒';
     
@@ -1495,7 +2057,7 @@ class PatternStudyUI {
 
   renderPatternList() {
     const listContainer = document.getElementById('pattern-list');
-    if (!listContainer) return;
+    if (!listContainer) {return;}
     
     let patterns = this.library.getAll();
     
@@ -1610,7 +2172,7 @@ class PatternStudyUI {
 
   selectPattern(patternId) {
     const pattern = this.library.getById(patternId);
-    if (!pattern) return;
+    if (!pattern) {return;}
     
     this.library.markAsStudied(patternId);
     
@@ -1647,7 +2209,7 @@ class PatternStudyUI {
     canvases.forEach(canvas => {
       const patternId = canvas.dataset.pattern;
       const pattern = this.library.getById(patternId);
-      if (!pattern) return;
+      if (!pattern) {return;}
       
       const boardSize = 19;
       const cellSize = 4;
@@ -1697,7 +2259,7 @@ class PatternStudyUI {
         }
         
         ctx.fill();
-        if (move.color === 'white') ctx.stroke();
+        if (move.color === 'white') {ctx.stroke();}
       });
     });
   }

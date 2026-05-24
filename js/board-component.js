@@ -16,16 +16,22 @@ class BoardComponent {
     this.showMoveNumbers = options.showMoveNumbers || false;
     this.onIntersectionClick = options.onIntersectionClick || null;
     this.onIntersectionHover = options.onIntersectionHover || null;
+    this.enableCache = options.enableCache !== false;
 
     this.letters = 'ABCDEFGHJKLMNOPQRST';
-    this.stones = new Map(); // key: "x,y", value: {player, moveNumber}
+    this.stones = new Map();
     this.lastMove = null;
+    this.cacheCanvas = null;
+    this.isDirty = true;
 
     this.init();
   }
 
   init() {
     this.renderBoard();
+    if (this.enableCache) {
+      this.renderCacheCanvas();
+    }
     this.renderGrid();
     this.renderStarPoints();
     if (this.showCoordinates) {
@@ -35,12 +41,64 @@ class BoardComponent {
     this.bindEvents();
   }
 
+  renderCacheCanvas() {
+    this.cacheCanvas = document.createElement('canvas');
+    const boardSize = this.cellSize * (this.size - 1) + this.padding * 2;
+    this.cacheCanvas.width = boardSize;
+    this.cacheCanvas.height = boardSize;
+    this.cacheCanvas.style.cssText = 'position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;';
+    
+    const ctx = this.cacheCanvas.getContext('2d');
+    this.drawBoardCache(ctx, boardSize);
+    
+    this.container.insertBefore(this.cacheCanvas, this.container.firstChild);
+  }
+
+  drawBoardCache(ctx, boardSize) {
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--board-color') || '#DEB887';
+    ctx.fillRect(0, 0, boardSize, boardSize);
+
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--line-color') || '#333';
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.7;
+
+    for (let i = 0; i < this.size; i++) {
+      const pos = this.padding + i * this.cellSize;
+      
+      ctx.beginPath();
+      ctx.moveTo(this.padding, pos);
+      ctx.lineTo(boardSize - this.padding, pos);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(pos, this.padding);
+      ctx.lineTo(pos, boardSize - this.padding);
+      ctx.stroke();
+    }
+
+    const starPoints = this.getStarPoints();
+    ctx.globalAlpha = 1.0;
+    starPoints.forEach(([x, y]) => {
+      ctx.beginPath();
+      ctx.arc(
+        this.padding + x * this.cellSize,
+        this.padding + y * this.cellSize,
+        this.size === 9 ? 4 : 3,
+        0,
+        2 * Math.PI
+      );
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--line-color') || '#333';
+      ctx.fill();
+    });
+  }
+
   renderBoard() {
     const boardSize = this.cellSize * (this.size - 1) + this.padding * 2;
     this.container.style.width = `${boardSize}px`;
     this.container.style.height = `${boardSize}px`;
     this.container.style.position = 'relative';
     this.container.innerHTML = '';
+    this.isDirty = true;
   }
 
   renderGrid() {
@@ -198,9 +256,8 @@ class BoardComponent {
     this.stones.set(key, { player, moveNumber });
     
     const intersection = this.container.querySelector(`.intersection[data-x="${x}"][data-y="${y}"]`);
-    if (!intersection) return;
+    if (!intersection) {return;}
 
-    // 清除该位置已有的棋子
     const existingStone = intersection.querySelector('.stone');
     if (existingStone) {
       existingStone.remove();
@@ -208,9 +265,10 @@ class BoardComponent {
 
     const stone = document.createElement('div');
     stone.className = `stone ${player === 1 ? 'black' : 'white'}`;
+    const stoneSize = this.cellSize * 0.9;
     stone.style.cssText = `
-      width: ${this.cellSize * 0.9}px;
-      height: ${this.cellSize * 0.9}px;
+      width: ${stoneSize}px;
+      height: ${stoneSize}px;
       border-radius: 50%;
       position: absolute;
       transform: scale(0);
@@ -243,13 +301,12 @@ class BoardComponent {
 
     intersection.appendChild(stone);
     
-    // 动画显示
     requestAnimationFrame(() => {
       stone.style.transform = 'scale(1)';
     });
 
-    // 更新最后落子标记
     this.updateLastMove(x, y);
+    this.isDirty = false;
   }
 
   removeStone(x, y) {
@@ -277,7 +334,7 @@ class BoardComponent {
         if (prevStone) {
           prevStone.classList.remove('last-move');
           const marker = prevStone.querySelector('.last-move-marker');
-          if (marker) marker.remove();
+          if (marker) {marker.remove();}
         }
       }
     }
@@ -317,6 +374,7 @@ class BoardComponent {
       stone.style.transform = 'scale(0)';
       setTimeout(() => stone.remove(), 200);
     });
+    this.isDirty = true;
   }
 
   getStone(x, y) {
@@ -328,9 +386,17 @@ class BoardComponent {
   }
 
   destroy() {
+    this.stopTimer();
     this.container.innerHTML = '';
     this.stones.clear();
     this.lastMove = null;
+  }
+
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
   }
 }
 

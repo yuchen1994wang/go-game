@@ -1,5 +1,4 @@
-import { AIAnalyzer } from './ai.js';
-import { GoGame } from './game.js';
+
 
 class AIEnhancer {
   constructor(game) {
@@ -29,7 +28,7 @@ class AIEnhancer {
           continue;
         }
 
-        if (checked.has(key)) continue;
+        if (checked.has(key)) {continue;}
 
         const group = this.game.getGroup(x, y, this.game.board);
         const liberties = this.game.countLiberties(group, this.game.board);
@@ -80,9 +79,9 @@ class AIEnhancer {
 
     for (let y = 0; y < this.game.size; y++) {
       for (let x = 0; x < this.game.size; x++) {
-        if (this.game.board[y][x] !== 0) continue;
+        if (this.game.board[y][x] !== 0) {continue;}
         const key = `${x},${y}`;
-        if (checked.has(key)) continue;
+        if (checked.has(key)) {continue;}
 
         const region = [];
         const queue = [[x, y]];
@@ -93,8 +92,8 @@ class AIEnhancer {
           const [cx, cy] = queue.shift();
           const ckey = `${cx},${cy}`;
 
-          if (checked.has(ckey)) continue;
-          if (cx < 0 || cx >= this.game.size || cy < 0 || cy >= this.game.size) continue;
+          if (checked.has(ckey)) {continue;}
+          if (cx < 0 || cx >= this.game.size || cy < 0 || cy >= this.game.size) {continue;}
 
           if (this.game.board[cy][cx] !== 0) {
             owner = owner === 0 ? this.game.board[cy][cx] : (owner === this.game.board[cy][cx] ? owner : -1);
@@ -133,8 +132,8 @@ class AIEnhancer {
           ];
 
           for (const [nx, ny] of neighbors) {
-            if (nx < 0 || nx >= this.game.size || ny < 0 || ny >= this.game.size) continue;
-            if (this.game.board[ny][nx] !== 0) continue;
+            if (nx < 0 || nx >= this.game.size || ny < 0 || ny >= this.game.size) {continue;}
+            if (this.game.board[ny][nx] !== 0) {continue;}
             if (this.game.isValidMove(nx, ny)) {
               const key = `${nx},${ny}`;
               if (!checked.has(key)) {
@@ -216,9 +215,9 @@ class AIEnhancer {
 
     for (let y = 0; y < this.game.size; y++) {
       for (let x = 0; x < this.game.size; x++) {
-        if (this.game.board[y][x] !== opponent) continue;
+        if (this.game.board[y][x] !== opponent) {continue;}
         const key = `${x},${y}`;
-        if (checked.has(key)) continue;
+        if (checked.has(key)) {continue;}
 
         const group = this.game.getGroup(x, y, this.game.board);
         const liberties = this.game.countLiberties(group, this.game.board);
@@ -229,8 +228,8 @@ class AIEnhancer {
           for (const [gx, gy] of group) {
             const neighbors = [[gx - 1, gy], [gx + 1, gy], [gx, gy - 1], [gx, gy + 1]];
             for (const [nx, ny] of neighbors) {
-              if (nx < 0 || nx >= this.game.size || ny < 0 || ny >= this.game.size) continue;
-              if (this.game.board[ny][nx] !== 0) continue;
+              if (nx < 0 || nx >= this.game.size || ny < 0 || ny >= this.game.size) {continue;}
+              if (this.game.board[ny][nx] !== 0) {continue;}
               if (this.game.isValidMove(nx, ny)) {
                 const tempBoard = this.game.board.map(row => [...row]);
                 tempBoard[ny][nx] = this.game.currentPlayer;
@@ -261,9 +260,9 @@ class AIEnhancer {
 
     for (let y = 0; y < this.game.size; y++) {
       for (let x = 0; x < this.game.size; x++) {
-        if (this.game.board[y][x] !== player) continue;
+        if (this.game.board[y][x] !== player) {continue;}
         const key = `${x},${y}`;
-        if (checked.has(key)) continue;
+        if (checked.has(key)) {continue;}
 
         const group = this.game.getGroup(x, y, this.game.board);
         const liberties = this.game.countLiberties(group, this.game.board);
@@ -274,8 +273,8 @@ class AIEnhancer {
           for (const [gx, gy] of group) {
             const neighbors = [[gx - 1, gy], [gx + 1, gy], [gx, gy - 1], [gx, gy + 1]];
             for (const [nx, ny] of neighbors) {
-              if (nx < 0 || nx >= this.game.size || ny < 0 || ny >= this.game.size) continue;
-              if (this.game.board[ny][nx] !== 0) continue;
+              if (nx < 0 || nx >= this.game.size || ny < 0 || ny >= this.game.size) {continue;}
+              if (this.game.board[ny][nx] !== 0) {continue;}
               if (this.game.isValidMove(nx, ny)) {
                 defenses.push({
                   x: nx,
@@ -310,13 +309,13 @@ class AIEnhancer {
     }
 
     for (const [x, y] of priorityOrder) {
-      if (moves.length >= count) break;
-      if (y < 0 || y >= this.game.size || x < 0 || x >= this.game.size) continue;
-      if (this.game.board[y][x] !== 0) continue;
+      if (moves.length >= count) {break;}
+      if (y < 0 || y >= this.game.size || x < 0 || x >= this.game.size) {continue;}
+      if (this.game.board[y][x] !== 0) {continue;}
 
       const key = `${x},${y}`;
-      if (checked.has(key)) continue;
-      if (!this.game.isValidMove(x, y)) continue;
+      if (checked.has(key)) {continue;}
+      if (!this.game.isValidMove(x, y)) {continue;}
 
       checked.add(key);
       moves.push({
@@ -557,7 +556,7 @@ class PositionAnalysisUI {
   }
 
   update() {
-    if (!this.enhancer || !this.enhancer.game) return;
+    if (!this.enhancer || !this.enhancer.game) {return;}
 
     const analysis = this.enhancer.analyzePosition();
     const formatted = this.enhancer.formatPosition(analysis);
@@ -572,22 +571,22 @@ class PositionAnalysisUI {
     const urgencyAlert = document.getElementById('urgency-alert');
     const deadStonesAlert = document.getElementById('dead-stones-alert');
 
-    if (blackCount) blackCount.textContent = formatted.stones.black;
-    if (whiteCount) whiteCount.textContent = formatted.stones.white;
-    if (blackProgress) blackProgress.style.width = \`\${formatted.stones.blackPercent}%\`;
-    if (whiteProgress) whiteProgress.style.width = \`\${formatted.stones.whitePercent}%\`;
-    if (blackTerritory) blackTerritory.textContent = formatted.territory.black;
-    if (whiteTerritory) whiteTerritory.textContent = formatted.territory.white;
+    if (blackCount) {blackCount.textContent = formatted.stones.black;}
+    if (whiteCount) {whiteCount.textContent = formatted.stones.white;}
+    if (blackProgress) {blackProgress.style.width = `${formatted.stones.blackPercent}%`;}
+    if (whiteProgress) {whiteProgress.style.width = `${formatted.stones.whitePercent}%`;}
+    if (blackTerritory) {blackTerritory.textContent = formatted.territory.black;}
+    if (whiteTerritory) {whiteTerritory.textContent = formatted.territory.white;}
 
     if (advantageDisplay) {
-      advantageDisplay.textContent = \`⚖️ \${formatted.advantage}\`;
+      advantageDisplay.textContent = `⚖️ ${formatted.advantage}`;
     }
 
     if (urgencyAlert) {
       urgencyAlert.style.display = formatted.urgency.hasUrgent ? 'block' : 'none';
       if (formatted.urgency.hasUrgent) {
         document.getElementById('urgency-text').textContent =
-          \`有 \${formatted.urgency.count} 组棋子气紧！\`;
+          `有 ${formatted.urgency.count} 组棋子气紧！`;
       }
     }
 
@@ -595,7 +594,7 @@ class PositionAnalysisUI {
       deadStonesAlert.style.display = formatted.deadStones.hasDead ? 'block' : 'none';
       if (formatted.deadStones.hasDead) {
         document.getElementById('dead-stones-text').textContent =
-          \`有 \${formatted.deadStones.count} 颗死棋！\`;
+          `有 ${formatted.deadStones.count} 颗死棋！`;
       }
     }
   }
@@ -610,7 +609,7 @@ class SuggestionUI {
   }
 
   init() {
-    this.container.innerHTML = \`
+    this.container.innerHTML = `
       <div class="suggestion-panel" style="
         background: var(--bg-secondary, #f8f9fa);
         border-radius: 8px;
@@ -724,21 +723,21 @@ class SuggestionUI {
           color: #666;
         }
       </style>
-    \`;
+    `;
 
     this.update();
   }
 
   update() {
-    if (!this.enhancer || !this.enhancer.game) return;
+    if (!this.enhancer || !this.enhancer.game) {return;}
 
     const suggestions = this.enhancer.getSuggestion();
     const listContainer = document.getElementById('suggestions-list');
 
-    if (!listContainer) return;
+    if (!listContainer) {return;}
 
     if (suggestions.length === 0) {
-      listContainer.innerHTML = \`
+      listContainer.innerHTML = `
         <div style="
           padding: 12px;
           text-align: center;
@@ -747,24 +746,24 @@ class SuggestionUI {
         ">
           暂无建议
         </div>
-      \`;
+      `;
       return;
     }
 
     listContainer.innerHTML = suggestions.map((sug, index) => {
       const typeClass = this.getTypeClass(sug.type);
-      const priorityClass = \`priority-\${Math.min(sug.priority, 3)}\`;
+      const priorityClass = `priority-${Math.min(sug.priority, 3)}`;
 
-      return \`
-        <div class="suggestion-item \${priorityClass}" data-x="\${sug.x}" data-y="\${sug.y}" style="cursor: pointer;">
+      return `
+        <div class="suggestion-item ${priorityClass}" data-x="${sug.x}" data-y="${sug.y}" style="cursor: pointer;">
           <div class="suggestion-header">
-            <div class="suggestion-priority">\${index + 1}</div>
-            <div class="suggestion-type \${typeClass}">\${sug.type}</div>
+            <div class="suggestion-priority">${index + 1}</div>
+            <div class="suggestion-type ${typeClass}">${sug.type}</div>
           </div>
-          <div class="suggestion-coord">\${this.enhancer.posToCoord(sug.x, sug.y)}</div>
-          <div class="suggestion-desc">\${sug.description}</div>
+          <div class="suggestion-coord">${this.enhancer.posToCoord(sug.x, sug.y)}</div>
+          <div class="suggestion-desc">${sug.description}</div>
         </div>
-      \`;
+      `;
     }).join('');
 
     listContainer.querySelectorAll('.suggestion-item').forEach(item => {
@@ -779,10 +778,10 @@ class SuggestionUI {
   }
 
   getTypeClass(type) {
-    if (type.includes('吃')) return 'type-capture';
-    if (type.includes('紧气')) return 'type-atari';
-    if (type.includes('逃跑')) return 'type-escape';
-    if (type.includes('防守')) return 'type-defense';
+    if (type.includes('吃')) {return 'type-capture';}
+    if (type.includes('紧气')) {return 'type-atari';}
+    if (type.includes('逃跑')) {return 'type-escape';}
+    if (type.includes('防守')) {return 'type-defense';}
     return 'type-general';
   }
 }
@@ -796,9 +795,9 @@ class ReviewAnalysisUI {
   }
 
   async analyzeGame() {
-    if (!this.container) return;
+    if (!this.container) {return;}
 
-    this.container.innerHTML = \`
+    this.container.innerHTML = `
       <div style="
         padding: 20px;
         text-align: center;
@@ -808,7 +807,7 @@ class ReviewAnalysisUI {
         <div>AI正在分析中...</div>
         <div style="font-size: 11px; margin-top: 8px;">请稍候，这可能需要几秒钟</div>
       </div>
-    \`;
+    `;
 
     try {
       const result = await this.enhancer.analyzeGameWithAI();
@@ -825,9 +824,9 @@ class ReviewAnalysisUI {
   }
 
   displayAnalysis(analysis) {
-    if (!this.container) return;
+    if (!this.container) {return;}
 
-    this.container.innerHTML = \`
+    this.container.innerHTML = `
       <div class="review-analysis" style="
         background: var(--bg-secondary, #f8f9fa);
         border-radius: 8px;
@@ -854,7 +853,7 @@ class ReviewAnalysisUI {
           white-space: pre-wrap;
           word-wrap: break-word;
         ">
-          \${this.formatMarkdown(analysis)}
+          ${this.formatMarkdown(analysis)}
         </div>
       </div>
 
@@ -880,13 +879,13 @@ class ReviewAnalysisUI {
           color: #e74c3c;
         }
       </style>
-    \`;
+    `;
   }
 
   displayError(error) {
-    if (!this.container) return;
+    if (!this.container) {return;}
 
-    this.container.innerHTML = \`
+    this.container.innerHTML = `
       <div style="
         padding: 20px;
         text-align: center;
@@ -898,14 +897,14 @@ class ReviewAnalysisUI {
         <div style="font-size: 24px; margin-bottom: 10px;">❌</div>
         <div style="font-weight: bold;">分析失败</div>
         <div style="font-size: 12px; margin-top: 8px; color: #721c24;">
-          \${error}
+          ${error}
         </div>
       </div>
-    \`;
+    `;
   }
 
   formatMarkdown(text) {
-    if (!text) return '';
+    if (!text) {return '';}
 
     return text
       .replace(/^### (.+)$/gm, '<h4>$1</h4>')
@@ -913,16 +912,16 @@ class ReviewAnalysisUI {
       .replace(/^\*\*([^*]+)\*\*/gm, '<strong>$1</strong>')
       .replace(/^- (.+)$/gm, '<li>$1</li>')
       .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-      .replace(/\\n\\n/g, '</p><p>')
+      .replace(/\n\n/g, '</p><p>')
       .replace(/^(?!<[hpu])/gm, '<p>')
       .replace(/(?<![>])$/gm, '</p>')
-      .replace(/<p><\\/p>/g, '')
+      .replace(/<p><\/p>/g, '')
       .replace(/<p>(<[hup])/g, '$1')
-      .replace(/(<\\/[hup][^>]*>)<\\/p>/g, '$1');
+      .replace(/(<\/[hup][^>]*>)<\/p>/g, '$1');
   }
 
   async rateMove(moveIndex) {
-    if (!this.enhancer) return null;
+    if (!this.enhancer) {return null;}
 
     try {
       const result = await this.enhancer.rateMoveWithAI(moveIndex);
@@ -937,7 +936,7 @@ class ReviewAnalysisUI {
       console.error('评分失败:', error);
       return {
         score: 0,
-        analysis: \`评分失败: \${error.message}\`,
+        analysis: `评分失败: ${error.message}`,
         suggestion: ''
       };
     }
@@ -948,53 +947,53 @@ class ReviewAnalysisUI {
   }
 
   displayMoveRating(rating, moveIndex) {
-    if (!rating) return '';
+    if (!rating) {return '';}
 
     const scoreColor = this.getScoreColor(rating.score);
     const emoji = this.getScoreEmoji(rating.score);
 
-    return \`
+    return `
       <div style="
         padding: 12px;
         background: white;
-        border-left: 4px solid \${scoreColor};
+        border-left: 4px solid ${scoreColor};
         border-radius: 4px;
         margin: 8px 0;
       ">
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-          <span style="font-size: 20px;">\${emoji}</span>
-          <span style="font-size: 16px; font-weight: bold; color: \${scoreColor};">
-            \${rating.score > 0 ? '+' : ''}\${rating.score}
+          <span style="font-size: 20px;">${emoji}</span>
+          <span style="font-size: 16px; font-weight: bold; color: ${scoreColor};">
+            ${rating.score > 0 ? '+' : ''}${rating.score}
           </span>
-          <span style="font-size: 11px; color: #666;">(\${moveIndex + 1}手)</span>
+          <span style="font-size: 11px; color: #666;">(${moveIndex + 1}手)</span>
         </div>
         <div style="font-size: 12px; color: #555; line-height: 1.5;">
-          \${rating.analysis}
+          ${rating.analysis}
         </div>
-        \${rating.suggestion ? \`
+        ${rating.suggestion ? `
           <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-size: 11px; color: #666;">
-            💡 建议: \${rating.suggestion}
+            💡 建议: ${rating.suggestion}
           </div>
-        \` : ''}
+        ` : ''}
       </div>
-    \`;
+    `;
   }
 
   getScoreColor(score) {
-    if (score >= 80) return '#27ae60';
-    if (score >= 50) return '#2ecc71';
-    if (score >= 20) return '#f39c12';
-    if (score >= -19) return '#95a5a6';
-    if (score >= -49) return '#e67e22';
+    if (score >= 80) {return '#27ae60';}
+    if (score >= 50) {return '#2ecc71';}
+    if (score >= 20) {return '#f39c12';}
+    if (score >= -19) {return '#95a5a6';}
+    if (score >= -49) {return '#e67e22';}
     return '#e74c3c';
   }
 
   getScoreEmoji(score) {
-    if (score >= 80) return '🌟';
-    if (score >= 50) return '✨';
-    if (score >= 20) return '👍';
-    if (score >= -19) return '🤔';
-    if (score >= -49) return '👎';
+    if (score >= 80) {return '🌟';}
+    if (score >= 50) {return '✨';}
+    if (score >= 20) {return '👍';}
+    if (score >= -19) {return '🤔';}
+    if (score >= -49) {return '👎';}
     return '❌';
   }
 }

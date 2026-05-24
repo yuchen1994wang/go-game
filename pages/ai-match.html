@@ -199,9 +199,9 @@
   <script>
     class SoundEffects {
       constructor() { this.ctx = null; this.enabled = true; }
-      init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+      init() { if (!this.ctx) {this.ctx = new (window.AudioContext || window.webkitAudioContext)();} }
       playStone() {
-        if (!this.enabled) return; this.init();
+        if (!this.enabled) {return;} this.init();
         const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
         osc.connect(gain); gain.connect(this.ctx.destination);
         osc.frequency.value = 800; osc.type = 'sine';
@@ -210,7 +210,7 @@
         osc.start(); osc.stop(this.ctx.currentTime + 0.1);
       }
       playCapture() {
-        if (!this.enabled) return; this.init();
+        if (!this.enabled) {return;} this.init();
         const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
         osc.connect(gain); gain.connect(this.ctx.destination);
         osc.frequency.value = 1200; osc.type = 'sine';
@@ -219,7 +219,7 @@
         osc.start(); osc.stop(this.ctx.currentTime + 0.15);
       }
       playPass() {
-        if (!this.enabled) return; this.init();
+        if (!this.enabled) {return;} this.init();
         const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
         osc.connect(gain); gain.connect(this.ctx.destination);
         osc.frequency.value = 400; osc.type = 'sine';
@@ -431,7 +431,7 @@
           const y = parseInt(intersection.dataset.y);
           const stone = intersection.querySelector('.stone');
 
-          if (stone) stone.remove();
+          if (stone) {stone.remove();}
 
           const cellValue = this.game.board[y][x];
           if (cellValue !== 0) {
@@ -449,8 +449,8 @@
       }
 
       handleClick(x, y) {
-        if (this.isGameOver || this.isPaused || this.isAIThinking) return;
-        if (this.game.currentPlayer !== this.humanPlayer) return;
+        if (this.isGameOver || this.isPaused || this.isAIThinking) {return;}
+        if (this.game.currentPlayer !== this.humanPlayer) {return;}
 
         const result = this.game.makeMove(x, y);
         if (!result.success) {
@@ -484,7 +484,7 @@
       }
 
       async makeAIMove() {
-        if (this.isGameOver || this.game.currentPlayer !== this.aiPlayer) return;
+        if (this.isGameOver || this.game.currentPlayer !== this.aiPlayer) {return;}
 
         this.isAIThinking = true;
         document.getElementById('aiDescription').textContent = 'AI 正在思考...';
@@ -543,7 +543,7 @@
 
       getAIMove() {
         const validMoves = this.getValidMoves();
-        if (validMoves.length === 0) return null;
+        if (validMoves.length === 0) {return null;}
 
         // 根据难度选择策略
         switch (this.aiLevel) {
@@ -633,8 +633,8 @@
       }
 
       handlePass() {
-        if (this.isGameOver || this.isPaused || this.isAIThinking) return;
-        if (this.game.currentPlayer !== this.humanPlayer) return;
+        if (this.isGameOver || this.isPaused || this.isAIThinking) {return;}
+        if (this.game.currentPlayer !== this.humanPlayer) {return;}
 
         sound.playPass();
         this.moveHistory.push({ x: -1, y: -1, player: this.humanPlayer, isPass: true });
@@ -656,7 +656,7 @@
       }
 
       handleUndo() {
-        if (this.isGameOver || this.moveHistory.length === 0 || this.isAIThinking) return;
+        if (this.isGameOver || this.moveHistory.length === 0 || this.isAIThinking) {return;}
 
         // 悔棋需要撤销 AI 和玩家各一步
         const lastMove = this.moveHistory.pop();
@@ -711,15 +711,15 @@
       }
 
       handleResign() {
-        if (this.isGameOver || this.isAIThinking) return;
-        if (!confirm('确定要认输吗？')) return;
+        if (this.isGameOver || this.isAIThinking) {return;}
+        if (!confirm('确定要认输吗？')) {return;}
 
         const winner = this.humanPlayer === 1 ? '白棋 (AI)' : '黑棋 (AI)';
         this.endGame(`您认输，${winner}获胜`);
       }
 
       handlePause() {
-        if (this.isGameOver) return;
+        if (this.isGameOver) {return;}
         this.isPaused = !this.isPaused;
         document.getElementById('pauseBtn').textContent = this.isPaused ? '▶️ 续盘' : '⏸ 封盘';
         showToast(this.isPaused ? '已封盘' : '已续盘', 'info');
@@ -796,7 +796,7 @@
 
       startTimer() {
         this.timerInterval = setInterval(() => {
-          if (this.isPaused || this.isGameOver) return;
+          if (this.isPaused || this.isGameOver) {return;}
 
           if (this.game.currentPlayer === 1) {
             this.blackTime++;
@@ -848,7 +848,7 @@
         document.getElementById('undoBtn').disabled = this.moveHistory.length === 0 || this.isGameOver || this.isAIThinking;
         document.getElementById('passBtn').disabled = this.isGameOver || this.isAIThinking;
         const pauseBtn = document.getElementById('pauseBtn');
-        if (pauseBtn) pauseBtn.disabled = this.isGameOver || this.isAIThinking;
+        if (pauseBtn) {pauseBtn.disabled = this.isGameOver || this.isAIThinking;}
         document.getElementById('scoreBtn').disabled = this.moveHistory.length === 0;
 
         this.updateTimerDisplay();
@@ -893,7 +893,7 @@
       }
 
       goToMove(index) {
-        if (index < 0 || index >= this.moveHistory.length) return;
+        if (index < 0 || index >= this.moveHistory.length) {return;}
 
         this.game = new GoGame(this.game.size);
         this.blackCaptures = 0;
@@ -941,7 +941,7 @@
         document.getElementById('scoreBtn').addEventListener('click', () => this.handleScore());
 
         document.addEventListener('keydown', (e) => {
-          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {return;}
 
           switch (e.key) {
             case 'z':

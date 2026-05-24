@@ -160,17 +160,17 @@ const SoundManager = {
   },
 
   playStone() {
-    if (!this.enabled) return;
+    if (!this.enabled) {return;}
     this.playTone(800, 0.1);
   },
 
   playCapture() {
-    if (!this.enabled) return;
+    if (!this.enabled) {return;}
     this.playTone(400, 0.15);
   },
 
   playVictory() {
-    if (!this.enabled) return;
+    if (!this.enabled) {return;}
     this.playTone(1000, 0.3);
     setTimeout(() => this.playTone(1200, 0.3), 150);
   },

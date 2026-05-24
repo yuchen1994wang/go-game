@@ -2,39 +2,41 @@
   "env": {
     "browser": true,
     "es2021": true,
-    "serviceworker": true
+    "node": true,
+    "jest": true
   },
-  "extends": [
-    "eslint:recommended"
-  ],
+  "extends": "eslint:recommended",
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
+  "plugins": ["html"],
   "rules": {
-    "indent": ["error", 2],
-    "linebreak-style": ["error", "unix"],
-    "quotes": ["error", "single"],
-    "semi": ["error", "always"],
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "no-console": ["warn", { "allow": ["error", "warn"] }],
+    "no-console": ["warn", { "allow": ["error", "warn", "log"] }],
+    "no-debugger": "error",
     "eqeqeq": ["error", "always"],
     "curly": ["error", "all"],
     "no-var": "error",
-    "prefer-const": "error"
+    "prefer-const": "error",
+    "no-throw-literal": "error",
+    "no-undef": "error"
   },
   "globals": {
-    "Header": "readonly",
-    "ThemeManager": "readonly",
-    "Storage": "readonly",
-    "TsumegoData": "readonly",
-    "TsumegoStats": "readonly",
-    "KifuData": "readonly",
+    "GoEngine": "readonly",
+    "GoGame": "readonly",
     "GoAI": "readonly",
-    "BoardComponent": "readonly",
-    "ErrorHandler": "readonly",
-    "LoadingManager": "readonly",
-    "Analytics": "readonly",
-    "showToast": "readonly"
-  }
+    "AIAnalyzer": "readonly",
+    "Storage": "readonly",
+    "Header": "readonly",
+    "showToast": "readonly",
+    "debounce": "readonly",
+    "showErrorBoundary": "readonly"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "coverage/",
+    "playwright-report/",
+    "weapp/"
+  ]
 }

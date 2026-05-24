@@ -1,9 +1,16 @@
-// 数据持久化
+/**
+ * 数据持久化管理器
+ * 使用localStorage存储游戏历史、用户信息和练习进度
+ */
 const Storage = {
   HISTORY_KEY: 'go_game_history',
   USERNAME_KEY: 'go_username',
   TSUMEGO_KEY: 'go_tsumego_progress',
 
+  /**
+   * 获取游戏历史记录
+   * @returns {Array} 游戏历史数组
+   */
   getHistory() {
     try {
       const data = localStorage.getItem(this.HISTORY_KEY);
@@ -70,3 +77,7 @@ const Storage = {
     localStorage.setItem(this.TSUMEGO_KEY, JSON.stringify(progress));
   }
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Storage;
+}

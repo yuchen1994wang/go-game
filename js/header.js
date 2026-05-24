@@ -75,8 +75,8 @@ class Header {
     if (username) {
       const userNameEl = document.getElementById('userName');
       const userAvatarEl = document.getElementById('userAvatar');
-      if (userNameEl) userNameEl.textContent = username;
-      if (userAvatarEl) userAvatarEl.textContent = username.charAt(0).toUpperCase();
+      if (userNameEl) {userNameEl.textContent = username;}
+      if (userAvatarEl) {userAvatarEl.textContent = username.charAt(0).toUpperCase();}
     }
   }
 
@@ -195,7 +195,7 @@ class Header {
 
   static bindSettingsEvents() {
     const modal = document.getElementById('settingsModal');
-    if (!modal) return;
+    if (!modal) {return;}
 
     const btn = document.getElementById('settingsBtn');
     const close = document.getElementById('closeSettings');
@@ -206,7 +206,7 @@ class Header {
     const statusEl = document.getElementById('apiStatus');
 
     const updateStatus = (key) => {
-      if (!statusEl) return;
+      if (!statusEl) {return;}
       if (key) {
         statusEl.innerHTML = '<span style="color: #2E7D32;">✓ Key已配置</span>';
       } else {
@@ -224,15 +224,15 @@ class Header {
       btn.addEventListener('click', () => {
         modal.style.display = 'flex';
         const key = AIAnalyzer.getApiKey();
-        if (input) input.value = key;
+        if (input) {input.value = key;}
         updateStatus(key);
         this.updateSettingsUI();
       });
     }
 
     const hideModal = () => modal.style.display = 'none';
-    if (close) close.addEventListener('click', hideModal);
-    if (cancel) cancel.addEventListener('click', hideModal);
+    if (close) {close.addEventListener('click', hideModal);}
+    if (cancel) {cancel.addEventListener('click', hideModal);}
 
     if (testBtn) {
       testBtn.addEventListener('click', async () => {
@@ -323,7 +323,7 @@ class Header {
     }
 
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) hideModal();
+      if (e.target === modal) {hideModal();}
     });
 
     // 清除缓存
@@ -332,7 +332,7 @@ class Header {
       clearGamesBtn.addEventListener('click', () => {
         if (confirm('确定要清除所有对局记录吗？')) {
           Storage.clearHistory();
-          if (typeof window.refreshHistory === 'function') window.refreshHistory();
+          if (typeof window.refreshHistory === 'function') {window.refreshHistory();}
           showToast('对局记录已清除', 'success');
         }
       });
@@ -360,7 +360,7 @@ class Header {
           localStorage.removeItem('go_stone_style');
           localStorage.removeItem('go_sound_enabled');
           localStorage.removeItem('go_animation_enabled');
-          if (typeof window.refreshHistory === 'function') window.refreshHistory();
+          if (typeof window.refreshHistory === 'function') {window.refreshHistory();}
           hideModal();
           window.location.reload();
         }
