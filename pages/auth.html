@@ -130,12 +130,12 @@
         showToast('请输入昵称', 'warning');
         return;
       }
-      Storage.saveUsername(username);
+      Storage.setUsername(username);
       window.location.href = 'home.html';
     });
 
     document.getElementById('skipBtn').addEventListener('click', () => {
-      Storage.saveUsername('棋手');
+      Storage.setUsername('棋手');
       window.location.href = 'home.html';
     });
 
