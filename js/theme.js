@@ -47,6 +47,66 @@ const ThemeManager = {
         '--board-dark': '#6B8E6B',
         '--line-color': '#1A3A1A'
       }
+    },
+    cherry: {
+      name: '樱花粉红',
+      icon: '🌸',
+      variables: {
+        '--board-wood': '#F8E8E8',
+        '--board-wood-light': '#FFF0F0',
+        '--board-dark': '#E8C8C8',
+        '--line-color': '#8B4513'
+      }
+    },
+    ocean: {
+      name: '深海蓝调',
+      icon: '🌊',
+      variables: {
+        '--board-wood': '#4A90A4',
+        '--board-wood-light': '#5BA3B8',
+        '--board-dark': '#3A7A8C',
+        '--line-color': '#E8F4F8'
+      }
+    },
+    bamboo: {
+      name: '翠竹青韵',
+      icon: '🎋',
+      variables: {
+        '--board-wood': '#D4E5C3',
+        '--board-wood-light': '#E0EDD4',
+        '--board-dark': '#B8D4A0',
+        '--line-color': '#2D5016'
+      }
+    },
+    stone: {
+      name: '岩石灰调',
+      icon: '🪨',
+      variables: {
+        '--board-wood': '#9E9E9E',
+        '--board-wood-light': '#BDBDBD',
+        '--board-dark': '#757575',
+        '--line-color': '#212121'
+      }
+    },
+    sunset: {
+      name: '落日余晖',
+      icon: '🌅',
+      variables: {
+        '--board-wood': '#E8A87C',
+        '--board-wood-light': '#F0BC94',
+        '--board-dark': '#D4956A',
+        '--line-color': '#4A2511'
+      }
+    },
+    ink: {
+      name: '水墨丹青',
+      icon: '🎨',
+      variables: {
+        '--board-wood': '#F5F0E1',
+        '--board-wood-light': '#FAF5E6',
+        '--board-dark': '#E0D5C1',
+        '--line-color': '#1A1A2E'
+      }
     }
   },
 
@@ -198,3 +258,7 @@ const SoundManager = {
 
 // 初始化
 SoundManager.init();
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { ThemeManager, SoundManager };
+}

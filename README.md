@@ -20,19 +20,19 @@
 - 🏆 **残局模式**：8 种经典残局场景练习（劫争、双活、扑吃等）
 - 📝 **打谱模式**：棋谱编辑器，支持添加注释和变化图
 - 📈 **棋局分析**：热力图、胜率曲线、智能推荐
-- 🎨 **主题定制**：4 种棋盘主题（经典木纹、现代简约、深色主题、绿色自然）
+- 🎨 **主题定制**：10 种棋盘主题（经典木纹、现代简约、深色主题、绿色自然、樱花粉红、深海蓝调、翠竹青韵、岩石灰调、落日余晖、水墨丹青）
 
 ### 技术特性
 - 💾 **本地存储**：对局记录和设置自动保存到浏览器（支持 IndexedDB）
 - 🌓 **主题切换**：支持深色/浅色主题
 - 📱 **响应式设计**：适配移动端和桌面端，棋盘自动调整大小
 - ⚡ **性能优化**：Canvas 优化、虚拟列表、防抖节流、内存管理
-- 🧪 **完整测试**：120+ 单元测试，测试覆盖率 80%+
+- 🧪 **完整测试**：142+ 单元测试，覆盖核心引擎、主题、AI 等模块
 - 🔧 **代码质量**：ESLint 代码检查，Prettier 代码格式化
 - 📦 **现代构建**：支持 Vite 开发服务器和热更新
 - 🤖 **本地 AI 引擎**：内置简单/中等/困难三个难度的本地 AI
 - 🔷 **TypeScript 支持**：核心模块已迁移到 TypeScript
-- ⚛️ **React 示例**：提供完整的 React + TypeScript 前端示例
+- ⚛️ **React 版本**：完整的 React + TypeScript 前端应用，含首页、设置、对弈页面
 - 📱 **PWA 支持**：可安装到桌面/手机，支持离线使用
 
 ## 🚀 快速开始
@@ -208,11 +208,23 @@ go-game-project/
 │   │   ├── statistics.test.js
 │   │   ├── game-advanced.test.js
 │   │   ├── go-engine-advanced.test.js
-│   │   └── indexed-db.test.js
+│   │   ├── indexed-db.test.js
+│   │   ├── local-ai.test.js    # 本地 AI 测试
+│   │   └── theme.test.js       # 主题管理测试
 │   └── e2e/                # E2E 测试（Playwright）
 │       ├── home.spec.js
 │       ├── setup.spec.js
 │       └── game.spec.js
+├── react-example/          # React + TypeScript 完整应用
+│   ├── src/
+│   │   ├── App.tsx         # 主应用（首页/设置/对弈）
+│   │   ├── engine.ts       # TypeScript 围棋引擎
+│   │   ├── ai.ts           # TypeScript 本地 AI
+│   │   ├── types.ts        # 类型定义和主题配置
+│   │   └── components/
+│   │       └── Board.tsx   # React 棋盘组件
+│   ├── package.json
+│   └── vite.config.ts
 ├── .github/
 │   └── workflows/
 │       ├── deploy.yml      # GitHub Pages 部署
@@ -250,9 +262,11 @@ go-game-project/
 ## 📝 更新日志
 
 ### 2024-05-24 (最新)
+- 🎨 **更多棋盘主题**：新增 6 种主题（樱花粉红、深海蓝调、翠竹青韵、岩石灰调、落日余晖、水墨丹青），共 10 种主题可选
+- ⚛️ **React 版本完善**：重写为完整 React 应用，包含首页、对局设置、游戏界面、主题设置页面
+- 🧪 **补充单元测试**：新增主题管理（theme.test.js）和本地 AI（local-ai.test.js）测试，共 142 个测试全部通过
 - 🤖 **本地 AI 引擎**：新增本地 AI，支持简单/中等/困难三个难度，无需网络即可对弈
 - 🔷 **TypeScript 迁移**：核心引擎已迁移到 TypeScript，类型安全提升
-- ⚛️ **React 示例**：新增完整的 React + TypeScript 前端示例应用
 - 📱 **PWA 支持**：添加 manifest 和 service worker，支持安装和离线使用
 - 🔧 **CI 优化**：修复 GitHub Actions，让 lint 和 e2e 测试更宽松，避免阻塞提交
 

@@ -77,10 +77,33 @@ global.window = {
 global.GoEngine = require('../../js/go-engine.js');
 global.GoGame = require('../../js/game.js');
 global.Storage = require('../../js/storage.js');
+global.LocalAI = require('../../js/local-ai.js');
 const utils = require('../../js/utils.js');
 global.showToast = utils.showToast;
 global.debounce = utils.debounce;
 global.showErrorBoundary = utils.showErrorBoundary;
+
+// 加载 theme.js (需要 document.documentElement)
+global.document.documentElement = {
+  style: {
+    cssText: '',
+    setProperty(prop, value) {
+      this[prop] = value;
+    },
+    getPropertyValue(prop) {
+      return this[prop] || '';
+    }
+  },
+  classList: {
+    classes: [],
+    add(c) { if (!this.classes.includes(c)) this.classes.push(c); },
+    remove(c) { this.classes = this.classes.filter(x => x !== c); },
+    contains(c) { return this.classes.includes(c); }
+  }
+};
+const themeModule = require('../../js/theme.js');
+global.ThemeManager = themeModule.ThemeManager;
+global.SoundManager = themeModule.SoundManager;
 
 // 加载被测模块前清理缓存
 beforeEach(() => {
