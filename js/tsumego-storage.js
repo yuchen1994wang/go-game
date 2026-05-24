@@ -104,7 +104,7 @@ const TsumegoStorage = {
   // 保存最佳步数（多步题用）
   saveBestSteps(problemId, steps) {
     try {
-      const best = this.getBestSteps();
+      const best = this.getAllBestSteps();
       if (!best[problemId] || steps < best[problemId]) {
         best[problemId] = steps;
         localStorage.setItem(this.BEST_STEPS_KEY, JSON.stringify(best));
@@ -115,7 +115,7 @@ const TsumegoStorage = {
   },
 
   // 获取所有最佳步数
-  getBestSteps() {
+  getAllBestSteps() {
     try {
       const data = localStorage.getItem(this.BEST_STEPS_KEY);
       return data ? JSON.parse(data) : {};
@@ -126,7 +126,7 @@ const TsumegoStorage = {
 
   // 获取单个题目最佳步数
   getBestSteps(problemId) {
-    const best = this.getBestSteps();
+    const best = this.getAllBestSteps();
     return best[problemId];
   },
 
