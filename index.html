@@ -19,12 +19,14 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23333'/><circle cx='50' cy='50' r='15' fill='white'/></svg>">
   <link rel="manifest" href="manifest.json">
   <script>
-    // 注销所有Service Worker，避免缓存问题
+    // 注册 Service Worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) {
-          registration.unregister();
-        }
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).then(function(registration) {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(err) {
+          console.log('ServiceWorker registration failed: ', err);
+        });
       });
     }
     // 入口跳转

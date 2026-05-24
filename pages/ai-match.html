@@ -195,6 +195,8 @@
   <script src="../js/game.js?v=6"></script>
   <script src="../js/board-component.js?v=6"></script>
   <script src="../js/ai.js?v=6"></script>
+  <script src="../js/local-ai.js?v=6"></script>
+  <script src="../js/go-engine.js?v=6"></script>
   <script src="../js/header.js?v=6"></script>
   <script>
     class SoundEffects {
@@ -252,7 +254,10 @@
         this.aiPlayer = 2; // AI 默认执白
         this.humanPlayer = 1; // 人类默认执黑
         this.aiLevel = 'medium';
+        this.aiType = 'online';
         this.komi = 6.5;
+        this.localAI = null;
+        this.goEngine = null;
 
         this.init();
       }
@@ -278,11 +283,13 @@
         const handicap = parseInt(urlParams.get('handicap')) || 0;
         const komi = parseFloat(urlParams.get('komi')) || 6.5;
         const aiLevel = urlParams.get('level') || 'medium';
+        const aiType = urlParams.get('aiType') || 'online';
         const humanColor = urlParams.get('humanColor') || 'black';
         const humanPlayer = urlParams.get('human') || Storage.getUsername() || '棋手';
 
-        this.gameConfig = { size, handicap, komi, aiLevel, humanColor, humanPlayer };
+        this.gameConfig = { size, handicap, komi, aiLevel, aiType, humanColor, humanPlayer };
         this.aiLevel = aiLevel;
+        this.aiType = aiType;
         this.komi = komi;
         this.humanPlayer = humanColor === 'black' ? 1 : 2;
         this.aiPlayer = humanColor === 'black' ? 2 : 1;
@@ -320,14 +327,34 @@
       initGame() {
         const { size, handicap } = this.gameConfig;
         this.game = new GoGame(size);
+        this.goEngine = new GoEngine(size);
+        // 复制 board
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            this.goEngine.board[y][x] = this.game.board[y][x];
+          }
+        }
+
+        if (this.aiType === 'local') {
+          // 映射 aiLevel 到 LocalAI 的难度
+          const difficultyMap = {
+            easy: LocalAI.DIFFICULTY_EASY,
+            medium: LocalAI.DIFFICULTY_MEDIUM,
+            hard: LocalAI.DIFFICULTY_HARD
+          };
+          this.localAI = new LocalAI(difficultyMap[this.aiLevel] || LocalAI.DIFFICULTY_MEDIUM);
+        }
+
         this.gameId = Date.now().toString();
 
         if (handicap > 0) {
           const handicapStones = this.getHandicapStones(size, handicap);
           handicapStones.forEach(([x, y]) => {
             this.game.board[y][x] = 1;
+            this.goEngine.board[y][x] = 1;
           });
           this.game.currentPlayer = 2;
+          this.goEngine.currentPlayer = 2;
         }
       }
 
@@ -458,11 +485,21 @@
           return;
         }
 
+        // 同步到 goEngine
+        this.goEngine.board[y][x] = this.humanPlayer;
+        // 复制 captures
+        if (result.captures) {
+          for (const [cx, cy] of result.captures) {
+            this.goEngine.board[cy][cx] = 0;
+          }
+        }
+        this.goEngine.currentPlayer = this.game.currentPlayer;
+
         sound.playStone();
 
         if (result.captures && result.captures.length > 0) {
           sound.playCapture();
-          if (this.game.currentPlayer === 2) {
+          if (this.humanPlayer === 1) {
             this.blackCaptures += result.captures.length;
           } else {
             this.whiteCaptures += result.captures.length;
@@ -494,9 +531,17 @@
         const thinkTime = this.getAIThinkTime();
         await new Promise(resolve => setTimeout(resolve, thinkTime));
 
-        const aiMove = this.getAIMove();
+        let aiMove;
 
-        if (aiMove === null) {
+        if (this.aiType === 'local' && this.localAI) {
+          // 使用本地 AI
+          aiMove = this.localAI.getMove(this.goEngine.board, this.game.size, this.aiPlayer, this.goEngine);
+        } else {
+          // 使用在线 AI（原始实现）
+          aiMove = this.getAIMove();
+        }
+
+        if (aiMove === null || aiMove.pass) {
           // AI 停一手
           this.handlePass();
           this.isAIThinking = false;
@@ -509,9 +554,19 @@
           const validMoves = this.getValidMoves();
           if (validMoves.length > 0) {
             const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+            aiMove = randomMove;
             this.game.makeMove(randomMove.x, randomMove.y);
           }
         }
+
+        // 同步到 goEngine
+        this.goEngine.board[aiMove.y][aiMove.x] = this.aiPlayer;
+        if (result.captures) {
+          for (const [cx, cy] of result.captures) {
+            this.goEngine.board[cy][cx] = 0;
+          }
+        }
+        this.goEngine.currentPlayer = this.game.currentPlayer;
 
         sound.playStone();
 

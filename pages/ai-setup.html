@@ -74,7 +74,7 @@
       border-color: var(--accent-gold);
       color: white;
     }
-    .ai-level-card {
+    .ai-level-card, .ai-type-card {
       background: var(--bg-secondary);
       border-radius: 12px;
       padding: 16px;
@@ -83,10 +83,10 @@
       transition: all 0.2s ease;
       border: 2px solid transparent;
     }
-    .ai-level-card:hover {
+    .ai-level-card:hover, .ai-type-card:hover {
       border-color: var(--accent-gold);
     }
-    .ai-level-card.active {
+    .ai-level-card.active, .ai-type-card.active {
       border-color: var(--accent-gold);
       background: rgba(196, 163, 90, 0.1);
     }
@@ -171,7 +171,19 @@
       </div>
 
       <div class="setup-section">
-        <h2 class="section-title">🤖 AI 难度</h2>
+        <h2 class="section-title">🤖 AI 类型</h2>
+        <div class="ai-type-card active" data-ai-type="online" role="button" tabindex="0" aria-label="在线 AI">
+          <div class="ai-level-name">🌐 在线 AI</div>
+          <div class="ai-level-desc">需要联网，棋力更强，但可能有延迟</div>
+        </div>
+        <div class="ai-type-card" data-ai-type="local" role="button" tabindex="0" aria-label="本地 AI">
+          <div class="ai-level-name">📱 本地 AI</div>
+          <div class="ai-level-desc">无需网络，本地运行，响应更快</div>
+        </div>
+      </div>
+
+      <div class="setup-section" id="aiLevelSection">
+        <h2 class="section-title">🎚️ AI 难度</h2>
         <div class="ai-level-card active" data-level="easy" role="button" tabindex="0" aria-label="初级 AI">
           <div class="ai-level-name">初级 AI</div>
           <div class="ai-level-desc">适合初学者，会犯一些简单的错误</div>
@@ -246,6 +258,7 @@
       constructor() {
         this.settings = {
           size: 19,
+          aiType: 'online',
           level: 'easy',
           humanColor: 'random',
           handicap: 0,
@@ -272,6 +285,27 @@
             document.querySelectorAll('[data-size]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             this.settings.size = parseInt(btn.dataset.size);
+          });
+        });
+
+        // AI 类型选择
+        document.querySelectorAll('[data-ai-type]').forEach(card => {
+          card.addEventListener('click', () => {
+            document.querySelectorAll('[data-ai-type]').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            this.settings.aiType = card.dataset.aiType;
+            // 本地 AI 只支持三个难度
+            const aiLevelSection = document.getElementById('aiLevelSection');
+            if (this.settings.aiType === 'local') {
+              const proCards = aiLevelSection.querySelectorAll('[data-level="pro"]');
+              proCards.forEach(c => c.style.display = 'none');
+              if (this.settings.level === 'pro') {
+                this.settings.level = 'hard';
+                aiLevelSection.querySelectorAll('[data-level="hard"]').forEach(c => c.classList.add('active'));
+              }
+            } else {
+              aiLevelSection.querySelectorAll('[data-level="pro"]').forEach(c => c.style.display = 'block');
+            }
           });
         });
 
@@ -321,6 +355,7 @@
 
           const params = new URLSearchParams({
             size: this.settings.size,
+            aiType: this.settings.aiType,
             level: this.settings.level,
             humanColor: finalColor,
             handicap: this.settings.handicap,
