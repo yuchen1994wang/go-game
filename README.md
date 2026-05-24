@@ -166,7 +166,6 @@ go-game-project/
 │   ├── worker-manager.js  # Web Worker 管理器
 │   ├── workers/
 │   │   └── ai-worker.js   # AI 计算 Worker
-│   ├── learning-path.js   # 学习路径推荐
 │   ├── game-analyzer.js   # 棋局分析工具
 │   ├── performance.js     # 性能优化工具
 │   ├── endgame-scenarios.js # 残局模式库

@@ -35,7 +35,6 @@
     .stat-item { background: var(--panel-bg); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid var(--border-color); }
     .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
     .stat-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
-    .learning-path-section { padding: 24px 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
     .section-title { font-family: 'Noto Serif SC', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 16px; }
     @media (max-width: 768px) {
       .hero-title { font-size: 1.8rem; }
@@ -107,11 +106,6 @@
           </div>
         </div>
       </section>
-
-      <section class="learning-path-section">
-        <h2 class="section-title">📈 学习路径推荐</h2>
-        <div id="learningPathList"></div>
-      </section>
     </main>
   </div>
 
@@ -139,88 +133,7 @@
         });
         this.loadUserInfo();
         this.loadStats();
-        this.loadLearningPath();
         this.bindEvents();
-      }
-
-      async loadLearningPath() {
-        try {
-          const container = document.getElementById('learningPathList');
-          const games = Storage.getSavedGames();
-          
-          const recommendations = this.generateRecommendations(games);
-          
-          if (recommendations.length === 0) {
-            container.innerHTML = `
-              <div class="empty-state">
-                <div class="empty-state-icon">💡</div>
-                <p>开始几局对弈，我们会为您推荐更合适的学习路径！</p>
-              </div>
-            `;
-            return;
-          }
-
-          container.innerHTML = recommendations.map((item, index) => `
-            <div class="game-item" onclick="window.location.href='${item.url}'" role="button" tabindex="0" aria-label="${item.title}">
-              <div class="game-info">
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                  <div style="display:flex;align-items:center;gap:8px;">
-                    <span style="font-size:1.2rem;">${item.icon}</span>
-                    <span style="font-weight:600;">${item.title}</span>
-                    <span style="background:${item.priority === 'high' ? '#FFEBEE' : item.priority === 'medium' ? '#FFF3E0' : '#E8F5E9'};color:${item.priority === 'high' ? '#C62828' : item.priority === 'medium' ? '#EF6C00' : '#2E7D32'};padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;">${item.priority === 'high' ? '高优先' : item.priority === 'medium' ? '中优先' : '低优先'}</span>
-                  </div>
-                  <div style="font-size:0.85rem;color:var(--text-secondary);">${item.description}</div>
-                </div>
-              </div>
-              <div style="font-size:0.8rem;color:var(--text-secondary);">${item.estimatedTime}分钟</div>
-            </div>
-          `).join('');
-        } catch (error) {
-          console.error('Failed to load learning path:', error);
-          document.getElementById('learningPathList').innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon">⚠️</div>
-              <p>加载学习路径失败</p>
-            </div>
-          `;
-        }
-      }
-
-      generateRecommendations(games) {
-        const recommendations = [];
-        
-        if (games.length < 3) {
-          recommendations.push({
-            icon: '🤖',
-            title: '开始 AI 对弈',
-            description: '通过与 AI 对弈熟悉围棋规则和基本操作',
-            url: 'ai-setup.html',
-            priority: 'high',
-            estimatedTime: 15
-          });
-        }
-        
-        if (games.length >= 3) {
-          recommendations.push({
-            icon: '📐',
-            title: '学习定式',
-            description: '掌握常见定式，提升布局能力',
-            url: 'pattern-list.html',
-            priority: 'medium',
-            estimatedTime: 20
-          });
-        }
-        
-        recommendations.push({
-          icon: '📚',
-          title: '查看棋谱',
-          description: '复盘历史对局，总结经验教训',
-          url: 'kifu.html',
-          priority: 'low',
-          estimatedTime: 10
-        });
-        
-        return recommendations;
       }
 
       loadUserInfo() {
