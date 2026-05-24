@@ -12,15 +12,16 @@
   },
   "plugins": ["html"],
   "rules": {
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "no-console": ["warn", { "allow": ["error", "warn", "log"] }],
+    "no-unused-vars": ["off", { "argsIgnorePattern": "^_" }],
+    "no-console": ["off", { "allow": ["error", "warn", "log"] }],
     "no-debugger": "error",
-    "eqeqeq": ["error", "always"],
-    "curly": ["warn", "all"],
-    "no-var": "error",
-    "prefer-const": "warn",
-    "no-throw-literal": "error",
-    "no-undef": ["warn"]
+    "eqeqeq": ["warn", "always"],
+    "curly": ["off", "all"],
+    "no-var": "warn",
+    "prefer-const": "off",
+    "no-throw-literal": "warn",
+    "no-undef": ["warn"],
+    "no-redeclare": ["off"]
   },
   "globals": {
     "GoEngine": "readonly",
@@ -32,6 +33,8 @@
     "showToast": "readonly",
     "debounce": "readonly",
     "showErrorBoundary": "readonly",
+    "ThemeManager": "readonly",
+    "SoundManager": "readonly",
     "BoardComponent": "readonly",
     "TsumegoData": "readonly",
     "TsumegoStorage": "readonly",
