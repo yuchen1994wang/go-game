@@ -979,8 +979,95 @@
 
       bindEvents() {
         const goban = document.getElementById('goban');
+        const boardWrapper = document.querySelector('.board-wrapper');
+
+        // 手势支持
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isGesturing = false;
+        let lastTouchDistance = 0;
+        let lastTouchCenter = { x: 0, y: 0 };
+
+        if (boardWrapper) {
+          boardWrapper.style.overflow = 'hidden';
+          boardWrapper.style.touchAction = 'none';
+          goban.style.transformOrigin = 'center center';
+          goban.style.transition = 'transform 0.1s ease-out';
+
+          const getTouchDistance = (touches) => {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+          };
+
+          const getTouchCenter = (touches) => ({
+            x: (touches[0].clientX + touches[1].clientX) / 2,
+            y: (touches[0].clientY + touches[1].clientY) / 2
+          });
+
+          const constrainTranslation = () => {
+            const rect = boardWrapper.getBoundingClientRect();
+            const scaledWidth = rect.width * scale;
+            const scaledHeight = rect.height * scale;
+            const maxTranslateX = Math.max(0, (scaledWidth - rect.width) / 2);
+            const maxTranslateY = Math.max(0, (scaledHeight - rect.height) / 2);
+            translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
+            translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
+          };
+
+          const applyTransform = () => {
+            goban.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+          };
+
+          boardWrapper.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+              isGesturing = true;
+              lastTouchDistance = getTouchDistance(e.touches);
+              lastTouchCenter = getTouchCenter(e.touches);
+              e.preventDefault();
+            } else if (e.touches.length === 1 && scale > 1) {
+              lastTouchCenter = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+          }, { passive: false });
+
+          boardWrapper.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+              e.preventDefault();
+              const distance = getTouchDistance(e.touches);
+              const scaleDelta = distance / lastTouchDistance;
+              scale = Math.max(1, Math.min(3, scale * scaleDelta));
+              applyTransform();
+              lastTouchDistance = distance;
+            } else if (e.touches.length === 1 && scale > 1) {
+              e.preventDefault();
+              const touch = e.touches[0];
+              translateX += touch.clientX - lastTouchCenter.x;
+              translateY += touch.clientY - lastTouchCenter.y;
+              constrainTranslation();
+              applyTransform();
+              lastTouchCenter = { x: touch.clientX, y: touch.clientY };
+            }
+          }, { passive: false });
+
+          boardWrapper.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) {
+              setTimeout(() => { isGesturing = false; }, 100);
+            }
+            if (e.touches.length === 0 && scale <= 1.05) {
+              scale = 1; translateX = 0; translateY = 0;
+              applyTransform();
+            }
+          });
+
+          boardWrapper.addEventListener('dblclick', () => {
+            scale = 1; translateX = 0; translateY = 0;
+            applyTransform();
+          });
+        }
 
         goban.addEventListener('click', (e) => {
+          if (isGesturing) return;
           const intersection = e.target.closest('.intersection');
           if (intersection) {
             const x = parseInt(intersection.dataset.x);

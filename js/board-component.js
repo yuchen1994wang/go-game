@@ -24,11 +24,18 @@ class BoardComponent {
     this.lastMove = null;
     this.cacheCanvas = null;
     this.isDirty = true;
-    
+
+    this.scale = 1;
+    this.translateX = 0;
+    this.translateY = 0;
+    this.isGesturing = false;
+    this.lastTouchDistance = 0;
+    this.lastTouchCenter = { x: 0, y: 0 };
+
     if (this.autoSize) {
       this.calculateResponsiveSize();
     }
-    
+
     this.init();
   }
 
@@ -269,6 +276,7 @@ class BoardComponent {
 
   bindEvents() {
     this.container.addEventListener('click', (e) => {
+      if (this.isGesturing) return;
       const intersection = e.target.closest('.intersection');
       if (intersection && this.onIntersectionClick) {
         const x = parseInt(intersection.dataset.x);
@@ -285,6 +293,111 @@ class BoardComponent {
         this.onIntersectionHover(x, y);
       }
     });
+
+    this.bindTouchEvents();
+  }
+
+  bindTouchEvents() {
+    const boardWrapper = this.container.closest('.board-wrapper') || this.container.parentElement;
+    if (!boardWrapper) return;
+
+    boardWrapper.style.overflow = 'hidden';
+    boardWrapper.style.touchAction = 'none';
+    this.container.style.transformOrigin = 'center center';
+    this.container.style.transition = 'transform 0.1s ease-out';
+
+    boardWrapper.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        this.isGesturing = true;
+        this.lastTouchDistance = this.getTouchDistance(e.touches);
+        this.lastTouchCenter = this.getTouchCenter(e.touches);
+        e.preventDefault();
+      } else if (e.touches.length === 1 && this.scale > 1) {
+        this.lastTouchCenter = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    }, { passive: false });
+
+    boardWrapper.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const distance = this.getTouchDistance(e.touches);
+        const center = this.getTouchCenter(e.touches);
+
+        const scaleDelta = distance / this.lastTouchDistance;
+        const newScale = Math.max(1, Math.min(3, this.scale * scaleDelta));
+
+        if (newScale !== this.scale) {
+          this.scale = newScale;
+          this.applyTransform();
+        }
+
+        this.lastTouchDistance = distance;
+        this.lastTouchCenter = center;
+      } else if (e.touches.length === 1 && this.scale > 1) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - this.lastTouchCenter.x;
+        const deltaY = touch.clientY - this.lastTouchCenter.y;
+
+        this.translateX += deltaX;
+        this.translateY += deltaY;
+        this.constrainTranslation(boardWrapper);
+        this.applyTransform();
+
+        this.lastTouchCenter = { x: touch.clientX, y: touch.clientY };
+      }
+    }, { passive: false });
+
+    boardWrapper.addEventListener('touchend', (e) => {
+      if (e.touches.length < 2) {
+        setTimeout(() => { this.isGesturing = false; }, 100);
+      }
+      if (e.touches.length === 0 && this.scale <= 1.05) {
+        this.scale = 1;
+        this.translateX = 0;
+        this.translateY = 0;
+        this.applyTransform();
+      }
+    });
+
+    boardWrapper.addEventListener('touchcancel', () => {
+      this.isGesturing = false;
+    });
+
+    boardWrapper.addEventListener('dblclick', () => {
+      this.scale = 1;
+      this.translateX = 0;
+      this.translateY = 0;
+      this.applyTransform();
+    });
+  }
+
+  getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  getTouchCenter(touches) {
+    return {
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2
+    };
+  }
+
+  constrainTranslation(boardWrapper) {
+    const rect = boardWrapper.getBoundingClientRect();
+    const scaledWidth = rect.width * this.scale;
+    const scaledHeight = rect.height * this.scale;
+    const maxTranslateX = Math.max(0, (scaledWidth - rect.width) / 2);
+    const maxTranslateY = Math.max(0, (scaledHeight - rect.height) / 2);
+
+    this.translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, this.translateX));
+    this.translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, this.translateY));
+  }
+
+  applyTransform() {
+    this.container.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
   }
 
   getStarPoints() {
