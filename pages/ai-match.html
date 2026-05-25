@@ -623,6 +623,7 @@
           this.localAI = null;
           this.goEngine = null;
           this.boardRenderer = null;
+          this.letters = 'ABCDEFGHJKLMNOPQRST';
 
           this.init();
         }
@@ -1215,7 +1216,7 @@
             aiLevel: this.aiLevel,
           };
 
-          Storage.saveGame(gameData);
+          Storage.addGame(gameData);
           showToast('对局已保存', 'success');
         }
 

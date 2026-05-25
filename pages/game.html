@@ -719,6 +719,7 @@
           this.gameType = 'human';
           this.komi = 6.5;
           this.boardRenderer = null;
+          this.letters = 'ABCDEFGHJKLMNOPQRST';
 
           this.init();
         }
@@ -1021,7 +1022,7 @@
             result: this.gameResult || null,
           };
 
-          Storage.saveGame(gameData);
+          Storage.addGame(gameData);
           showToast('对局已保存', 'success');
         }
 
