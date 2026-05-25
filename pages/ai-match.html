@@ -240,6 +240,7 @@
         this.loadGameConfig();
         this.initGame();
         this.renderBoard();
+        this.renderCoords();
         this.updateUI();
         this.bindEvents();
         this.startTimer();
@@ -400,6 +401,55 @@
         }
 
         this.updateBoard();
+      }
+
+      renderCoords() {
+        const goban = document.getElementById('goban');
+        const size = this.game.size;
+
+        const topCoords = document.createElement('div');
+        topCoords.className = 'board-coords coord-top';
+        for (let i = 0; i < size; i++) {
+          const label = document.createElement('span');
+          label.className = 'coord-label';
+          label.textContent = this.letters[i] || '';
+          label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
+          topCoords.appendChild(label);
+        }
+        goban.appendChild(topCoords);
+
+        const bottomCoords = document.createElement('div');
+        bottomCoords.className = 'board-coords coord-bottom';
+        for (let i = 0; i < size; i++) {
+          const label = document.createElement('span');
+          label.className = 'coord-label';
+          label.textContent = this.letters[i] || '';
+          label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
+          bottomCoords.appendChild(label);
+        }
+        goban.appendChild(bottomCoords);
+
+        const leftCoords = document.createElement('div');
+        leftCoords.className = 'board-coords coord-left';
+        for (let i = 0; i < size; i++) {
+          const label = document.createElement('span');
+          label.className = 'coord-label';
+          label.textContent = size - i;
+          label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
+          leftCoords.appendChild(label);
+        }
+        goban.appendChild(leftCoords);
+
+        const rightCoords = document.createElement('div');
+        rightCoords.className = 'board-coords coord-right';
+        for (let i = 0; i < size; i++) {
+          const label = document.createElement('span');
+          label.className = 'coord-label';
+          label.textContent = size - i;
+          label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
+          rightCoords.appendChild(label);
+        }
+        goban.appendChild(rightCoords);
       }
 
       getStarPoints(size) {

@@ -425,6 +425,7 @@
           const label = document.createElement('span');
           label.className = 'coord-label';
           label.textContent = this.letters[i] || '';
+          label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
           topCoords.appendChild(label);
         }
         goban.appendChild(topCoords);
@@ -435,6 +436,7 @@
           const label = document.createElement('span');
           label.className = 'coord-label';
           label.textContent = this.letters[i] || '';
+          label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
           bottomCoords.appendChild(label);
         }
         goban.appendChild(bottomCoords);
@@ -445,6 +447,7 @@
           const label = document.createElement('span');
           label.className = 'coord-label';
           label.textContent = size - i;
+          label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
           leftCoords.appendChild(label);
         }
         goban.appendChild(leftCoords);
@@ -455,6 +458,7 @@
           const label = document.createElement('span');
           label.className = 'coord-label';
           label.textContent = size - i;
+          label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
           rightCoords.appendChild(label);
         }
         goban.appendChild(rightCoords);
