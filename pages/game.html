@@ -135,11 +135,11 @@
       }
       .coord-label {
         position: absolute;
-        font-size: 11px;
+        font-size: clamp(8px, calc(var(--cell-size, 40px) * 0.28), 11px);
         color: var(--line-color);
         font-family: 'JetBrains Mono', monospace;
-        width: 20px;
-        height: 20px;
+        width: calc(var(--cell-size, 40px) * 0.5);
+        height: calc(var(--cell-size, 40px) * 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -170,8 +170,8 @@
       }
       .intersection {
         position: absolute;
-        width: 40px;
-        height: 40px;
+        width: var(--cell-size, 40px);
+        height: var(--cell-size, 40px);
         transform: translate(-50%, -50%);
         display: flex;
         align-items: center;
@@ -184,15 +184,15 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 36px;
-        height: 36px;
+        width: calc(var(--cell-size, 40px) - 4px);
+        height: calc(var(--cell-size, 40px) - 4px);
         border-radius: 50%;
         background: rgba(102, 126, 234, 0.3);
         pointer-events: none;
       }
       .stone {
-        width: 36px;
-        height: 36px;
+        width: calc(var(--cell-size, 40px) - 4px);
+        height: calc(var(--cell-size, 40px) - 4px);
         border-radius: 50%;
         position: absolute;
         transform: scale(0);
@@ -227,8 +227,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 10px;
-        height: 10px;
+        width: calc(var(--cell-size, 40px) * 0.25);
+        height: calc(var(--cell-size, 40px) * 0.25);
         border-radius: 50%;
         background: var(--accent-red);
         box-shadow: 0 0 6px rgba(196, 30, 58, 0.8);
@@ -250,7 +250,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 11px;
+        font-size: clamp(8px, calc(var(--cell-size, 40px) * 0.28), 11px);
         font-weight: 600;
         font-family: 'JetBrains Mono', monospace;
         z-index: 25;
@@ -906,6 +906,9 @@
 
           const boardSize = this.cellSize * (size - 1) + this.boardPadding * 2;
 
+          // 设置 CSS 变量，让棋子和交叉点尺寸跟随 cellSize
+          goban.style.setProperty('--cell-size', `${this.cellSize}px`);
+
           goban.style.width = `${boardSize}px`;
           goban.style.height = `${boardSize}px`;
           goban.innerHTML = '';
@@ -942,7 +945,7 @@
             circle.setAttribute('class', 'star-point');
             circle.setAttribute('cx', this.boardPadding + x * this.cellSize);
             circle.setAttribute('cy', this.boardPadding + y * this.cellSize);
-            circle.setAttribute('r', size === 9 ? 4 : 3);
+            circle.setAttribute('r', Math.max(2, this.cellSize * 0.08));
             svg.appendChild(circle);
           });
 
@@ -970,13 +973,15 @@
           // 清除旧坐标
           goban.querySelectorAll('.board-coords').forEach(el => el.remove());
 
+          const labelOffset = this.cellSize * 0.25;
+
           const topCoords = document.createElement('div');
           topCoords.className = 'board-coords coord-top';
           for (let i = 0; i < size; i++) {
             const label = document.createElement('span');
             label.className = 'coord-label';
             label.textContent = this.letters[i] || '';
-            label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
+            label.style.left = `${this.boardPadding + i * this.cellSize - labelOffset}px`;
             label.style.top = '0px';
             topCoords.appendChild(label);
           }
@@ -988,7 +993,7 @@
             const label = document.createElement('span');
             label.className = 'coord-label';
             label.textContent = this.letters[i] || '';
-            label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
+            label.style.left = `${this.boardPadding + i * this.cellSize - labelOffset}px`;
             label.style.top = '0px';
             bottomCoords.appendChild(label);
           }
@@ -1000,7 +1005,7 @@
             const label = document.createElement('span');
             label.className = 'coord-label';
             label.textContent = size - i;
-            label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
+            label.style.top = `${this.boardPadding + i * this.cellSize - labelOffset}px`;
             label.style.left = '0px';
             leftCoords.appendChild(label);
           }
@@ -1012,7 +1017,7 @@
             const label = document.createElement('span');
             label.className = 'coord-label';
             label.textContent = size - i;
-            label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
+            label.style.top = `${this.boardPadding + i * this.cellSize - labelOffset}px`;
             label.style.left = '0px';
             rightCoords.appendChild(label);
           }
