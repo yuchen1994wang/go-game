@@ -694,7 +694,7 @@
     <script src="../js/storage.js?v=6"></script>
     <script src="../js/theme.js?v=6"></script>
     <script src="../js/game.js?v=6"></script>
-    <script src="../js/board-component.js?v=6"></script>
+    <script src="../js/board-renderer.js?v=6"></script>
     <script src="../js/ai.js?v=6"></script>
     <script src="../js/header.js?v=6"></script>
     <script>
@@ -704,9 +704,6 @@
         constructor() {
           this.game = null;
           this.gameId = null;
-          this.cellSize = 40;
-          this.boardPadding = 30;
-          this.letters = 'ABCDEFGHJKLMNOPQRST';
           this.moveHistory = [];
           this.currentMove = -1;
           this.blackCaptures = 0;
@@ -721,6 +718,7 @@
           this.whitePlayer = '白方';
           this.gameType = 'human';
           this.komi = 6.5;
+          this.boardRenderer = null;
 
           this.init();
         }
@@ -729,8 +727,10 @@
           Header.init({ showSettings: true });
           this.loadGameConfig();
           this.initGame();
-          this.renderBoard();
-          this.renderCoords();
+          this.boardRenderer = new BoardRenderer({
+            onIntersectionClick: (x, y) => this.handleClick(x, y),
+          });
+          this.boardRenderer.render(this.game.size, this.game.board, this.moveHistory);
           this.updateUI();
           this.bindEvents();
           this.startTimer();
@@ -886,191 +886,10 @@
           return (stones[size] && stones[size][count]) || [];
         }
 
-        renderBoard() {
-          const goban = document.getElementById('goban');
-          const size = this.game.size;
-
-          // 移动端自适应：计算合适的 cellSize
-          const isMobile = window.innerWidth <= 900;
-          const sectionWidth = isMobile
-            ? window.innerWidth - 40
-            : Math.min(window.innerWidth - 420, 800);
-          const sectionHeight = isMobile ? window.innerHeight - 200 : window.innerHeight - 140;
-          const availableSize = Math.min(sectionWidth, sectionHeight);
-          const desiredBoardSize = this.cellSize * (size - 1) + this.boardPadding * 2;
-
-          if (isMobile && desiredBoardSize > availableSize) {
-            this.cellSize = Math.floor((availableSize - this.boardPadding * 2) / (size - 1));
-            this.cellSize = Math.max(this.cellSize, 20); // 最小20px
-          }
-
-          const boardSize = this.cellSize * (size - 1) + this.boardPadding * 2;
-
-          // 设置 CSS 变量，让棋子和交叉点尺寸跟随 cellSize
-          goban.style.setProperty('--cell-size', `${this.cellSize}px`);
-
-          goban.style.width = `${boardSize}px`;
-          goban.style.height = `${boardSize}px`;
-          goban.innerHTML = '';
-
-          const svgNS = 'http://www.w3.org/2000/svg';
-          const svg = document.createElementNS(svgNS, 'svg');
-          svg.setAttribute('class', 'board-grid');
-          svg.setAttribute('width', boardSize);
-          svg.setAttribute('height', boardSize);
-          svg.setAttribute('viewBox', `0 0 ${boardSize} ${boardSize}`);
-
-          for (let i = 0; i < size; i++) {
-            const pos = this.boardPadding + i * this.cellSize;
-            const hLine = document.createElementNS(svgNS, 'line');
-            hLine.setAttribute('class', 'grid-line');
-            hLine.setAttribute('x1', this.boardPadding);
-            hLine.setAttribute('y1', pos);
-            hLine.setAttribute('x2', boardSize - this.boardPadding);
-            hLine.setAttribute('y2', pos);
-            svg.appendChild(hLine);
-
-            const vLine = document.createElementNS(svgNS, 'line');
-            vLine.setAttribute('class', 'grid-line');
-            vLine.setAttribute('x1', pos);
-            vLine.setAttribute('y1', this.boardPadding);
-            vLine.setAttribute('x2', pos);
-            vLine.setAttribute('y2', boardSize - this.boardPadding);
-            svg.appendChild(vLine);
-          }
-
-          const starPoints = this.getStarPoints(size);
-          starPoints.forEach(([x, y]) => {
-            const circle = document.createElementNS(svgNS, 'circle');
-            circle.setAttribute('class', 'star-point');
-            circle.setAttribute('cx', this.boardPadding + x * this.cellSize);
-            circle.setAttribute('cy', this.boardPadding + y * this.cellSize);
-            circle.setAttribute('r', Math.max(2, this.cellSize * 0.08));
-            svg.appendChild(circle);
-          });
-
-          goban.appendChild(svg);
-
-          for (let y = 0; y < size; y++) {
-            for (let x = 0; x < size; x++) {
-              const intersection = document.createElement('div');
-              intersection.className = 'intersection';
-              intersection.dataset.x = x;
-              intersection.dataset.y = y;
-              intersection.style.left = `${this.boardPadding + x * this.cellSize}px`;
-              intersection.style.top = `${this.boardPadding + y * this.cellSize}px`;
-              goban.appendChild(intersection);
-            }
-          }
-
-          this.updateBoard();
-        }
-
-        renderCoords() {
-          const goban = document.getElementById('goban');
-          const size = this.game.size;
-
-          // 清除旧坐标
-          goban.querySelectorAll('.board-coords').forEach(el => el.remove());
-
-          const labelOffset = this.cellSize * 0.25;
-
-          const topCoords = document.createElement('div');
-          topCoords.className = 'board-coords coord-top';
-          for (let i = 0; i < size; i++) {
-            const label = document.createElement('span');
-            label.className = 'coord-label';
-            label.textContent = this.letters[i] || '';
-            label.style.left = `${this.boardPadding + i * this.cellSize - labelOffset}px`;
-            label.style.top = '0px';
-            topCoords.appendChild(label);
-          }
-          goban.appendChild(topCoords);
-
-          const bottomCoords = document.createElement('div');
-          bottomCoords.className = 'board-coords coord-bottom';
-          for (let i = 0; i < size; i++) {
-            const label = document.createElement('span');
-            label.className = 'coord-label';
-            label.textContent = this.letters[i] || '';
-            label.style.left = `${this.boardPadding + i * this.cellSize - labelOffset}px`;
-            label.style.top = '0px';
-            bottomCoords.appendChild(label);
-          }
-          goban.appendChild(bottomCoords);
-
-          const leftCoords = document.createElement('div');
-          leftCoords.className = 'board-coords coord-left';
-          for (let i = 0; i < size; i++) {
-            const label = document.createElement('span');
-            label.className = 'coord-label';
-            label.textContent = size - i;
-            label.style.top = `${this.boardPadding + i * this.cellSize - labelOffset}px`;
-            label.style.left = '0px';
-            leftCoords.appendChild(label);
-          }
-          goban.appendChild(leftCoords);
-
-          const rightCoords = document.createElement('div');
-          rightCoords.className = 'board-coords coord-right';
-          for (let i = 0; i < size; i++) {
-            const label = document.createElement('span');
-            label.className = 'coord-label';
-            label.textContent = size - i;
-            label.style.top = `${this.boardPadding + i * this.cellSize - labelOffset}px`;
-            label.style.left = '0px';
-            rightCoords.appendChild(label);
-          }
-          goban.appendChild(rightCoords);
-        }
-
-        getStarPoints(size) {
-          const points = [];
-          if (size === 9) {
-            points.push([2, 2], [2, 6], [4, 4], [6, 2], [6, 6]);
-          } else if (size === 13) {
-            for (let i = 0; i < 3; i++) {
-              for (let j = 0; j < 3; j++) {
-                points.push([3 + i * 3, 3 + j * 3]);
-              }
-            }
-          } else {
-            for (let i = 0; i < 3; i++) {
-              for (let j = 0; j < 3; j++) {
-                points.push([3 + i * 6, 3 + j * 6]);
-              }
-            }
-          }
-          return points;
-        }
-
         updateBoard() {
-          const size = this.game.size;
-          const intersections = document.querySelectorAll('.intersection');
-
-          intersections.forEach(intersection => {
-            const x = parseInt(intersection.dataset.x);
-            const y = parseInt(intersection.dataset.y);
-            const stone = intersection.querySelector('.stone');
-
-            if (stone) {
-              stone.remove();
-            }
-
-            const cellValue = this.game.board[y][x];
-            if (cellValue !== 0) {
-              const stoneColor = cellValue === 1 ? 'black' : 'white';
-              const isLastMove =
-                this.moveHistory.length > 0 &&
-                this.moveHistory[this.moveHistory.length - 1].x === x &&
-                this.moveHistory[this.moveHistory.length - 1].y === y;
-
-              const newStone = document.createElement('div');
-              newStone.className = `stone ${stoneColor}${isLastMove ? ' last-move' : ''}`;
-              intersection.appendChild(newStone);
-              requestAnimationFrame(() => newStone.classList.add('visible'));
-            }
-          });
+          if (this.boardRenderer) {
+            this.boardRenderer.updateStones(this.game.board, this.moveHistory);
+          }
         }
 
         handleClick(x, y) {
@@ -1398,126 +1217,6 @@
         }
 
         bindEvents() {
-          const goban = document.getElementById('goban');
-          const boardWrapper = document.querySelector('.board-wrapper');
-
-          // 手势支持
-          let scale = 1;
-          let translateX = 0;
-          let translateY = 0;
-          let isGesturing = false;
-          let lastTouchDistance = 0;
-          let lastTouchCenter = { x: 0, y: 0 };
-          let isPanning = false;
-          let panStart = { x: 0, y: 0 };
-
-          if (boardWrapper) {
-            boardWrapper.style.overflow = 'hidden';
-            boardWrapper.style.touchAction = 'none';
-            goban.style.transformOrigin = 'center center';
-            goban.style.transition = 'transform 0.1s ease-out';
-
-            const getTouchDistance = touches => {
-              const dx = touches[0].clientX - touches[1].clientX;
-              const dy = touches[0].clientY - touches[1].clientY;
-              return Math.sqrt(dx * dx + dy * dy);
-            };
-
-            const getTouchCenter = touches => ({
-              x: (touches[0].clientX + touches[1].clientX) / 2,
-              y: (touches[0].clientY + touches[1].clientY) / 2,
-            });
-
-            const constrainTranslation = () => {
-              const gobanRect = goban.getBoundingClientRect();
-              const wrapperRect = boardWrapper.getBoundingClientRect();
-              const scaledWidth = gobanRect.width;
-              const scaledHeight = gobanRect.height;
-              const maxTranslateX = Math.max(0, (scaledWidth - wrapperRect.width) / 2 / scale);
-              const maxTranslateY = Math.max(0, (scaledHeight - wrapperRect.height) / 2 / scale);
-              translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
-              translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
-            };
-
-            const applyTransform = () => {
-              goban.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-            };
-
-            boardWrapper.addEventListener(
-              'touchstart',
-              e => {
-                if (e.touches.length === 2) {
-                  isGesturing = true;
-                  lastTouchDistance = getTouchDistance(e.touches);
-                  lastTouchCenter = getTouchCenter(e.touches);
-                  e.preventDefault();
-                } else if (e.touches.length === 1) {
-                  isPanning = true;
-                  panStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                  lastTouchCenter = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                }
-              },
-              { passive: false }
-            );
-
-            boardWrapper.addEventListener(
-              'touchmove',
-              e => {
-                if (e.touches.length === 2) {
-                  e.preventDefault();
-                  const distance = getTouchDistance(e.touches);
-                  const scaleDelta = distance / lastTouchDistance;
-                  scale = Math.max(1, Math.min(3, scale * scaleDelta));
-                  applyTransform();
-                  lastTouchDistance = distance;
-                } else if (e.touches.length === 1 && isPanning) {
-                  e.preventDefault();
-                  const touch = e.touches[0];
-                  translateX += touch.clientX - lastTouchCenter.x;
-                  translateY += touch.clientY - lastTouchCenter.y;
-                  constrainTranslation();
-                  applyTransform();
-                  lastTouchCenter = { x: touch.clientX, y: touch.clientY };
-                }
-              },
-              { passive: false }
-            );
-
-            boardWrapper.addEventListener('touchend', e => {
-              if (e.touches.length < 2) {
-                setTimeout(() => {
-                  isGesturing = false;
-                }, 100);
-              }
-              if (e.touches.length === 0) {
-                isPanning = false;
-                if (scale <= 1.05) {
-                  scale = 1;
-                  translateX = 0;
-                  translateY = 0;
-                  applyTransform();
-                }
-              }
-            });
-
-            boardWrapper.addEventListener('dblclick', () => {
-              scale = 1;
-              translateX = 0;
-              translateY = 0;
-              applyTransform();
-            });
-          }
-
-          goban.addEventListener('click', e => {
-            if (isGesturing) return;
-            const intersection = e.target.closest('.intersection');
-            if (intersection) {
-              const x = parseInt(intersection.dataset.x);
-              const y = parseInt(intersection.dataset.y);
-              this.handleClick(x, y);
-            }
-          });
-
           document.getElementById('undoBtn').addEventListener('click', () => this.handleUndo());
           document.getElementById('passBtn').addEventListener('click', () => this.handlePass());
           document.getElementById('pauseBtn').addEventListener('click', () => this.handlePause());

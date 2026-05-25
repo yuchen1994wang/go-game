@@ -1,1152 +1,1447 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI 对弈 - 围棋对弈复盘</title>
-  <meta name="description" content="与AI进行围棋对弈，提升棋力">
-  <meta name="keywords" content="围棋,围棋对弈,围棋学习,死活题,棋谱,AI对弈">
-  <meta name="author" content="围棋对弈复盘">
-  <meta name="robots" content="index, follow">
-  <meta property="og:title" content="AI 对弈 - 围棋对弈复盘">
-  <meta property="og:description" content="与AI进行围棋对弈，提升棋力">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary">
-  <meta name="theme-color" content="#C4A35A">
-  <link rel="manifest" href="../manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/common.css">
-  <style>
-    .ai-match-page { display: flex; flex-direction: column; min-height: 100vh; }
-    .game-info { display: flex; align-items: center; gap: 16px; font-size: 0.9rem; color: var(--text-secondary); }
-    .game-info-item { display: flex; align-items: center; gap: 6px; }
-    .player-info { display: flex; align-items: center; gap: 8px; }
-    .player-dot { width: 12px; height: 12px; border-radius: 50%; }
-    .player-dot.black { background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%); }
-    .player-dot.white { background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%); border: 1px solid rgba(0,0,0,0.1); }
-    .current-turn { padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
-    .current-turn.black { background: var(--stone-black); color: white; }
-    .current-turn.white { background: var(--stone-white); color: var(--text-primary); border: 1px solid var(--border-color); }
-    .ai-badge { padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; background: #E3F2FD; color: #1976D2; }
-    main { flex: 1; display: flex; padding: 20px; gap: 20px; max-width: 1400px; margin: 0 auto; width: 100%; }
-    .board-section { flex: 1; display: flex; align-items: center; justify-content: center; }
-    .board-wrapper { position: relative; background: linear-gradient(145deg, var(--board-wood-light) 0%, var(--board-wood) 50%, var(--board-dark) 100%); border-radius: 8px; padding: 30px; box-shadow: var(--shadow-medium); }
-    .goban { position: relative; background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%); border-radius: 4px; overflow: visible; }
-    .board-grid { position: absolute; top: 0; left: 0; pointer-events: none; }
-    .board-coords { position: absolute; pointer-events: none; }
-    .coord-label { position: absolute; font-size: 11px; color: var(--line-color); font-family: 'JetBrains Mono', monospace; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
-    .coord-top { top: -24px; left: 0; width: 100%; height: 20px; }
-    .coord-bottom { bottom: -24px; left: 0; width: 100%; height: 20px; }
-    .coord-left { left: -24px; top: 0; width: 20px; height: 100%; }
-    .coord-right { right: -24px; top: 0; width: 20px; height: 100%; }
-    .grid-line { stroke: var(--line-color); stroke-width: 1; opacity: 0.7; }
-    .star-point { fill: var(--line-color); }
-    .intersection { position: absolute; width: 40px; height: 40px; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; z-index: 10; }
-    .intersection:hover::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(102, 126, 234, 0.3); pointer-events: none; }
-    .stone { width: 36px; height: 36px; border-radius: 50%; position: absolute; transform: scale(0); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 20; }
-    .stone.visible { transform: scale(1); }
-    .stone.black { background: radial-gradient(circle at 30% 30%, var(--stone-black-highlight), var(--stone-black) 60%); box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.4); }
-    .stone.white { background: radial-gradient(circle at 30% 30%, #ffffff, var(--stone-white) 50%, var(--stone-white-shadow) 100%); box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.1); }
-    .stone.last-move::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background: var(--accent-red); box-shadow: 0 0 6px rgba(196, 30, 58, 0.8); animation: lastMovePulse 1.5s ease-in-out infinite; }
-    @keyframes lastMovePulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.8; }
-    }
-    .stone.ai-thinking { animation: ai-pulse 1s infinite; }
-    @keyframes ai-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-    .control-panel { width: 380px; background: var(--panel-bg); border-radius: 16px; box-shadow: var(--shadow-medium); border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; max-height: calc(100vh - 140px); }
-    .panel-section { padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
-    .panel-section:last-child { border-bottom: none; }
-    .panel-title { font-family: 'Noto Serif SC', serif; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
-    .game-controls { display: flex; gap: 8px; margin-bottom: 12px; }
-    .control-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
-    .control-btn:hover { background: var(--border-color); }
-    .control-btn.primary { background: var(--accent-gold); color: white; border-color: var(--accent-gold); }
-    .control-btn.primary:hover { background: #D4A017; }
-    .control-btn.danger { background: #FFEBEE; color: #C62828; border-color: #EF9A9A; }
-    .control-btn.danger:hover { background: #FFCDD2; }
-    .control-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .game-status { padding: 12px; background: var(--bg-secondary); border-radius: 10px; font-size: 0.9rem; }
-    .status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .status-row:last-child { margin-bottom: 0; }
-    .status-label { color: var(--text-secondary); }
-    .status-value { font-weight: 600; }
-    .status-value.black { color: var(--stone-black); }
-    .status-value.white { color: var(--stone-white-shadow); }
-    .ai-info { padding: 12px; background: #E3F2FD; border-radius: 10px; border-left: 4px solid #1976D2; }
-    .ai-info-title { font-weight: 600; color: #1976D2; margin-bottom: 4px; }
-    .ai-info-text { font-size: 0.85rem; color: var(--text-secondary); }
-    .move-list { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
-    .move-item { padding: 6px 10px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
-    .move-item:hover { background: var(--border-color); }
-    .move-item.active { background: var(--accent-gold); color: white; }
-    .move-item-num { min-width: 28px; font-family: 'JetBrains Mono', monospace; }
-    .move-item-stone { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .move-item-stone.black { background: var(--stone-black); }
-    .move-item-stone.white { background: var(--stone-white); border: 1px solid var(--stone-white-shadow); }
-    .move-item-coord { flex: 1; }
-    .timer-display { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 600; }
-    @media (max-width: 900px) { main { flex-direction: column; } .control-panel { width: 100%; max-height: none; } }
-  </style>
-</head>
-<body>
-  <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
-  <div class="ai-match-page">
-    <header>
-      <div class="header-left">
-        <a href="home.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" aria-label="返回首页">← 返回首页</a>
-        <div class="game-info">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 对弈 - 围棋对弈复盘</title>
+    <meta name="description" content="与AI进行围棋对弈，提升棋力" />
+    <meta name="keywords" content="围棋,围棋对弈,围棋学习,死活题,棋谱,AI对弈" />
+    <meta name="author" content="围棋对弈复盘" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="AI 对弈 - 围棋对弈复盘" />
+    <meta property="og:description" content="与AI进行围棋对弈，提升棋力" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#C4A35A" />
+    <link rel="manifest" href="../manifest.json" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/common.css" />
+    <style>
+      .ai-match-page {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .game-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+      .game-info-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .player-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .player-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .player-dot.black {
+        background: radial-gradient(
+          circle at 30% 30%,
+          var(--stone-black-highlight),
+          var(--stone-black) 60%
+        );
+      }
+      .player-dot.white {
+        background: radial-gradient(
+          circle at 30% 30%,
+          #ffffff,
+          var(--stone-white) 50%,
+          var(--stone-white-shadow) 100%
+        );
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      .current-turn {
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .current-turn.black {
+        background: var(--stone-black);
+        color: white;
+      }
+      .current-turn.white {
+        background: var(--stone-white);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+      }
+      .ai-badge {
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+      main {
+        flex: 1;
+        display: flex;
+        padding: 20px;
+        gap: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      .board-section {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .board-wrapper {
+        position: relative;
+        background: linear-gradient(
+          145deg,
+          var(--board-wood-light) 0%,
+          var(--board-wood) 50%,
+          var(--board-dark) 100%
+        );
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: var(--shadow-medium);
+      }
+      .goban {
+        position: relative;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        border-radius: 4px;
+        overflow: visible;
+      }
+      .board-grid {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+      }
+      .board-coords {
+        position: absolute;
+        pointer-events: none;
+      }
+      .coord-label {
+        position: absolute;
+        font-size: clamp(8px, calc(var(--cell-size, 40px) * 0.28), 11px);
+        color: var(--line-color);
+        font-family: 'JetBrains Mono', monospace;
+        width: calc(var(--cell-size, 40px) * 0.5);
+        height: calc(var(--cell-size, 40px) * 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .coord-top {
+        top: -24px;
+        left: 0;
+        width: 100%;
+        height: 20px;
+      }
+      .coord-bottom {
+        bottom: -24px;
+        left: 0;
+        width: 100%;
+        height: 20px;
+      }
+      .coord-left {
+        left: -24px;
+        top: 0;
+        width: 20px;
+        height: 100%;
+      }
+      .coord-right {
+        right: -24px;
+        top: 0;
+        width: 20px;
+        height: 100%;
+      }
+      .grid-line {
+        stroke: var(--line-color);
+        stroke-width: 1;
+        opacity: 0.7;
+      }
+      .star-point {
+        fill: var(--line-color);
+      }
+      .intersection {
+        position: absolute;
+        width: var(--cell-size, 40px);
+        height: var(--cell-size, 40px);
+        transform: translate(-50%, -50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
+      .intersection:hover::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(var(--cell-size, 40px) - 4px);
+        height: calc(var(--cell-size, 40px) - 4px);
+        border-radius: 50%;
+        background: rgba(102, 126, 234, 0.3);
+        pointer-events: none;
+      }
+      .stone {
+        width: calc(var(--cell-size, 40px) - 4px);
+        height: calc(var(--cell-size, 40px) - 4px);
+        border-radius: 50%;
+        position: absolute;
+        transform: scale(0);
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 20;
+      }
+      .stone.visible {
+        transform: scale(1);
+      }
+      .stone.black {
+        background: radial-gradient(
+          circle at 30% 30%,
+          var(--stone-black-highlight),
+          var(--stone-black) 60%
+        );
+        box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.4);
+      }
+      .stone.white {
+        background: radial-gradient(
+          circle at 30% 30%,
+          #ffffff,
+          var(--stone-white) 50%,
+          var(--stone-white-shadow) 100%
+        );
+        box-shadow:
+          2px 3px 6px rgba(0, 0, 0, 0.25),
+          0 0 0 1px rgba(0, 0, 0, 0.1);
+      }
+      .stone.last-move::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(var(--cell-size, 40px) * 0.25);
+        height: calc(var(--cell-size, 40px) * 0.25);
+        border-radius: 50%;
+        background: var(--accent-red);
+        box-shadow: 0 0 6px rgba(196, 30, 58, 0.8);
+        animation: lastMovePulse 1.5s ease-in-out infinite;
+      }
+      @keyframes lastMovePulse {
+        0%,
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.3);
+          opacity: 0.8;
+        }
+      }
+      .stone.ai-thinking {
+        animation: ai-pulse 1s infinite;
+      }
+      @keyframes ai-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.6;
+        }
+      }
+      .control-panel {
+        width: 380px;
+        background: var(--panel-bg);
+        border-radius: 16px;
+        box-shadow: var(--shadow-medium);
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        max-height: calc(100vh - 140px);
+      }
+      .panel-section {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .panel-section:last-child {
+        border-bottom: none;
+      }
+      .panel-title {
+        font-family: 'Noto Serif SC', serif;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .game-controls {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .control-btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .control-btn:hover {
+        background: var(--border-color);
+      }
+      .control-btn.primary {
+        background: var(--accent-gold);
+        color: white;
+        border-color: var(--accent-gold);
+      }
+      .control-btn.primary:hover {
+        background: #d4a017;
+      }
+      .control-btn.danger {
+        background: #ffebee;
+        color: #c62828;
+        border-color: #ef9a9a;
+      }
+      .control-btn.danger:hover {
+        background: #ffcdd2;
+      }
+      .control-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .game-status {
+        padding: 12px;
+        background: var(--bg-secondary);
+        border-radius: 10px;
+        font-size: 0.9rem;
+      }
+      .status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .status-row:last-child {
+        margin-bottom: 0;
+      }
+      .status-label {
+        color: var(--text-secondary);
+      }
+      .status-value {
+        font-weight: 600;
+      }
+      .status-value.black {
+        color: var(--stone-black);
+      }
+      .status-value.white {
+        color: var(--stone-white-shadow);
+      }
+      .ai-info {
+        padding: 12px;
+        background: #e3f2fd;
+        border-radius: 10px;
+        border-left: 4px solid #1976d2;
+      }
+      .ai-info-title {
+        font-weight: 600;
+        color: #1976d2;
+        margin-bottom: 4px;
+      }
+      .ai-info-text {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+      .move-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .move-item {
+        padding: 6px 10px;
+        background: var(--bg-secondary);
+        border-radius: 6px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .move-item:hover {
+        background: var(--border-color);
+      }
+      .move-item.active {
+        background: var(--accent-gold);
+        color: white;
+      }
+      .move-item-num {
+        min-width: 28px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .move-item-stone {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .move-item-stone.black {
+        background: var(--stone-black);
+      }
+      .move-item-stone.white {
+        background: var(--stone-white);
+        border: 1px solid var(--stone-white-shadow);
+      }
+      .move-item-coord {
+        flex: 1;
+      }
+      .timer-display {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+      @media (max-width: 900px) {
+        main {
+          flex-direction: column;
+        }
+        .control-panel {
+          width: 100%;
+          max-height: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">跳过导航，进入主内容</a>
+    <div class="ai-match-page">
+      <header>
+        <div class="header-left">
+          <a
+            href="home.html"
+            class="btn btn-secondary"
+            style="padding: 8px 16px; font-size: 0.85rem"
+            aria-label="返回首页"
+            >← 返回首页</a
+          >
+          <div class="game-info">
+            <div class="game-info-item">
+              <div class="player-info">
+                <div class="player-dot black"></div>
+                <span id="blackPlayerName">黑方</span>
+                <span class="current-turn black" id="blackTurn" style="display: none">当前</span>
+              </div>
+            </div>
+            <div class="game-info-item">VS</div>
+            <div class="game-info-item">
+              <div class="player-info">
+                <div class="player-dot white"></div>
+                <span id="whitePlayerName">白方</span>
+                <span class="ai-badge" id="aiBadge">🤖 AI</span>
+                <span class="current-turn white" id="whiteTurn" style="display: none">当前</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="header-right">
           <div class="game-info-item">
-            <div class="player-info">
-              <div class="player-dot black"></div>
-              <span id="blackPlayerName">黑方</span>
-              <span class="current-turn black" id="blackTurn" style="display: none;">当前</span>
-            </div>
+            <span>⏱</span>
+            <span id="gameTimer">00:00</span>
           </div>
-          <div class="game-info-item">VS</div>
           <div class="game-info-item">
-            <div class="player-info">
-              <div class="player-dot white"></div>
-              <span id="whitePlayerName">白方</span>
-              <span class="ai-badge" id="aiBadge">🤖 AI</span>
-              <span class="current-turn white" id="whiteTurn" style="display: none;">当前</span>
-            </div>
+            <span>🎯</span>
+            <span id="moveCount">0手</span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="settingsBtn"
+            title="设置"
+            aria-label="设置"
+            style="padding: 8px 14px; font-size: 0.85rem"
+          >
+            ⚙️
+          </button>
+          <div class="user-menu" id="userMenu" title="点击退出登录">
+            <span>👤</span>
+            <span class="user-name" id="userName">棋手</span>
+            <span class="logout-icon">🚪</span>
           </div>
         </div>
-      </div>
-      <div class="header-right">
-        <div class="game-info-item">
-          <span>⏱</span>
-          <span id="gameTimer">00:00</span>
-        </div>
-        <div class="game-info-item">
-          <span>🎯</span>
-          <span id="moveCount">0手</span>
-        </div>
-        <button type="button" class="btn btn-secondary" id="settingsBtn" title="设置" aria-label="设置" style="padding: 8px 14px; font-size: 0.85rem;">⚙️</button>
-        <div class="user-menu" id="userMenu" title="点击退出登录">
-          <span>👤</span>
-          <span class="user-name" id="userName">棋手</span>
-          <span class="logout-icon">🚪</span>
-        </div>
-      </div>
-    </header>
+      </header>
 
-    <main id="main-content">
-      <section class="board-section">
-        <div class="board-wrapper">
-          <div class="goban" id="goban"></div>
-        </div>
-      </section>
+      <main id="main-content">
+        <section class="board-section">
+          <div class="board-wrapper">
+            <div class="goban" id="goban"></div>
+          </div>
+        </section>
 
-      <aside class="control-panel">
-        <div class="panel-section">
-          <h3 class="panel-title">对局信息</h3>
-          <div class="game-status">
-            <div class="status-row">
-              <span class="status-label">棋盘大小</span>
-              <span class="status-value" id="boardSize">19×19</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">当前回合</span>
-              <span class="status-value black" id="currentTurn">黑棋</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">黑方用时</span>
-              <span class="timer-display" id="blackTimer">00:00</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">白方用时</span>
-              <span class="timer-display" id="whiteTimer">00:00</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">提子数</span>
-              <span class="status-value" id="captures">黑: 0 | 白: 0</span>
+        <aside class="control-panel">
+          <div class="panel-section">
+            <h3 class="panel-title">对局信息</h3>
+            <div class="game-status">
+              <div class="status-row">
+                <span class="status-label">棋盘大小</span>
+                <span class="status-value" id="boardSize">19×19</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">当前回合</span>
+                <span class="status-value black" id="currentTurn">黑棋</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">黑方用时</span>
+                <span class="timer-display" id="blackTimer">00:00</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">白方用时</span>
+                <span class="timer-display" id="whiteTimer">00:00</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">提子数</span>
+                <span class="status-value" id="captures">黑: 0 | 白: 0</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="panel-section">
-          <h3 class="panel-title">AI 信息</h3>
-          <div class="ai-info" id="aiInfo">
-            <div class="ai-info-title" id="aiName">AI 对手</div>
-            <div class="ai-info-text" id="aiDescription">正在思考中...</div>
+          <div class="panel-section">
+            <h3 class="panel-title">AI 信息</h3>
+            <div class="ai-info" id="aiInfo">
+              <div class="ai-info-title" id="aiName">AI 对手</div>
+              <div class="ai-info-text" id="aiDescription">正在思考中...</div>
+            </div>
           </div>
-        </div>
 
-        <div class="panel-section">
-          <h3 class="panel-title">操作</h3>
-          <div class="game-controls">
-            <button type="button" class="control-btn" id="undoBtn" title="悔棋" aria-label="悔棋">↩ 悔棋</button>
-            <button type="button" class="control-btn" id="passBtn" title="停一手" aria-label="停一手">⏸ 停一手</button>
-            <button type="button" class="control-btn" id="pauseBtn" title="封盘" aria-label="封盘">⏸ 封盘</button>
+          <div class="panel-section">
+            <h3 class="panel-title">操作</h3>
+            <div class="game-controls">
+              <button type="button" class="control-btn" id="undoBtn" title="悔棋" aria-label="悔棋">
+                ↩ 悔棋
+              </button>
+              <button
+                type="button"
+                class="control-btn"
+                id="passBtn"
+                title="停一手"
+                aria-label="停一手"
+              >
+                ⏸ 停一手
+              </button>
+              <button
+                type="button"
+                class="control-btn"
+                id="pauseBtn"
+                title="封盘"
+                aria-label="封盘"
+              >
+                ⏸ 封盘
+              </button>
+            </div>
+            <div class="game-controls">
+              <button
+                type="button"
+                class="control-btn primary"
+                id="saveBtn"
+                title="保存"
+                aria-label="保存对局"
+              >
+                💾 保存
+              </button>
+              <button
+                type="button"
+                class="control-btn"
+                id="scoreBtn"
+                title="数棋"
+                aria-label="数棋"
+              >
+                📊 数棋
+              </button>
+            </div>
           </div>
-          <div class="game-controls">
-            <button type="button" class="control-btn primary" id="saveBtn" title="保存" aria-label="保存对局">💾 保存</button>
-            <button type="button" class="control-btn" id="scoreBtn" title="数棋" aria-label="数棋">📊 数棋</button>
+
+          <div class="panel-section">
+            <h3 class="panel-title">手数记录</h3>
+            <div class="move-list" id="moveList"></div>
           </div>
-        </div>
+        </aside>
+      </main>
+    </div>
 
-        <div class="panel-section">
-          <h3 class="panel-title">手数记录</h3>
-          <div class="move-list" id="moveList"></div>
-        </div>
-      </aside>
-    </main>
-  </div>
+    <script src="../js/utils.js?v=6"></script>
+    <script src="../js/error-handler.js?v=6"></script>
+    <script src="../js/loading.js?v=6"></script>
+    <script src="../js/focus-manager.js?v=6"></script>
+    <script src="../js/analytics.js?v=6"></script>
+    <script src="../js/storage.js?v=6"></script>
+    <script src="../js/theme.js?v=6"></script>
+    <script src="../js/go-utils.js?v=6"></script>
+    <script src="../js/game.js?v=6"></script>
+    <script src="../js/board-renderer.js?v=6"></script>
+    <script src="../js/ai.js?v=6"></script>
+    <script src="../js/local-ai.js?v=6"></script>
+    <script src="../js/go-engine.js?v=6"></script>
+    <script src="../js/header.js?v=6"></script>
+    <script>
+      // 使用 theme.js 中的 SoundManager
 
-  <script src="../js/utils.js?v=6"></script>
-  <script src="../js/error-handler.js?v=6"></script>
-  <script src="../js/loading.js?v=6"></script>
-  <script src="../js/focus-manager.js?v=6"></script>
-  <script src="../js/analytics.js?v=6"></script>
-  <script src="../js/storage.js?v=6"></script>
-  <script src="../js/theme.js?v=6"></script>
-  <script src="../js/go-utils.js?v=6"></script>
-  <script src="../js/game.js?v=6"></script>
-  <script src="../js/board-component.js?v=6"></script>
-  <script src="../js/ai.js?v=6"></script>
-  <script src="../js/local-ai.js?v=6"></script>
-  <script src="../js/go-engine.js?v=6"></script>
-  <script src="../js/header.js?v=6"></script>
-  <script>
-    // 使用 theme.js 中的 SoundManager
+      class AIMatchApp {
+        constructor() {
+          this.game = null;
+          this.gameId = null;
+          this.moveHistory = [];
+          this.currentMove = -1;
+          this.blackCaptures = 0;
+          this.whiteCaptures = 0;
+          this.blackTime = 0;
+          this.whiteTime = 0;
+          this.timerInterval = null;
+          this.isPaused = false;
+          this.consecutivePasses = 0;
+          this.isGameOver = false;
+          this.isAIThinking = false;
+          this.aiPlayer = 2; // AI 默认执白
+          this.humanPlayer = 1; // 人类默认执黑
+          this.aiLevel = 'medium';
+          this.aiType = 'online';
+          this.komi = 6.5;
+          this.localAI = null;
+          this.goEngine = null;
+          this.boardRenderer = null;
 
-    class AIMatchApp {
-      constructor() {
-        this.game = null;
-        this.gameId = null;
-        this.cellSize = 40;
-        this.boardPadding = 30;
-        this.letters = 'ABCDEFGHJKLMNOPQRST';
-        this.moveHistory = [];
-        this.currentMove = -1;
-        this.blackCaptures = 0;
-        this.whiteCaptures = 0;
-        this.blackTime = 0;
-        this.whiteTime = 0;
-        this.timerInterval = null;
-        this.isPaused = false;
-        this.consecutivePasses = 0;
-        this.isGameOver = false;
-        this.isAIThinking = false;
-        this.aiPlayer = 2; // AI 默认执白
-        this.humanPlayer = 1; // 人类默认执黑
-        this.aiLevel = 'medium';
-        this.aiType = 'online';
-        this.komi = 6.5;
-        this.localAI = null;
-        this.goEngine = null;
-
-        this.init();
-      }
-
-      init() {
-        Header.init({ showSettings: true });
-        this.loadGameConfig();
-        this.initGame();
-        this.renderBoard();
-        this.renderCoords();
-        this.updateUI();
-        this.bindEvents();
-        this.startTimer();
-
-        // 如果 AI 执黑，AI 先手
-        if (this.aiPlayer === 1) {
-          this.makeAIMove();
-        }
-      }
-
-      loadGameConfig() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const size = parseInt(urlParams.get('size')) || 19;
-        const handicap = parseInt(urlParams.get('handicap')) || 0;
-        const komi = parseFloat(urlParams.get('komi')) || 6.5;
-        const aiLevel = urlParams.get('level') || 'medium';
-        const aiType = urlParams.get('aiType') || 'online';
-        const humanColor = urlParams.get('humanColor') || 'black';
-        const humanPlayer = urlParams.get('human') || Storage.getUsername() || '棋手';
-
-        this.gameConfig = { size, handicap, komi, aiLevel, aiType, humanColor, humanPlayer };
-        this.aiLevel = aiLevel;
-        this.aiType = aiType;
-        this.komi = komi;
-        this.humanPlayer = humanColor === 'black' ? 1 : 2;
-        this.aiPlayer = humanColor === 'black' ? 2 : 1;
-
-        const aiName = this.getAIName(aiLevel);
-        document.getElementById('aiName').textContent = aiName;
-        document.getElementById('aiDescription').textContent = this.getAIDescription(aiLevel);
-
-        if (this.humanPlayer === 1) {
-          document.getElementById('blackPlayerName').textContent = humanPlayer;
-          document.getElementById('whitePlayerName').textContent = aiName;
-        } else {
-          document.getElementById('blackPlayerName').textContent = aiName;
-          document.getElementById('whitePlayerName').textContent = humanPlayer;
+          this.init();
         }
 
-        document.getElementById('boardSize').textContent = `${size}×${size}`;
-      }
-
-      getAIName(level) {
-        const names = { easy: '初级 AI', medium: '中级 AI', hard: '高级 AI', pro: '职业 AI' };
-        return names[level] || 'AI 对手';
-      }
-
-      getAIDescription(level) {
-        const descriptions = {
-          easy: '适合初学者，会犯一些简单的错误',
-          medium: '有一定水平，适合练习',
-          hard: '较强的对手，需要认真应对',
-          pro: '职业水平，极具挑战性'
-        };
-        return descriptions[level] || '正在思考中...';
-      }
-
-      initGame() {
-        const { size, handicap } = this.gameConfig;
-        this.game = new GoGame(size);
-        this.goEngine = new GoEngine(size);
-        // 复制 board
-        for (let y = 0; y < size; y++) {
-          for (let x = 0; x < size; x++) {
-            this.goEngine.board[y][x] = this.game.board[y][x];
-          }
-        }
-
-        if (this.aiType === 'local') {
-          // 映射 aiLevel 到 LocalAI 的难度
-          const difficultyMap = {
-            easy: LocalAI.DIFFICULTY_EASY,
-            medium: LocalAI.DIFFICULTY_MEDIUM,
-            hard: LocalAI.DIFFICULTY_HARD,
-            pro: LocalAI.DIFFICULTY_PRO
-          };
-          this.localAI = new LocalAI(difficultyMap[this.aiLevel] || LocalAI.DIFFICULTY_MEDIUM);
-        }
-
-        this.gameId = Date.now().toString();
-
-        if (handicap > 0) {
-          const handicapStones = this.getHandicapStones(size, handicap);
-          handicapStones.forEach(([x, y]) => {
-            this.game.board[y][x] = 1;
-            this.goEngine.board[y][x] = 1;
+        init() {
+          Header.init({ showSettings: true });
+          this.loadGameConfig();
+          this.initGame();
+          this.boardRenderer = new BoardRenderer({
+            onIntersectionClick: (x, y) => this.handleClick(x, y),
           });
-          this.game.currentPlayer = 2;
-          this.goEngine.currentPlayer = 2;
-        }
-      }
+          this.boardRenderer.render(this.game.size, this.game.board, this.moveHistory);
+          this.updateUI();
+          this.bindEvents();
+          this.startTimer();
 
-      getHandicapStones(size, count) {
-        const stones = {
-          9: { 2: [[2, 2], [6, 6]], 3: [[2, 2], [6, 6], [2, 6]], 4: [[2, 2], [6, 6], [2, 6], [6, 2]], 5: [[2, 2], [6, 6], [2, 6], [6, 2], [4, 4]] },
-          13: { 2: [[3, 3], [9, 9]], 3: [[3, 3], [9, 9], [3, 9]], 4: [[3, 3], [9, 9], [3, 9], [9, 3]], 5: [[3, 3], [9, 9], [3, 9], [9, 3], [6, 6]] },
-          19: { 2: [[3, 3], [15, 15]], 3: [[3, 3], [15, 15], [3, 15]], 4: [[3, 3], [15, 15], [3, 15], [15, 3]], 5: [[3, 3], [15, 15], [3, 15], [15, 3], [9, 9]], 6: [[3, 3], [15, 15], [3, 15], [15, 3], [3, 9], [15, 9]], 7: [[3, 3], [15, 15], [3, 15], [15, 3], [3, 9], [15, 9], [9, 9]], 8: [[3, 3], [15, 15], [3, 15], [15, 3], [3, 9], [15, 9], [9, 3], [9, 15]], 9: [[3, 3], [15, 15], [3, 15], [15, 3], [3, 9], [15, 9], [9, 3], [9, 15], [9, 9]] }
-        };
-        return (stones[size] && stones[size][count]) || [];
-      }
-
-      renderBoard() {
-        const goban = document.getElementById('goban');
-        const size = this.game.size;
-        const boardSize = this.cellSize * (size - 1) + this.boardPadding * 2;
-
-        goban.style.width = `${boardSize}px`;
-        goban.style.height = `${boardSize}px`;
-        goban.innerHTML = '';
-
-        const svgNS = 'http://www.w3.org/2000/svg';
-        const svg = document.createElementNS(svgNS, 'svg');
-        svg.setAttribute('class', 'board-grid');
-        svg.setAttribute('width', boardSize);
-        svg.setAttribute('height', boardSize);
-        svg.setAttribute('viewBox', `0 0 ${boardSize} ${boardSize}`);
-
-        for (let i = 0; i < size; i++) {
-          const pos = this.boardPadding + i * this.cellSize;
-          const hLine = document.createElementNS(svgNS, 'line');
-          hLine.setAttribute('class', 'grid-line');
-          hLine.setAttribute('x1', this.boardPadding);
-          hLine.setAttribute('y1', pos);
-          hLine.setAttribute('x2', boardSize - this.boardPadding);
-          hLine.setAttribute('y2', pos);
-          svg.appendChild(hLine);
-
-          const vLine = document.createElementNS(svgNS, 'line');
-          vLine.setAttribute('class', 'grid-line');
-          vLine.setAttribute('x1', pos);
-          vLine.setAttribute('y1', this.boardPadding);
-          vLine.setAttribute('x2', pos);
-          vLine.setAttribute('y2', boardSize - this.boardPadding);
-          svg.appendChild(vLine);
-        }
-
-        const starPoints = this.getStarPoints(size);
-        starPoints.forEach(([x, y]) => {
-          const circle = document.createElementNS(svgNS, 'circle');
-          circle.setAttribute('class', 'star-point');
-          circle.setAttribute('cx', this.boardPadding + x * this.cellSize);
-          circle.setAttribute('cy', this.boardPadding + y * this.cellSize);
-          circle.setAttribute('r', size === 9 ? 4 : 3);
-          svg.appendChild(circle);
-        });
-
-        goban.appendChild(svg);
-
-        for (let y = 0; y < size; y++) {
-          for (let x = 0; x < size; x++) {
-            const intersection = document.createElement('div');
-            intersection.className = 'intersection';
-            intersection.dataset.x = x;
-            intersection.dataset.y = y;
-            intersection.style.left = `${this.boardPadding + x * this.cellSize}px`;
-            intersection.style.top = `${this.boardPadding + y * this.cellSize}px`;
-            goban.appendChild(intersection);
+          // 如果 AI 执黑，AI 先手
+          if (this.aiPlayer === 1) {
+            this.makeAIMove();
           }
         }
 
-        this.updateBoard();
-      }
+        loadGameConfig() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const size = parseInt(urlParams.get('size')) || 19;
+          const handicap = parseInt(urlParams.get('handicap')) || 0;
+          const komi = parseFloat(urlParams.get('komi')) || 6.5;
+          const aiLevel = urlParams.get('level') || 'medium';
+          const aiType = urlParams.get('aiType') || 'online';
+          const humanColor = urlParams.get('humanColor') || 'black';
+          const humanPlayer = urlParams.get('human') || Storage.getUsername() || '棋手';
 
-      renderCoords() {
-        const goban = document.getElementById('goban');
-        const size = this.game.size;
+          this.gameConfig = { size, handicap, komi, aiLevel, aiType, humanColor, humanPlayer };
+          this.aiLevel = aiLevel;
+          this.aiType = aiType;
+          this.komi = komi;
+          this.humanPlayer = humanColor === 'black' ? 1 : 2;
+          this.aiPlayer = humanColor === 'black' ? 2 : 1;
 
-        // 清除旧坐标
-        goban.querySelectorAll('.board-coords').forEach(el => el.remove());
+          const aiName = this.getAIName(aiLevel);
+          document.getElementById('aiName').textContent = aiName;
+          document.getElementById('aiDescription').textContent = this.getAIDescription(aiLevel);
 
-        const topCoords = document.createElement('div');
-        topCoords.className = 'board-coords coord-top';
-        for (let i = 0; i < size; i++) {
-          const label = document.createElement('span');
-          label.className = 'coord-label';
-          label.textContent = this.letters[i] || '';
-          label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
-          label.style.top = '0px';
-          topCoords.appendChild(label);
-        }
-        goban.appendChild(topCoords);
-
-        const bottomCoords = document.createElement('div');
-        bottomCoords.className = 'board-coords coord-bottom';
-        for (let i = 0; i < size; i++) {
-          const label = document.createElement('span');
-          label.className = 'coord-label';
-          label.textContent = this.letters[i] || '';
-          label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
-          label.style.top = '0px';
-          bottomCoords.appendChild(label);
-        }
-        goban.appendChild(bottomCoords);
-
-        const leftCoords = document.createElement('div');
-        leftCoords.className = 'board-coords coord-left';
-        for (let i = 0; i < size; i++) {
-          const label = document.createElement('span');
-          label.className = 'coord-label';
-          label.textContent = size - i;
-          label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
-          label.style.left = '0px';
-          leftCoords.appendChild(label);
-        }
-        goban.appendChild(leftCoords);
-
-        const rightCoords = document.createElement('div');
-        rightCoords.className = 'board-coords coord-right';
-        for (let i = 0; i < size; i++) {
-          const label = document.createElement('span');
-          label.className = 'coord-label';
-          label.textContent = size - i;
-          label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
-          label.style.left = '0px';
-          rightCoords.appendChild(label);
-        }
-        goban.appendChild(rightCoords);
-      }
-
-      getStarPoints(size) {
-        const points = [];
-        if (size === 9) {
-          points.push([2, 2], [2, 6], [4, 4], [6, 2], [6, 6]);
-        } else if (size === 13) {
-          for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-              points.push([3 + i * 3, 3 + j * 3]);
-            }
-          }
-        } else {
-          for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-              points.push([3 + i * 6, 3 + j * 6]);
-            }
-          }
-        }
-        return points;
-      }
-
-      updateBoard() {
-        const size = this.game.size;
-        const intersections = document.querySelectorAll('.intersection');
-
-        intersections.forEach(intersection => {
-          const x = parseInt(intersection.dataset.x);
-          const y = parseInt(intersection.dataset.y);
-          const stone = intersection.querySelector('.stone');
-
-          if (stone) {stone.remove();}
-
-          const cellValue = this.game.board[y][x];
-          if (cellValue !== 0) {
-            const stoneColor = cellValue === 1 ? 'black' : 'white';
-            const isLastMove = this.moveHistory.length > 0 &&
-              this.moveHistory[this.moveHistory.length - 1].x === x &&
-              this.moveHistory[this.moveHistory.length - 1].y === y;
-
-            const newStone = document.createElement('div');
-            newStone.className = `stone ${stoneColor}${isLastMove ? ' last-move' : ''}`;
-            intersection.appendChild(newStone);
-            requestAnimationFrame(() => newStone.classList.add('visible'));
-          }
-        });
-      }
-
-      handleClick(x, y) {
-        if (this.isGameOver || this.isPaused || this.isAIThinking) {return;}
-        if (this.game.currentPlayer !== this.humanPlayer) {return;}
-
-        const result = this.game.makeMove(x, y);
-        if (!result.success) {
-          showToast(result.message, 'warning');
-          return;
-        }
-
-        // 同步到 goEngine
-        this.goEngine.board[y][x] = this.humanPlayer;
-        // 复制 captures
-        if (result.captures) {
-          for (const [cx, cy] of result.captures) {
-            this.goEngine.board[cy][cx] = 0;
-          }
-        }
-        this.goEngine.currentPlayer = this.game.currentPlayer;
-
-        SoundManager.playStone();
-
-        if (result.captures && result.captures.length > 0) {
-          SoundManager.playCapture(result.captures.length);
           if (this.humanPlayer === 1) {
-            this.blackCaptures += result.captures.length;
+            document.getElementById('blackPlayerName').textContent = humanPlayer;
+            document.getElementById('whitePlayerName').textContent = aiName;
           } else {
-            this.whiteCaptures += result.captures.length;
+            document.getElementById('blackPlayerName').textContent = aiName;
+            document.getElementById('whitePlayerName').textContent = humanPlayer;
+          }
+
+          document.getElementById('boardSize').textContent = `${size}×${size}`;
+        }
+
+        getAIName(level) {
+          const names = { easy: '初级 AI', medium: '中级 AI', hard: '高级 AI', pro: '职业 AI' };
+          return names[level] || 'AI 对手';
+        }
+
+        getAIDescription(level) {
+          const descriptions = {
+            easy: '适合初学者，会犯一些简单的错误',
+            medium: '有一定水平，适合练习',
+            hard: '较强的对手，需要认真应对',
+            pro: '职业水平，极具挑战性',
+          };
+          return descriptions[level] || '正在思考中...';
+        }
+
+        initGame() {
+          const { size, handicap } = this.gameConfig;
+          this.game = new GoGame(size);
+          this.goEngine = new GoEngine(size);
+          // 复制 board
+          for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+              this.goEngine.board[y][x] = this.game.board[y][x];
+            }
+          }
+
+          if (this.aiType === 'local') {
+            // 映射 aiLevel 到 LocalAI 的难度
+            const difficultyMap = {
+              easy: LocalAI.DIFFICULTY_EASY,
+              medium: LocalAI.DIFFICULTY_MEDIUM,
+              hard: LocalAI.DIFFICULTY_HARD,
+              pro: LocalAI.DIFFICULTY_PRO,
+            };
+            this.localAI = new LocalAI(difficultyMap[this.aiLevel] || LocalAI.DIFFICULTY_MEDIUM);
+          }
+
+          this.gameId = Date.now().toString();
+
+          if (handicap > 0) {
+            const handicapStones = this.getHandicapStones(size, handicap);
+            handicapStones.forEach(([x, y]) => {
+              this.game.board[y][x] = 1;
+              this.goEngine.board[y][x] = 1;
+            });
+            this.game.currentPlayer = 2;
+            this.goEngine.currentPlayer = 2;
           }
         }
 
-        this.moveHistory.push({ x, y, player: this.humanPlayer, captures: result.captures || [] });
-        this.currentMove = this.moveHistory.length - 1;
-        this.consecutivePasses = 0;
+        getHandicapStones(size, count) {
+          const stones = {
+            9: {
+              2: [
+                [2, 2],
+                [6, 6],
+              ],
+              3: [
+                [2, 2],
+                [6, 6],
+                [2, 6],
+              ],
+              4: [
+                [2, 2],
+                [6, 6],
+                [2, 6],
+                [6, 2],
+              ],
+              5: [
+                [2, 2],
+                [6, 6],
+                [2, 6],
+                [6, 2],
+                [4, 4],
+              ],
+            },
+            13: {
+              2: [
+                [3, 3],
+                [9, 9],
+              ],
+              3: [
+                [3, 3],
+                [9, 9],
+                [3, 9],
+              ],
+              4: [
+                [3, 3],
+                [9, 9],
+                [3, 9],
+                [9, 3],
+              ],
+              5: [
+                [3, 3],
+                [9, 9],
+                [3, 9],
+                [9, 3],
+                [6, 6],
+              ],
+            },
+            19: {
+              2: [
+                [3, 3],
+                [15, 15],
+              ],
+              3: [
+                [3, 3],
+                [15, 15],
+                [3, 15],
+              ],
+              4: [
+                [3, 3],
+                [15, 15],
+                [3, 15],
+                [15, 3],
+              ],
+              5: [
+                [3, 3],
+                [15, 15],
+                [3, 15],
+                [15, 3],
+                [9, 9],
+              ],
+              6: [
+                [3, 3],
+                [15, 15],
+                [3, 15],
+                [15, 3],
+                [3, 9],
+                [15, 9],
+              ],
+              7: [
+                [3, 3],
+                [15, 15],
+                [3, 15],
+                [15, 3],
+                [3, 9],
+                [15, 9],
+                [9, 9],
+              ],
+              8: [
+                [3, 3],
+                [15, 15],
+                [3, 15],
+                [15, 3],
+                [3, 9],
+                [15, 9],
+                [9, 3],
+                [9, 15],
+              ],
+              9: [
+                [3, 3],
+                [15, 15],
+                [3, 15],
+                [15, 3],
+                [3, 9],
+                [15, 9],
+                [9, 3],
+                [9, 15],
+                [9, 9],
+              ],
+            },
+          };
+          return (stones[size] && stones[size][count]) || [];
+        }
 
-        this.updateBoard();
-        this.updateUI();
-        this.renderMoveList();
+        updateBoard() {
+          if (this.boardRenderer) {
+            this.boardRenderer.updateStones(this.game.board, this.moveHistory);
+          }
+        }
 
-        // AI 回合
-        if (!this.isGameOver) {
+        handleClick(x, y) {
+          if (this.isGameOver || this.isPaused || this.isAIThinking) {
+            return;
+          }
+          if (this.game.currentPlayer !== this.humanPlayer) {
+            return;
+          }
+
+          const result = this.game.makeMove(x, y);
+          if (!result.success) {
+            showToast(result.message, 'warning');
+            return;
+          }
+
+          // 同步到 goEngine
+          this.goEngine.board[y][x] = this.humanPlayer;
+          // 复制 captures
+          if (result.captures) {
+            for (const [cx, cy] of result.captures) {
+              this.goEngine.board[cy][cx] = 0;
+            }
+          }
+          this.goEngine.currentPlayer = this.game.currentPlayer;
+
+          SoundManager.playStone();
+
+          if (result.captures && result.captures.length > 0) {
+            SoundManager.playCapture(result.captures.length);
+            if (this.humanPlayer === 1) {
+              this.blackCaptures += result.captures.length;
+            } else {
+              this.whiteCaptures += result.captures.length;
+            }
+          }
+
+          this.moveHistory.push({
+            x,
+            y,
+            player: this.humanPlayer,
+            captures: result.captures || [],
+          });
+          this.currentMove = this.moveHistory.length - 1;
+          this.consecutivePasses = 0;
+
+          this.updateBoard();
+          this.updateUI();
+          this.renderMoveList();
+
+          // AI 回合
+          if (!this.isGameOver) {
+            setTimeout(() => this.makeAIMove(), 500);
+          }
+        }
+
+        async makeAIMove() {
+          if (this.isGameOver || this.game.currentPlayer !== this.aiPlayer) {
+            return;
+          }
+
+          this.isAIThinking = true;
+          document.getElementById('aiDescription').textContent = 'AI 正在思考...';
+          this.updateUI();
+
+          // 模拟 AI 思考时间
+          const thinkTime = this.getAIThinkTime();
+          await new Promise(resolve => setTimeout(resolve, thinkTime));
+
+          let aiMove;
+
+          if (this.aiType === 'local' && this.localAI) {
+            // 使用本地 AI
+            aiMove = this.localAI.getMove(
+              this.goEngine.board,
+              this.game.size,
+              this.aiPlayer,
+              this.goEngine
+            );
+          } else {
+            // 使用在线 AI（原始实现）
+            aiMove = this.getAIMove();
+          }
+
+          if (aiMove === null || aiMove.pass) {
+            // AI 停一手
+            this.handlePass();
+            this.isAIThinking = false;
+            return;
+          }
+
+          const result = this.game.makeMove(aiMove.x, aiMove.y);
+          if (!result.success) {
+            // 如果 AI 落子失败，随机选择一个合法位置
+            const validMoves = this.getValidMoves();
+            if (validMoves.length > 0) {
+              const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+              aiMove = randomMove;
+              this.game.makeMove(randomMove.x, randomMove.y);
+            }
+          }
+
+          // 同步到 goEngine
+          this.goEngine.board[aiMove.y][aiMove.x] = this.aiPlayer;
+          if (result.captures) {
+            for (const [cx, cy] of result.captures) {
+              this.goEngine.board[cy][cx] = 0;
+            }
+          }
+          this.goEngine.currentPlayer = this.game.currentPlayer;
+
+          SoundManager.playStone();
+
+          if (result.captures && result.captures.length > 0) {
+            SoundManager.playCapture(result.captures.length);
+            if (this.aiPlayer === 1) {
+              this.blackCaptures += result.captures.length;
+            } else {
+              this.whiteCaptures += result.captures.length;
+            }
+          }
+
+          this.moveHistory.push({
+            x: aiMove.x,
+            y: aiMove.y,
+            player: this.aiPlayer,
+            captures: result.captures || [],
+          });
+          this.currentMove = this.moveHistory.length - 1;
+          this.consecutivePasses = 0;
+
+          this.isAIThinking = false;
+          document.getElementById('aiDescription').textContent = this.getAIDescription(
+            this.aiLevel
+          );
+
+          this.updateBoard();
+          this.updateUI();
+          this.renderMoveList();
+        }
+
+        getAIThinkTime() {
+          const times = { easy: 500, medium: 1000, hard: 1500, pro: 2000 };
+          return times[this.aiLevel] || 1000;
+        }
+
+        getAIMove() {
+          const validMoves = this.getValidMoves();
+          if (validMoves.length === 0) {
+            return null;
+          }
+
+          // 根据难度选择策略
+          switch (this.aiLevel) {
+            case 'easy':
+              return this.getEasyMove(validMoves);
+            case 'medium':
+              return this.getMediumMove(validMoves);
+            case 'hard':
+              return this.getHardMove(validMoves);
+            case 'pro':
+              return this.getProMove(validMoves);
+            default:
+              return this.getMediumMove(validMoves);
+          }
+        }
+
+        getValidMoves() {
+          const moves = [];
+          const size = this.game.size;
+          for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+              if (this.game.board[y][x] === 0) {
+                // 简单检查是否合法
+                const testGame = new GoGame(size);
+                testGame.board = this.game.board.map(row => [...row]);
+                testGame.currentPlayer = this.aiPlayer;
+                const result = testGame.makeMove(x, y);
+                if (result.success) {
+                  moves.push({ x, y, score: 0 });
+                }
+              }
+            }
+          }
+          return moves;
+        }
+
+        getEasyMove(moves) {
+          // 简单 AI： mostly random, with slight preference for center
+          const size = this.game.size;
+          const center = Math.floor(size / 2);
+
+          moves.forEach(move => {
+            const distToCenter = Math.abs(move.x - center) + Math.abs(move.y - center);
+            move.score = Math.random() * 10 - distToCenter * 0.1;
+          });
+
+          moves.sort((a, b) => b.score - a.score);
+          return moves[0];
+        }
+
+        getMediumMove(moves) {
+          // 中级 AI：考虑吃子和连接
+          const size = this.game.size;
+          const center = Math.floor(size / 2);
+
+          moves.forEach(move => {
+            let score = Math.random() * 5;
+
+            // 偏好中心
+            const distToCenter = Math.abs(move.x - center) + Math.abs(move.y - center);
+            score += (size - distToCenter) * 0.5;
+
+            // 检查是否能吃子
+            const testGame = new GoGame(size);
+            testGame.board = this.game.board.map(row => [...row]);
+            testGame.currentPlayer = this.aiPlayer;
+            const result = testGame.makeMove(move.x, move.y);
+            if (result.captures && result.captures.length > 0) {
+              score += result.captures.length * 10;
+            }
+
+            move.score = score;
+          });
+
+          moves.sort((a, b) => b.score - a.score);
+          return moves[0];
+        }
+
+        getHardMove(moves) {
+          // 高级 AI：更复杂的评估
+          return this.getMediumMove(moves); // 简化实现
+        }
+
+        getProMove(moves) {
+          // 职业 AI：最强策略
+          return this.getHardMove(moves); // 简化实现
+        }
+
+        handlePass() {
+          if (this.isGameOver || this.isPaused || this.isAIThinking) {
+            return;
+          }
+          if (this.game.currentPlayer !== this.humanPlayer) {
+            return;
+          }
+
+          SoundManager.playPass();
+          this.moveHistory.push({ x: -1, y: -1, player: this.humanPlayer, isPass: true });
+          this.currentMove = this.moveHistory.length - 1;
+          this.consecutivePasses++;
+
+          if (this.consecutivePasses >= 2) {
+            this.endGame('双方连续停手，对局结束');
+            return;
+          }
+
+          this.game.currentPlayer = this.aiPlayer;
+          this.updateUI();
+          this.renderMoveList();
+          showToast('您停一手', 'info');
+
+          // AI 回合
           setTimeout(() => this.makeAIMove(), 500);
         }
-      }
 
-      async makeAIMove() {
-        if (this.isGameOver || this.game.currentPlayer !== this.aiPlayer) {return;}
-
-        this.isAIThinking = true;
-        document.getElementById('aiDescription').textContent = 'AI 正在思考...';
-        this.updateUI();
-
-        // 模拟 AI 思考时间
-        const thinkTime = this.getAIThinkTime();
-        await new Promise(resolve => setTimeout(resolve, thinkTime));
-
-        let aiMove;
-
-        if (this.aiType === 'local' && this.localAI) {
-          // 使用本地 AI
-          aiMove = this.localAI.getMove(this.goEngine.board, this.game.size, this.aiPlayer, this.goEngine);
-        } else {
-          // 使用在线 AI（原始实现）
-          aiMove = this.getAIMove();
-        }
-
-        if (aiMove === null || aiMove.pass) {
-          // AI 停一手
-          this.handlePass();
-          this.isAIThinking = false;
-          return;
-        }
-
-        const result = this.game.makeMove(aiMove.x, aiMove.y);
-        if (!result.success) {
-          // 如果 AI 落子失败，随机选择一个合法位置
-          const validMoves = this.getValidMoves();
-          if (validMoves.length > 0) {
-            const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-            aiMove = randomMove;
-            this.game.makeMove(randomMove.x, randomMove.y);
-          }
-        }
-
-        // 同步到 goEngine
-        this.goEngine.board[aiMove.y][aiMove.x] = this.aiPlayer;
-        if (result.captures) {
-          for (const [cx, cy] of result.captures) {
-            this.goEngine.board[cy][cx] = 0;
-          }
-        }
-        this.goEngine.currentPlayer = this.game.currentPlayer;
-
-        SoundManager.playStone();
-
-        if (result.captures && result.captures.length > 0) {
-          SoundManager.playCapture(result.captures.length);
-          if (this.aiPlayer === 1) {
-            this.blackCaptures += result.captures.length;
-          } else {
-            this.whiteCaptures += result.captures.length;
-          }
-        }
-
-        this.moveHistory.push({ x: aiMove.x, y: aiMove.y, player: this.aiPlayer, captures: result.captures || [] });
-        this.currentMove = this.moveHistory.length - 1;
-        this.consecutivePasses = 0;
-
-        this.isAIThinking = false;
-        document.getElementById('aiDescription').textContent = this.getAIDescription(this.aiLevel);
-
-        this.updateBoard();
-        this.updateUI();
-        this.renderMoveList();
-      }
-
-      getAIThinkTime() {
-        const times = { easy: 500, medium: 1000, hard: 1500, pro: 2000 };
-        return times[this.aiLevel] || 1000;
-      }
-
-      getAIMove() {
-        const validMoves = this.getValidMoves();
-        if (validMoves.length === 0) {return null;}
-
-        // 根据难度选择策略
-        switch (this.aiLevel) {
-          case 'easy':
-            return this.getEasyMove(validMoves);
-          case 'medium':
-            return this.getMediumMove(validMoves);
-          case 'hard':
-            return this.getHardMove(validMoves);
-          case 'pro':
-            return this.getProMove(validMoves);
-          default:
-            return this.getMediumMove(validMoves);
-        }
-      }
-
-      getValidMoves() {
-        const moves = [];
-        const size = this.game.size;
-        for (let y = 0; y < size; y++) {
-          for (let x = 0; x < size; x++) {
-            if (this.game.board[y][x] === 0) {
-              // 简单检查是否合法
-              const testGame = new GoGame(size);
-              testGame.board = this.game.board.map(row => [...row]);
-              testGame.currentPlayer = this.aiPlayer;
-              const result = testGame.makeMove(x, y);
-              if (result.success) {
-                moves.push({ x, y, score: 0 });
-              }
-            }
-          }
-        }
-        return moves;
-      }
-
-      getEasyMove(moves) {
-        // 简单 AI： mostly random, with slight preference for center
-        const size = this.game.size;
-        const center = Math.floor(size / 2);
-
-        moves.forEach(move => {
-          const distToCenter = Math.abs(move.x - center) + Math.abs(move.y - center);
-          move.score = Math.random() * 10 - distToCenter * 0.1;
-        });
-
-        moves.sort((a, b) => b.score - a.score);
-        return moves[0];
-      }
-
-      getMediumMove(moves) {
-        // 中级 AI：考虑吃子和连接
-        const size = this.game.size;
-        const center = Math.floor(size / 2);
-
-        moves.forEach(move => {
-          let score = Math.random() * 5;
-
-          // 偏好中心
-          const distToCenter = Math.abs(move.x - center) + Math.abs(move.y - center);
-          score += (size - distToCenter) * 0.5;
-
-          // 检查是否能吃子
-          const testGame = new GoGame(size);
-          testGame.board = this.game.board.map(row => [...row]);
-          testGame.currentPlayer = this.aiPlayer;
-          const result = testGame.makeMove(move.x, move.y);
-          if (result.captures && result.captures.length > 0) {
-            score += result.captures.length * 10;
+        handleUndo() {
+          if (this.isGameOver || this.moveHistory.length === 0 || this.isAIThinking) {
+            return;
           }
 
-          move.score = score;
-        });
-
-        moves.sort((a, b) => b.score - a.score);
-        return moves[0];
-      }
-
-      getHardMove(moves) {
-        // 高级 AI：更复杂的评估
-        return this.getMediumMove(moves); // 简化实现
-      }
-
-      getProMove(moves) {
-        // 职业 AI：最强策略
-        return this.getHardMove(moves); // 简化实现
-      }
-
-      handlePass() {
-        if (this.isGameOver || this.isPaused || this.isAIThinking) {return;}
-        if (this.game.currentPlayer !== this.humanPlayer) {return;}
-
-        SoundManager.playPass();
-        this.moveHistory.push({ x: -1, y: -1, player: this.humanPlayer, isPass: true });
-        this.currentMove = this.moveHistory.length - 1;
-        this.consecutivePasses++;
-
-        if (this.consecutivePasses >= 2) {
-          this.endGame('双方连续停手，对局结束');
-          return;
-        }
-
-        this.game.currentPlayer = this.aiPlayer;
-        this.updateUI();
-        this.renderMoveList();
-        showToast('您停一手', 'info');
-
-        // AI 回合
-        setTimeout(() => this.makeAIMove(), 500);
-      }
-
-      handleUndo() {
-        if (this.isGameOver || this.moveHistory.length === 0 || this.isAIThinking) {return;}
-
-        // 悔棋需要撤销 AI 和玩家各一步
-        const lastMove = this.moveHistory.pop();
-        this.currentMove = this.moveHistory.length - 1;
-
-        if (lastMove.isPass) {
-          this.game.currentPlayer = lastMove.player;
-          this.consecutivePasses--;
-        } else {
-          this.game.board[lastMove.y][lastMove.x] = 0;
-          if (lastMove.captures) {
-            lastMove.captures.forEach(([x, y]) => {
-              this.game.board[y][x] = lastMove.player === 1 ? 2 : 1;
-            });
-            if (lastMove.player === 1) {
-              this.whiteCaptures -= lastMove.captures.length;
-            } else {
-              this.blackCaptures -= lastMove.captures.length;
-            }
-          }
-          this.game.currentPlayer = lastMove.player;
-        }
-
-        // 如果上一步是 AI 的，再撤销一步
-        if (this.moveHistory.length > 0 && this.moveHistory[this.moveHistory.length - 1].player === this.aiPlayer) {
-          const aiLastMove = this.moveHistory.pop();
+          // 悔棋需要撤销 AI 和玩家各一步
+          const lastMove = this.moveHistory.pop();
           this.currentMove = this.moveHistory.length - 1;
 
-          if (aiLastMove.isPass) {
-            this.game.currentPlayer = aiLastMove.player;
+          if (lastMove.isPass) {
+            this.game.currentPlayer = lastMove.player;
             this.consecutivePasses--;
           } else {
-            this.game.board[aiLastMove.y][aiLastMove.x] = 0;
-            if (aiLastMove.captures) {
-              aiLastMove.captures.forEach(([x, y]) => {
-                this.game.board[y][x] = aiLastMove.player === 1 ? 2 : 1;
+            this.game.board[lastMove.y][lastMove.x] = 0;
+            if (lastMove.captures) {
+              lastMove.captures.forEach(([x, y]) => {
+                this.game.board[y][x] = lastMove.player === 1 ? 2 : 1;
               });
-              if (aiLastMove.player === 1) {
-                this.whiteCaptures -= aiLastMove.captures.length;
+              if (lastMove.player === 1) {
+                this.whiteCaptures -= lastMove.captures.length;
               } else {
-                this.blackCaptures -= aiLastMove.captures.length;
+                this.blackCaptures -= lastMove.captures.length;
               }
             }
-            this.game.currentPlayer = aiLastMove.player;
+            this.game.currentPlayer = lastMove.player;
           }
+
+          // 如果上一步是 AI 的，再撤销一步
+          if (
+            this.moveHistory.length > 0 &&
+            this.moveHistory[this.moveHistory.length - 1].player === this.aiPlayer
+          ) {
+            const aiLastMove = this.moveHistory.pop();
+            this.currentMove = this.moveHistory.length - 1;
+
+            if (aiLastMove.isPass) {
+              this.game.currentPlayer = aiLastMove.player;
+              this.consecutivePasses--;
+            } else {
+              this.game.board[aiLastMove.y][aiLastMove.x] = 0;
+              if (aiLastMove.captures) {
+                aiLastMove.captures.forEach(([x, y]) => {
+                  this.game.board[y][x] = aiLastMove.player === 1 ? 2 : 1;
+                });
+                if (aiLastMove.player === 1) {
+                  this.whiteCaptures -= aiLastMove.captures.length;
+                } else {
+                  this.blackCaptures -= aiLastMove.captures.length;
+                }
+              }
+              this.game.currentPlayer = aiLastMove.player;
+            }
+          }
+
+          this.updateBoard();
+          this.updateUI();
+          this.renderMoveList();
+          showToast('已悔棋', 'info');
         }
 
-        this.updateBoard();
-        this.updateUI();
-        this.renderMoveList();
-        showToast('已悔棋', 'info');
-      }
+        handleResign() {
+          if (this.isGameOver || this.isAIThinking) {
+            return;
+          }
+          if (!confirm('确定要认输吗？')) {
+            return;
+          }
 
-      handleResign() {
-        if (this.isGameOver || this.isAIThinking) {return;}
-        if (!confirm('确定要认输吗？')) {return;}
-
-        const winner = this.humanPlayer === 1 ? '白棋 (AI)' : '黑棋 (AI)';
-        this.endGame(`您认输，${winner}获胜`);
-      }
-
-      handlePause() {
-        if (this.isGameOver) {return;}
-        this.isPaused = !this.isPaused;
-        document.getElementById('pauseBtn').textContent = this.isPaused ? '▶️ 续盘' : '⏸ 封盘';
-        showToast(this.isPaused ? '已封盘' : '已续盘', 'info');
-      }
-
-      handleSave() {
-        const gameData = {
-          id: this.gameId,
-          type: 'ai',
-          size: this.game.size,
-          blackPlayer: this.humanPlayer === 1 ? this.gameConfig.humanPlayer : this.getAIName(this.aiLevel),
-          whitePlayer: this.humanPlayer === 2 ? this.gameConfig.humanPlayer : this.getAIName(this.aiLevel),
-          moveHistory: this.moveHistory,
-          blackCaptures: this.blackCaptures,
-          whiteCaptures: this.whiteCaptures,
-          blackTime: this.blackTime,
-          whiteTime: this.whiteTime,
-          komi: this.komi,
-          savedAt: Date.now(),
-          isGameOver: this.isGameOver,
-          result: this.gameResult || null,
-          aiLevel: this.aiLevel
-        };
-
-        Storage.saveGame(gameData);
-        showToast('对局已保存', 'success');
-      }
-
-      handleScore() {
-        if (this.moveHistory.length === 0) {
-          showToast('还没有落子，无法数棋', 'warning');
-          return;
+          const winner = this.humanPlayer === 1 ? '白棋 (AI)' : '黑棋 (AI)';
+          this.endGame(`您认输，${winner}获胜`);
         }
 
-        const score = this.game.calculateScore(this.komi);
-        let resultText = '';
-        if (score.winner === 'black') {
-          resultText = `黑棋胜 ${score.margin.toFixed(1)} 目`;
-        } else if (score.winner === 'white') {
-          resultText = `白棋胜 ${score.margin.toFixed(1)} 目`;
-        } else {
-          resultText = '和棋';
+        handlePause() {
+          if (this.isGameOver) {
+            return;
+          }
+          this.isPaused = !this.isPaused;
+          document.getElementById('pauseBtn').textContent = this.isPaused ? '▶️ 续盘' : '⏸ 封盘';
+          showToast(this.isPaused ? '已封盘' : '已续盘', 'info');
         }
 
-        showToast(`数棋结果：${resultText}`, 'info');
-      }
+        handleSave() {
+          const gameData = {
+            id: this.gameId,
+            type: 'ai',
+            size: this.game.size,
+            blackPlayer:
+              this.humanPlayer === 1 ? this.gameConfig.humanPlayer : this.getAIName(this.aiLevel),
+            whitePlayer:
+              this.humanPlayer === 2 ? this.gameConfig.humanPlayer : this.getAIName(this.aiLevel),
+            moveHistory: this.moveHistory,
+            blackCaptures: this.blackCaptures,
+            whiteCaptures: this.whiteCaptures,
+            blackTime: this.blackTime,
+            whiteTime: this.whiteTime,
+            komi: this.komi,
+            savedAt: Date.now(),
+            isGameOver: this.isGameOver,
+            result: this.gameResult || null,
+            aiLevel: this.aiLevel,
+          };
 
-      endGame(reason) {
-        this.isGameOver = true;
-        this.pauseTimer();
-
-        const score = this.game.calculateScore(this.komi);
-        let resultText = '';
-        if (score.winner === 'black') {
-          resultText = `黑棋胜 ${score.margin.toFixed(1)} 目`;
-        } else if (score.winner === 'white') {
-          resultText = `白棋胜 ${score.margin.toFixed(1)} 目`;
-        } else {
-          resultText = '和棋';
+          Storage.saveGame(gameData);
+          showToast('对局已保存', 'success');
         }
 
-        this.gameResult = {
-          reason: reason,
-          winner: score.winner,
-          margin: score.margin,
-          blackScore: score.black,
-          whiteScore: score.white
-        };
+        handleScore() {
+          if (this.moveHistory.length === 0) {
+            showToast('还没有落子，无法数棋', 'warning');
+            return;
+          }
 
-        showToast(`${reason}\n${resultText}`, 'success');
-        this.updateUI();
-        this.handleSave();
-      }
-
-      startTimer() {
-        this.timerInterval = setInterval(() => {
-          if (this.isPaused || this.isGameOver) {return;}
-
-          if (this.game.currentPlayer === 1) {
-            this.blackTime++;
+          const score = this.game.calculateScore(this.komi);
+          let resultText = '';
+          if (score.winner === 'black') {
+            resultText = `黑棋胜 ${score.margin.toFixed(1)} 目`;
+          } else if (score.winner === 'white') {
+            resultText = `白棋胜 ${score.margin.toFixed(1)} 目`;
           } else {
-            this.whiteTime++;
+            resultText = '和棋';
           }
+
+          showToast(`数棋结果：${resultText}`, 'info');
+        }
+
+        endGame(reason) {
+          this.isGameOver = true;
+          this.pauseTimer();
+
+          const score = this.game.calculateScore(this.komi);
+          let resultText = '';
+          if (score.winner === 'black') {
+            resultText = `黑棋胜 ${score.margin.toFixed(1)} 目`;
+          } else if (score.winner === 'white') {
+            resultText = `白棋胜 ${score.margin.toFixed(1)} 目`;
+          } else {
+            resultText = '和棋';
+          }
+
+          this.gameResult = {
+            reason: reason,
+            winner: score.winner,
+            margin: score.margin,
+            blackScore: score.black,
+            whiteScore: score.white,
+          };
+
+          showToast(`${reason}\n${resultText}`, 'success');
+          this.updateUI();
+          this.handleSave();
+        }
+
+        startTimer() {
+          this.timerInterval = setInterval(() => {
+            if (this.isPaused || this.isGameOver) {
+              return;
+            }
+
+            if (this.game.currentPlayer === 1) {
+              this.blackTime++;
+            } else {
+              this.whiteTime++;
+            }
+
+            this.updateTimerDisplay();
+          }, 1000);
+        }
+
+        pauseTimer() {
+          this.isPaused = true;
+          if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+          }
+        }
+
+        updateTimerDisplay() {
+          const blackMins = Math.floor(this.blackTime / 60);
+          const blackSecs = this.blackTime % 60;
+          document.getElementById('blackTimer').textContent =
+            `${String(blackMins).padStart(2, '0')}:${String(blackSecs).padStart(2, '0')}`;
+
+          const whiteMins = Math.floor(this.whiteTime / 60);
+          const whiteSecs = this.whiteTime % 60;
+          document.getElementById('whiteTimer').textContent =
+            `${String(whiteMins).padStart(2, '0')}:${String(whiteSecs).padStart(2, '0')}`;
+
+          const totalTime = this.blackTime + this.whiteTime;
+          const totalMins = Math.floor(totalTime / 60);
+          const totalSecs = totalTime % 60;
+          document.getElementById('gameTimer').textContent =
+            `${String(totalMins).padStart(2, '0')}:${String(totalSecs).padStart(2, '0')}`;
+        }
+
+        updateUI() {
+          const currentPlayer = this.game.currentPlayer;
+          document.getElementById('currentTurn').textContent =
+            currentPlayer === 1 ? '黑棋' : '白棋';
+          document.getElementById('currentTurn').className =
+            `status-value ${currentPlayer === 1 ? 'black' : 'white'}`;
+
+          document.getElementById('blackTurn').style.display =
+            currentPlayer === 1 ? 'inline' : 'none';
+          document.getElementById('whiteTurn').style.display =
+            currentPlayer === 2 ? 'inline' : 'none';
+
+          document.getElementById('captures').textContent =
+            `黑: ${this.blackCaptures} | 白: ${this.whiteCaptures}`;
+          document.getElementById('moveCount').textContent = `${this.moveHistory.length}手`;
+
+          document.getElementById('undoBtn').disabled =
+            this.moveHistory.length === 0 || this.isGameOver || this.isAIThinking;
+          document.getElementById('passBtn').disabled = this.isGameOver || this.isAIThinking;
+          const pauseBtn = document.getElementById('pauseBtn');
+          if (pauseBtn) {
+            pauseBtn.disabled = this.isGameOver || this.isAIThinking;
+          }
+          document.getElementById('scoreBtn').disabled = this.moveHistory.length === 0;
 
           this.updateTimerDisplay();
-        }, 1000);
-      }
-
-      pauseTimer() {
-        this.isPaused = true;
-        if (this.timerInterval) {
-          clearInterval(this.timerInterval);
-          this.timerInterval = null;
         }
-      }
 
-      updateTimerDisplay() {
-        const blackMins = Math.floor(this.blackTime / 60);
-        const blackSecs = this.blackTime % 60;
-        document.getElementById('blackTimer').textContent =
-          `${String(blackMins).padStart(2, '0')}:${String(blackSecs).padStart(2, '0')}`;
+        renderMoveList() {
+          const list = document.getElementById('moveList');
+          list.innerHTML = '';
 
-        const whiteMins = Math.floor(this.whiteTime / 60);
-        const whiteSecs = this.whiteTime % 60;
-        document.getElementById('whiteTimer').textContent =
-          `${String(whiteMins).padStart(2, '0')}:${String(whiteSecs).padStart(2, '0')}`;
+          this.moveHistory.forEach((move, index) => {
+            const item = document.createElement('div');
+            item.className = 'move-item';
+            item.dataset.index = index;
 
-        const totalTime = this.blackTime + this.whiteTime;
-        const totalMins = Math.floor(totalTime / 60);
-        const totalSecs = totalTime % 60;
-        document.getElementById('gameTimer').textContent =
-          `${String(totalMins).padStart(2, '0')}:${String(totalSecs).padStart(2, '0')}`;
-      }
+            const num = document.createElement('span');
+            num.className = 'move-item-num';
+            num.textContent = index + 1;
 
-      updateUI() {
-        const currentPlayer = this.game.currentPlayer;
-        document.getElementById('currentTurn').textContent = currentPlayer === 1 ? '黑棋' : '白棋';
-        document.getElementById('currentTurn').className = `status-value ${currentPlayer === 1 ? 'black' : 'white'}`;
+            const stone = document.createElement('span');
+            stone.className = `move-item-stone ${move.player === 1 ? 'black' : 'white'}`;
 
-        document.getElementById('blackTurn').style.display = currentPlayer === 1 ? 'inline' : 'none';
-        document.getElementById('whiteTurn').style.display = currentPlayer === 2 ? 'inline' : 'none';
+            const coord = document.createElement('span');
+            coord.className = 'move-item-coord';
+            if (move.isPass) {
+              coord.textContent = '停一手';
+            } else {
+              coord.textContent = `${this.letters[move.x]}${this.game.size - move.y}`;
+            }
 
-        document.getElementById('captures').textContent = `黑: ${this.blackCaptures} | 白: ${this.whiteCaptures}`;
-        document.getElementById('moveCount').textContent = `${this.moveHistory.length}手`;
+            item.appendChild(num);
+            item.appendChild(stone);
+            item.appendChild(coord);
 
-        document.getElementById('undoBtn').disabled = this.moveHistory.length === 0 || this.isGameOver || this.isAIThinking;
-        document.getElementById('passBtn').disabled = this.isGameOver || this.isAIThinking;
-        const pauseBtn = document.getElementById('pauseBtn');
-        if (pauseBtn) {pauseBtn.disabled = this.isGameOver || this.isAIThinking;}
-        document.getElementById('scoreBtn').disabled = this.moveHistory.length === 0;
+            item.addEventListener('click', () => {
+              this.goToMove(index);
+            });
 
-        this.updateTimerDisplay();
-      }
-
-      renderMoveList() {
-        const list = document.getElementById('moveList');
-        list.innerHTML = '';
-
-        this.moveHistory.forEach((move, index) => {
-          const item = document.createElement('div');
-          item.className = 'move-item';
-          item.dataset.index = index;
-
-          const num = document.createElement('span');
-          num.className = 'move-item-num';
-          num.textContent = index + 1;
-
-          const stone = document.createElement('span');
-          stone.className = `move-item-stone ${move.player === 1 ? 'black' : 'white'}`;
-
-          const coord = document.createElement('span');
-          coord.className = 'move-item-coord';
-          if (move.isPass) {
-            coord.textContent = '停一手';
-          } else {
-            coord.textContent = `${this.letters[move.x]}${this.game.size - move.y}`;
-          }
-
-          item.appendChild(num);
-          item.appendChild(stone);
-          item.appendChild(coord);
-
-          item.addEventListener('click', () => {
-            this.goToMove(index);
+            list.appendChild(item);
           });
 
-          list.appendChild(item);
-        });
+          list.scrollTop = list.scrollHeight;
+        }
 
-        list.scrollTop = list.scrollHeight;
-      }
+        goToMove(index) {
+          if (index < 0 || index >= this.moveHistory.length) {
+            return;
+          }
 
-      goToMove(index) {
-        if (index < 0 || index >= this.moveHistory.length) {return;}
+          this.game = new GoGame(this.game.size);
+          this.blackCaptures = 0;
+          this.whiteCaptures = 0;
 
-        this.game = new GoGame(this.game.size);
-        this.blackCaptures = 0;
-        this.whiteCaptures = 0;
-
-        for (let i = 0; i <= index; i++) {
-          const move = this.moveHistory[i];
-          if (!move.isPass) {
-            const result = this.game.makeMove(move.x, move.y);
-            if (result.captures) {
-              if (move.player === 1) {
-                this.blackCaptures += result.captures.length;
-              } else {
-                this.whiteCaptures += result.captures.length;
+          for (let i = 0; i <= index; i++) {
+            const move = this.moveHistory[i];
+            if (!move.isPass) {
+              const result = this.game.makeMove(move.x, move.y);
+              if (result.captures) {
+                if (move.player === 1) {
+                  this.blackCaptures += result.captures.length;
+                } else {
+                  this.whiteCaptures += result.captures.length;
+                }
               }
             }
           }
-        }
 
-        this.currentMove = index;
-        this.updateBoard();
-        this.updateUI();
+          this.currentMove = index;
+          this.updateBoard();
+          this.updateUI();
 
-        document.querySelectorAll('.move-item').forEach((item, i) => {
-          item.classList.toggle('active', i === index);
-        });
-      }
-
-      bindEvents() {
-        const goban = document.getElementById('goban');
-        const boardWrapper = document.querySelector('.board-wrapper');
-
-        // 手势支持
-        let scale = 1;
-        let translateX = 0;
-        let translateY = 0;
-        let isGesturing = false;
-        let lastTouchDistance = 0;
-        let lastTouchCenter = { x: 0, y: 0 };
-
-        if (boardWrapper) {
-          boardWrapper.style.overflow = 'hidden';
-          boardWrapper.style.touchAction = 'none';
-          goban.style.transformOrigin = 'center center';
-          goban.style.transition = 'transform 0.1s ease-out';
-
-          const getTouchDistance = (touches) => {
-            const dx = touches[0].clientX - touches[1].clientX;
-            const dy = touches[0].clientY - touches[1].clientY;
-            return Math.sqrt(dx * dx + dy * dy);
-          };
-
-          const getTouchCenter = (touches) => ({
-            x: (touches[0].clientX + touches[1].clientX) / 2,
-            y: (touches[0].clientY + touches[1].clientY) / 2
-          });
-
-          const constrainTranslation = () => {
-            const rect = boardWrapper.getBoundingClientRect();
-            const scaledWidth = rect.width * scale;
-            const scaledHeight = rect.height * scale;
-            const maxTranslateX = Math.max(0, (scaledWidth - rect.width) / 2);
-            const maxTranslateY = Math.max(0, (scaledHeight - rect.height) / 2);
-            translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
-            translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
-          };
-
-          const applyTransform = () => {
-            goban.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-          };
-
-          boardWrapper.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2) {
-              isGesturing = true;
-              lastTouchDistance = getTouchDistance(e.touches);
-              lastTouchCenter = getTouchCenter(e.touches);
-              e.preventDefault();
-            } else if (e.touches.length === 1 && scale > 1) {
-              lastTouchCenter = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            }
-          }, { passive: false });
-
-          boardWrapper.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2) {
-              e.preventDefault();
-              const distance = getTouchDistance(e.touches);
-              const scaleDelta = distance / lastTouchDistance;
-              scale = Math.max(1, Math.min(3, scale * scaleDelta));
-              applyTransform();
-              lastTouchDistance = distance;
-            } else if (e.touches.length === 1 && scale > 1) {
-              e.preventDefault();
-              const touch = e.touches[0];
-              translateX += touch.clientX - lastTouchCenter.x;
-              translateY += touch.clientY - lastTouchCenter.y;
-              constrainTranslation();
-              applyTransform();
-              lastTouchCenter = { x: touch.clientX, y: touch.clientY };
-            }
-          }, { passive: false });
-
-          boardWrapper.addEventListener('touchend', (e) => {
-            if (e.touches.length < 2) {
-              setTimeout(() => { isGesturing = false; }, 100);
-            }
-            if (e.touches.length === 0 && scale <= 1.05) {
-              scale = 1; translateX = 0; translateY = 0;
-              applyTransform();
-            }
-          });
-
-          boardWrapper.addEventListener('dblclick', () => {
-            scale = 1; translateX = 0; translateY = 0;
-            applyTransform();
+          document.querySelectorAll('.move-item').forEach((item, i) => {
+            item.classList.toggle('active', i === index);
           });
         }
 
-        goban.addEventListener('click', (e) => {
-          if (isGesturing) return;
-          const intersection = e.target.closest('.intersection');
-          if (intersection) {
-            const x = parseInt(intersection.dataset.x);
-            const y = parseInt(intersection.dataset.y);
-            this.handleClick(x, y);
-          }
-        });
+        bindEvents() {
+          document.getElementById('undoBtn').addEventListener('click', () => this.handleUndo());
+          document.getElementById('passBtn').addEventListener('click', () => this.handlePass());
+          document.getElementById('pauseBtn').addEventListener('click', () => this.handlePause());
+          document.getElementById('saveBtn').addEventListener('click', () => this.handleSave());
+          document.getElementById('scoreBtn').addEventListener('click', () => this.handleScore());
 
-        document.getElementById('undoBtn').addEventListener('click', () => this.handleUndo());
-        document.getElementById('passBtn').addEventListener('click', () => this.handlePass());
-        document.getElementById('pauseBtn').addEventListener('click', () => this.handlePause());
-        document.getElementById('saveBtn').addEventListener('click', () => this.handleSave());
-        document.getElementById('scoreBtn').addEventListener('click', () => this.handleScore());
+          document.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+              return;
+            }
 
-        document.addEventListener('keydown', (e) => {
-          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {return;}
-
-          switch (e.key) {
-            case 'z':
-              if (e.ctrlKey || e.metaKey) {
+            switch (e.key) {
+              case 'z':
+                if (e.ctrlKey || e.metaKey) {
+                  e.preventDefault();
+                  this.handleUndo();
+                }
+                break;
+              case 'p':
                 e.preventDefault();
-                this.handleUndo();
-              }
-              break;
-            case 'p':
-              e.preventDefault();
-              this.handlePass();
-              break;
-            case 's':
-              if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                this.handleSave();
-              }
-              break;
-          }
-        });
+                this.handlePass();
+                break;
+              case 's':
+                if (e.ctrlKey || e.metaKey) {
+                  e.preventDefault();
+                  this.handleSave();
+                }
+                break;
+            }
+          });
+        }
       }
-    }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      new AIMatchApp();
-    });
-  </script>
-</body>
+      document.addEventListener('DOMContentLoaded', () => {
+        new AIMatchApp();
+      });
+    </script>
+  </body>
 </html>
