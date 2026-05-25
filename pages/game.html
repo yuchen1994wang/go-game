@@ -34,12 +34,12 @@
     .board-grid { position: absolute; top: 0; left: 0; pointer-events: none; }
     .grid-line { stroke: var(--line-color); stroke-width: 1; opacity: 0.7; }
     .star-point { fill: var(--line-color); }
-    .board-coords { position: absolute; display: flex; justify-content: space-between; pointer-events: none; }
-    .coord-label { font-size: 10px; color: var(--line-color); font-family: 'JetBrains Mono', monospace; text-align: center; }
-    .coord-top { top: -20px; left: 30px; right: 30px; }
-    .coord-bottom { bottom: -20px; left: 30px; right: 30px; }
-    .coord-left { left: -20px; top: 30px; bottom: 30px; flex-direction: column; }
-    .coord-right { right: -20px; top: 30px; bottom: 30px; flex-direction: column; }
+    .board-coords { position: absolute; pointer-events: none; }
+    .coord-label { position: absolute; font-size: 11px; color: var(--line-color); font-family: 'JetBrains Mono', monospace; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+    .coord-top { top: -24px; left: 0; width: 100%; height: 20px; }
+    .coord-bottom { bottom: -24px; left: 0; width: 100%; height: 20px; }
+    .coord-left { left: -24px; top: 0; width: 20px; height: 100%; }
+    .coord-right { right: -24px; top: 0; width: 20px; height: 100%; }
     .intersection { position: absolute; width: 40px; height: 40px; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; z-index: 10; }
     .intersection:hover::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(102, 126, 234, 0.3); pointer-events: none; }
     .stone { width: 36px; height: 36px; border-radius: 50%; position: absolute; transform: scale(0); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 20; }
@@ -419,6 +419,9 @@
         const goban = document.getElementById('goban');
         const size = this.game.size;
 
+        // 清除旧坐标
+        goban.querySelectorAll('.board-coords').forEach(el => el.remove());
+
         const topCoords = document.createElement('div');
         topCoords.className = 'board-coords coord-top';
         for (let i = 0; i < size; i++) {
@@ -426,6 +429,7 @@
           label.className = 'coord-label';
           label.textContent = this.letters[i] || '';
           label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
+          label.style.top = '0px';
           topCoords.appendChild(label);
         }
         goban.appendChild(topCoords);
@@ -437,6 +441,7 @@
           label.className = 'coord-label';
           label.textContent = this.letters[i] || '';
           label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
+          label.style.top = '0px';
           bottomCoords.appendChild(label);
         }
         goban.appendChild(bottomCoords);
@@ -448,6 +453,7 @@
           label.className = 'coord-label';
           label.textContent = size - i;
           label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
+          label.style.left = '0px';
           leftCoords.appendChild(label);
         }
         goban.appendChild(leftCoords);
@@ -459,6 +465,7 @@
           label.className = 'coord-label';
           label.textContent = size - i;
           label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
+          label.style.left = '0px';
           rightCoords.appendChild(label);
         }
         goban.appendChild(rightCoords);
@@ -530,7 +537,7 @@
           }
         }
 
-        this.moveHistory.push({ x, y, player: this.game.currentPlayer === 2 ? 1 : 2, captures: result.captures || [] });
+        this.moveHistory.push({ x, y, player: this.game.currentPlayer === 2 ? 1 : 2, captures: result.captures.map(c => [c.x, c.y]) || [] });
         this.currentMove = this.moveHistory.length - 1;
         this.consecutivePasses = 0;
 

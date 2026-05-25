@@ -33,6 +33,12 @@
     .board-wrapper { position: relative; background: linear-gradient(145deg, var(--board-wood-light) 0%, var(--board-wood) 50%, var(--board-dark) 100%); border-radius: 8px; padding: 30px; box-shadow: var(--shadow-medium); }
     .goban { position: relative; background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%); border-radius: 4px; overflow: visible; }
     .board-grid { position: absolute; top: 0; left: 0; pointer-events: none; }
+    .board-coords { position: absolute; pointer-events: none; }
+    .coord-label { position: absolute; font-size: 11px; color: var(--line-color); font-family: 'JetBrains Mono', monospace; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+    .coord-top { top: -24px; left: 0; width: 100%; height: 20px; }
+    .coord-bottom { bottom: -24px; left: 0; width: 100%; height: 20px; }
+    .coord-left { left: -24px; top: 0; width: 20px; height: 100%; }
+    .coord-right { right: -24px; top: 0; width: 20px; height: 100%; }
     .grid-line { stroke: var(--line-color); stroke-width: 1; opacity: 0.7; }
     .star-point { fill: var(--line-color); }
     .intersection { position: absolute; width: 40px; height: 40px; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; z-index: 10; }
@@ -408,6 +414,9 @@
         const goban = document.getElementById('goban');
         const size = this.game.size;
 
+        // 清除旧坐标
+        goban.querySelectorAll('.board-coords').forEach(el => el.remove());
+
         const topCoords = document.createElement('div');
         topCoords.className = 'board-coords coord-top';
         for (let i = 0; i < size; i++) {
@@ -415,6 +424,7 @@
           label.className = 'coord-label';
           label.textContent = this.letters[i] || '';
           label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
+          label.style.top = '0px';
           topCoords.appendChild(label);
         }
         goban.appendChild(topCoords);
@@ -426,6 +436,7 @@
           label.className = 'coord-label';
           label.textContent = this.letters[i] || '';
           label.style.left = `${this.boardPadding + i * this.cellSize - 10}px`;
+          label.style.top = '0px';
           bottomCoords.appendChild(label);
         }
         goban.appendChild(bottomCoords);
@@ -437,6 +448,7 @@
           label.className = 'coord-label';
           label.textContent = size - i;
           label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
+          label.style.left = '0px';
           leftCoords.appendChild(label);
         }
         goban.appendChild(leftCoords);
@@ -448,6 +460,7 @@
           label.className = 'coord-label';
           label.textContent = size - i;
           label.style.top = `${this.boardPadding + i * this.cellSize - 10}px`;
+          label.style.left = '0px';
           rightCoords.appendChild(label);
         }
         goban.appendChild(rightCoords);
