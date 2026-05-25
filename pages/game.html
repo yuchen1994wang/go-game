@@ -537,7 +537,7 @@
           }
         }
 
-        this.moveHistory.push({ x, y, player: this.game.currentPlayer === 2 ? 1 : 2, captures: result.captures.map(c => [c.x, c.y]) || [] });
+        this.moveHistory.push({ x, y, player: this.game.currentPlayer === 2 ? 1 : 2, captures: result.captures || [] });
         this.currentMove = this.moveHistory.length - 1;
         this.consecutivePasses = 0;
 
