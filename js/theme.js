@@ -205,9 +205,11 @@ const ThemeManager = {
 const SoundManager = {
   audioContext: null,
   enabled: true,
+  volume: 0.5,
 
   init() {
     this.enabled = ThemeManager.isSoundEnabled();
+    this.volume = parseFloat(localStorage.getItem('go_sound_volume')) || 0.5;
   },
 
   isEnabled() {
@@ -219,40 +221,169 @@ const SoundManager = {
     ThemeManager.setSoundEnabled(this.enabled);
   },
 
+  getVolume() {
+    return this.volume;
+  },
+
+  setVolume(vol) {
+    this.volume = Math.max(0, Math.min(1, vol));
+    localStorage.setItem('go_sound_volume', this.volume);
+  },
+
+  // 落子音效 - 模拟石头落在棋盘上的声音
   playStone() {
-    if (!this.enabled) {return;}
-    this.playTone(800, 0.1);
-  },
-
-  playCapture() {
-    if (!this.enabled) {return;}
-    this.playTone(400, 0.15);
-  },
-
-  playVictory() {
-    if (!this.enabled) {return;}
-    this.playTone(1000, 0.3);
-    setTimeout(() => this.playTone(1200, 0.3), 150);
-  },
-
-  playTone(frequency, duration) {
+    if (!this.enabled) return;
+    this.ensureAudioContext();
     try {
-      if (!this.audioContext) {
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      const oscillator = this.audioContext.createOscillator();
-      const gainNode = this.audioContext.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(this.audioContext.destination);
-      oscillator.frequency.value = frequency;
-      oscillator.type = 'sine';
-      gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
-      oscillator.start(this.audioContext.currentTime);
-      oscillator.stop(this.audioContext.currentTime + duration);
+      const t = this.audioContext.currentTime;
+      // 主音 - 短促的木头敲击声
+      this.playWoodSound(600, 0.08, 0.4, t);
+      // 高频泛音 - 石头的清脆感
+      this.playWoodSound(1200, 0.05, 0.15, t + 0.005);
+      // 低频共鸣
+      this.playWoodSound(200, 0.12, 0.2, t);
     } catch (e) {
-      console.warn('Audio playback failed:', e);
+      console.warn('Stone sound failed:', e);
     }
+  },
+
+  // 提子音效 - 多个棋子被提走的声音
+  playCapture(count = 1) {
+    if (!this.enabled) return;
+    this.ensureAudioContext();
+    try {
+      const t = this.audioContext.currentTime;
+      // 主要音效 - 较深的木头声
+      this.playWoodSound(350, 0.15, 0.5, t);
+      // 多个棋子碰撞的叠加
+      for (let i = 0; i < Math.min(count, 5); i++) {
+        const delay = i * 0.03;
+        this.playWoodSound(500 + i * 100, 0.06, 0.2, t + delay);
+      }
+    } catch (e) {
+      console.warn('Capture sound failed:', e);
+    }
+  },
+
+  // 胜利音效 - 欢快的和弦
+  playVictory() {
+    if (!this.enabled) return;
+    this.ensureAudioContext();
+    try {
+      const t = this.audioContext.currentTime;
+      // 大三和弦上行
+      this.playTone(523.25, 0.3, 0.4, t); // C5
+      this.playTone(659.25, 0.3, 0.4, t + 0.1); // E5
+      this.playTone(783.99, 0.4, 0.5, t + 0.2); // G5
+      this.playTone(1046.50, 0.6, 0.6, t + 0.3); // C6
+    } catch (e) {
+      console.warn('Victory sound failed:', e);
+    }
+  },
+
+  // 失败音效 - 低沉的下行
+  playDefeat() {
+    if (!this.enabled) return;
+    this.ensureAudioContext();
+    try {
+      const t = this.audioContext.currentTime;
+      this.playTone(392.00, 0.4, 0.4, t); // G4
+      this.playTone(349.23, 0.4, 0.4, t + 0.15); // F4
+      this.playTone(329.63, 0.5, 0.4, t + 0.3); // E4
+      this.playTone(293.66, 0.6, 0.5, t + 0.45); // D4
+    } catch (e) {
+      console.warn('Defeat sound failed:', e);
+    }
+  },
+
+  // 过音效 - 轻微的风声
+  playPass() {
+    if (!this.enabled) return;
+    this.ensureAudioContext();
+    try {
+      const t = this.audioContext.currentTime;
+      this.playNoise(0.3, 0.15, t);
+    } catch (e) {
+      console.warn('Pass sound failed:', e);
+    }
+  },
+
+  // 悔棋音效 - 撤销的声音
+  playUndo() {
+    if (!this.enabled) return;
+    this.ensureAudioContext();
+    try {
+      const t = this.audioContext.currentTime;
+      this.playTone(440, 0.1, 0.2, t);
+      this.playTone(330, 0.15, 0.2, t + 0.08);
+    } catch (e) {
+      console.warn('Undo sound failed:', e);
+    }
+  },
+
+  // 内部方法：确保 AudioContext 已创建
+  ensureAudioContext() {
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (this.audioContext.state === 'suspended') {
+      this.audioContext.resume();
+    }
+  },
+
+  // 内部方法：播放纯音
+  playTone(frequency, duration, gain, startTime) {
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    const vol = gain * this.volume;
+    gainNode.gain.setValueAtTime(vol, startTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration);
+  },
+
+  // 内部方法：播放木头/石头碰撞声
+  playWoodSound(frequency, duration, gain, startTime) {
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+    oscillator.frequency.value = frequency;
+    // 使用三角波更接近木头敲击声
+    oscillator.type = 'triangle';
+    const vol = gain * this.volume;
+    gainNode.gain.setValueAtTime(vol, startTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration);
+  },
+
+  // 内部方法：播放白噪声（用于过等柔和音效）
+  playNoise(duration, gain, startTime) {
+    const bufferSize = this.audioContext.sampleRate * duration;
+    const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noise = this.audioContext.createBufferSource();
+    noise.buffer = buffer;
+    const gainNode = this.audioContext.createGain();
+    const filter = this.audioContext.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 1000;
+    noise.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+    const vol = gain * this.volume;
+    gainNode.gain.setValueAtTime(vol, startTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+    noise.start(startTime);
+    noise.stop(startTime + duration);
   }
 };
 

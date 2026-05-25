@@ -152,6 +152,14 @@ class Header {
                   <input type="checkbox" id="soundToggle" class="toggle-checkbox">
                   <label for="soundToggle" class="toggle-slider"></label>
                 </div>
+                <div class="toggle-item" id="volumeControl" style="display: none;">
+                  <label class="toggle-label">
+                    <span>🔉 音量</span>
+                    <span class="toggle-desc">调节音效大小</span>
+                  </label>
+                  <input type="range" id="volumeSlider" min="0" max="100" value="50" style="width: 100px;">
+                  <span id="volumeValue" style="font-size: 0.8rem; color: var(--text-secondary);">50%</span>
+                </div>
                 <div class="toggle-item">
                   <label class="toggle-label">
                     <span>✨ 动画</span>
@@ -302,12 +310,32 @@ class Header {
 
     // 音效开关
     const soundToggle = document.getElementById('soundToggle');
+    const volumeControl = document.getElementById('volumeControl');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeValue = document.getElementById('volumeValue');
+
     if (soundToggle) {
       soundToggle.addEventListener('change', () => {
         const enabled = soundToggle.checked;
         SoundManager.enabled = enabled;
         ThemeManager.setSoundEnabled(enabled);
+        if (volumeControl) {
+          volumeControl.style.display = enabled ? 'flex' : 'none';
+        }
         showToast(enabled ? '音效已开启' : '音效已关闭', 'info');
+        if (enabled) {
+          SoundManager.playStone();
+        }
+      });
+    }
+
+    if (volumeSlider) {
+      volumeSlider.addEventListener('input', () => {
+        const vol = volumeSlider.value / 100;
+        SoundManager.setVolume(vol);
+        if (volumeValue) {
+          volumeValue.textContent = volumeSlider.value + '%';
+        }
       });
     }
 
@@ -466,6 +494,7 @@ class Header {
           localStorage.removeItem('go_stone_style');
           localStorage.removeItem('go_sound_enabled');
           localStorage.removeItem('go_animation_enabled');
+          localStorage.removeItem('go_sound_volume');
           if (typeof window.refreshHistory === 'function') {window.refreshHistory();}
           hideModal();
           window.location.reload();
@@ -481,12 +510,28 @@ class Header {
     // 更新设置模态框的 UI
     this.updateThemeOptionsUI();
     this.updateStoneOptionsUI();
-    
+
     const soundToggle = document.getElementById('soundToggle');
+    const volumeControl = document.getElementById('volumeControl');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeValue = document.getElementById('volumeValue');
+
     if (soundToggle) {
       soundToggle.checked = SoundManager.isEnabled();
     }
-    
+
+    if (volumeControl) {
+      volumeControl.style.display = SoundManager.isEnabled() ? 'flex' : 'none';
+    }
+
+    if (volumeSlider) {
+      const vol = Math.round(SoundManager.getVolume() * 100);
+      volumeSlider.value = vol;
+      if (volumeValue) {
+        volumeValue.textContent = vol + '%';
+      }
+    }
+
     const animationToggle = document.getElementById('animationToggle');
     if (animationToggle) {
       animationToggle.checked = ThemeManager.isAnimationEnabled();
